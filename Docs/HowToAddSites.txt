@@ -1,0 +1,71 @@
+Everything relating to adding sites is now in the files 'servicetypes.c' and 'servicetypes.h'.
+
+servicetypes.h contains an enumerated type of values that defines a TYPE_ for each download type. You must add a TYPE_ to this too.
+
+Everything else is in 'servicetypes.c'. Near the top of this file are 3 arrays of strings:
+
+DownloadTypes
+DownloadNames
+TestLinks
+
+When you add a site, you add an entry to each of these. A 'type code' that is used to select it from the command line with the -t option, a longer 'DownloadName' for the download type/website and a link to a video page that can be used to test if this download method is working. All three must be added to the same place in their respective arrays, so if you insert a new download type as the tenth type, then it's entries must be at position ten in all these arrays.
+
+
+Now find a function called 'ExtractItemInfo'. It contains a massive switch statement, with an entry for each of the download TYPE_ values. Most have a format like this:
+
+case TYPE_MYVIDEO:
+#define MYVIDEO_URL_START "link rel='image_src' href='"
+#define MYVIDEO_URL_END "/thumbs"
+#define MYVIDEO_VIDID_END "_"
+
+if (strstr(Tempstr,MYVIDEO_URL_START))
+{
+                ptr=GenericExtractFromLine(Tempstr, "MyVidURL",MYVIDEO_URL_START,MYVIDEO_URL_END,Vars,EXTRACT_DEQUOTE
+ | EXTRACT_NOSPACES);
+                ptr=GenericExtractFromLine(ptr, "item:flv","/",MYVIDEO_VIDID_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPA
+CES);
+}
+
+
+if (strstr(Tempstr,GENERIC_TITLE_START))
+{
+                GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
+}
+break;
+
+
+They call the function 'GenericExtractFromLine' to clip out bits of text. These are then added to the variable list 'Vars' with the name given as the second argument. These variables can then be accessed from the list with 'GetVar' or with 'SubstituteVarsInString'. GenericExtractFromLine is normally used to clip serveral values from a webpage, that can be used in the actual download later.
+
+The 'Title' variable is generally used to name the downloaded file. The 'item' variables contain the final download url for the movie. The following 'item' variables can exist. 'item:flv', 'item:mp4', 'item:mov', 'item:mpg', 'item:wmv', 'item:w4a', 'item:avi', 'item:3gp' 'item:mp3', 'item:m4a'. There is also the special value 'item:reference', which is used to tell the system not to download the link as a video, but rather to get it as a webpage, and go through the process of ExtractItemInfo again. 
+
+Other variables have meaning on a download-type by download-type basis.
+
+After 'ExtractItemInfo' has done its thing we should have a list of Variables that are used in 'GetNextURL'. This function is another switch statement, containing entries of the form:
+
+case TYPE_MYVIDEO:
+        Tempstr=SubstituteVarsInString(Tempstr,"$(MyVidURL)/$(ID).flv",Vars,0);
+        RetVal=DownloadItem(Tempstr, Title,Post);
+break;
+
+
+The 'SubstituteVarsInString' fuction is used to construct a video URL from all the vars that were clipped out in 'ExtractItemInfo'. The 'ID' variable is a special case, it is the final selection from the 'item:' variables that were found on the website. Some websites might have many 'item' variables of different formats and video qualities, so we might have item:flv item:mp4 and item:wmv available for the same movie. The 'SelectDownloadFormat' function chooses one of these based on command-line options, and sets the 'ID' variable to have the same value. 
+
+'DownloadItem' is the final function that uses all this information to actually download the video.
+
+
+One last thing remains. With all this work done, movgrab should now be able to download from your website using:
+
+	movgrab -t <type> <url>
+
+However, it's a good idea to add an entry to 'IdentifyServiceType'. This function checks for strings in the video website URL to decide which type of download we're dealing with. It contains entries like:
+
+else if (strstr(Server,"myvideo"))
+{
+ Type=TYPE_MYVIDEO;
+}
+
+
+And with that added, movgrab should now be able to download videos just from the appropriate url.
+
+
+

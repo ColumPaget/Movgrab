@@ -1,0 +1,14 @@
+Movgrab currently supports http and ssltunnel proxys. These an either be set using the -p/-proxy command-line switches, or using the http_proxy and sshtunnel_proxy environment variables.
+
+proxy URLs have the form:
+
+	<type>://<username>:<password>@<host>:<port>
+
+If no authentication is needed to use the proxy then the '<username>:<password>@' section can be ommited. 
+
+'type' can be:
+	http				A standard http proxy
+	https				An http proxy that uses encrypted connections
+	ssltunnel 	An ssh server that supports connection forwarding
+
+All connections will then be forwarded through the proxy. 	

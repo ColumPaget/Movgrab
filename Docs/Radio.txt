@@ -1,0 +1,173 @@
+As some of the video download sites that movgrab accesses use the 'IPad Streaming' technique, which involves the use of the .m3u container file, I decided to include support for container files in movgrab.
+
+The main use for this is internet radio stations. These generally advertise themselves with a .m3u, .pls or .asx file, you download the file and within the file are details of where the radio stream can be found on the net.
+
+Media players like mplayer can generally handle such streams without any assistance, however some players have less support than others. Also I have found that even mplayer and mpg123 have trouble with some streams, for example: http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx
+
+Using movgrab's "-o -" flag to stream the download to stdout, and then piping it into the player allows these problems to be overcome. So:
+
+movgrab -o - 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' | mplayer - -cache 1024
+
+Will get you your dark trance fix even if mplayer balks at the .asx file. Recent versions of mplayer require a -cache argument to stream from stdin. Even with this argument they complain about the cache emptying, but if you use a -cache it will eventually start to play. 
+
+Similarly mpg123 can be used thusly
+
+movgrab -o - 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' | mpg123 -
+
+For ogg-vorbis streams there's "ogg123" which comes as part of the vorbis distrobution.
+
+Of course, movgrab can also write the stream to a file, 
+
+movgrab 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' -o darktrance.mp3
+
+Best of all, a flag in the form '+o <path>' can be used to output the stream to a second (or third, or forth...) file, allowing you to listen to the stream and record it, thusly
+
+movgrab 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' -o -  +o darktrance.mp3 | mpg123 -
+
+This both pipes it into 'mpg123' and writes it to 'darktrance.mp3'
+
+
+
+
+
+RADIO STATIONS:
+
+There's a Europe wide list at http://www.listenlive.eu/index.html
+
+Here are some of the highlights of it
+
+BBC world service. mpg123 doesn't seem to like this .pls, but movgrab can handle it and pipe the output into mpg123
+http://www.bbc.co.uk/worldservice/meta/tx/nb/live/eneuk.pls
+
+Chill - chillout/lounge
+http://media-ice.musicradio.com/ChillMP3.m3u
+
+Kerrang - Rock
+http://tx.whatson.com/icecast.php?i=kerrang.mp3.m3u
+
+Planet Rock - Rock
+http://sharpflow.sharp-stream.com:8000/planetrock.mp3.m3u
+
+Total Rock
+http://icecast.playlouder.com:8000/totalrock.m3u
+
+XFM - Rock and alternative
+http://media-ice.musicradio.com/XFMMP3.m3u
+
+Classic FM - Classical music
+http://www.classicfm.com/
+
+French Radio London
+http://icy-e-01.sharp-stream.com/frenchradiolon.mp3.m3u
+
+
+
+Trance/Dance Stations:
+
+ I've been listening to a lot of psy-trance recently (John OO Fleming's "Global Trance Grooves" podcast in particular) so there's a lot of these!
+
+
+ETN.fm 
+http://etn.fm/playlists/etn1-mp3-medium.m3u - trace programme
+http://etn.fm/playlists/etn2-mp3-medium.m3u - house programme
+
+Club Lounge, mostly nice, lazy trance
+http://www.club-lounge-radio.com/Club-Lounge-Radio.pls
+
+Schizoid Radio, Broadcasting out of india, have 4 nice channels
+http://schizoid.in/schizoid-chill.pls - Chillout
+http://schizoid.in/schizoid-prog.pls - Progressive Trance
+http://schizoid.in/schizoid-psy.pls - Psy-trance
+http://schizoid.in/schizoid-edm.pls - General electronic dance music
+
+French trance, more of a harder, techno sound
+http://www.paris-one.com/pls/radio_trance.pls
+
+Techno.fm
+http://techno.fm/m3u/techno.mp3.m3u - Techno programme
+http://techno.fm/m3u/trance.mp3.m3u - Trance programme
+
+Trance moon, dark psy-trance
+http://www.trancemoon.com/DARK.pls
+
+http://89.238.166.195:9162/listen.pls
+http://178.32.57.58:8382/listen.pls
+http://london02.discovertrance.com:80/listen.pls
+http://www.pulsradio.com/pls/pulsradio.pls
+http://files.hard.fm/128.pls
+
+Digitally Imported has a lot of channels for different types of electronic music
+
+Chiptunes, music made with old computers and gaming consoles. Whatever will they think of next?
+http://listen.di.fm/public3/chiptunes.pls
+
+Spacemusic channel, very, very dreamy ambient
+http://listen.di.fm/public3/spacemusic.pls
+
+Maybe a few more BPM than spacemusic, but not much
+http://listen.di.fm/public3/ambient.pls
+
+Not quite as drugged out as spacemusic, but still lazy
+http://listen.di.fm/public3/chillout.pls
+http://listen.di.fm/public3/chilloutdreams.pls
+
+#and a little more energetic
+http://listen.di.fm/public3/lounge.pls
+http://listen.di.fm/public3/soulfulhouse.pls
+
+#Sound of the early 90's
+http://listen.di.fm/public3/oldschoolhouse.pls
+
+Chillout with more of an edgy sound, more psychadelic, alien or computery
+http://listen.di.fm/public3/psychill.pls
+
+I still don't know what 'progressive' means here
+http://listen.di.fm/public3/progressive.pls
+
+#more vocals, more dancy
+http://listen.di.fm/public3/vocaltrance.pls
+http://listen.di.fm/public3/eurodance.pls
+http://listen.di.fm/public3/classiceurodance.pls
+http://listen.di.fm/public3/club.pls
+http://listen.di.fm/public3/house.pls
+http://listen.di.fm/public3/discohouse.pls
+http://listen.di.fm/public3/funkyhouse.pls
+
+Arrrrriba!!!
+http://listen.di.fm/public3/latinhouse.pls
+
+Here come the drums!
+http://listen.di.fm/public3/tribalhouse.pls
+
+Dance-oriented with lots of effects and samples
+http://listen.di.fm/public3/trance.pls
+http://listen.di.fm/public3/classictrance.pls
+http://listen.di.fm/public3/techno.pls
+http://listen.di.fm/public3/electro.pls
+http://listen.di.fm/public3/techhouse.pls
+http://listen.di.fm/public3/minimal.pls
+http://listen.di.fm/public3/classictechno.pls
+
+Up to fifth gear. High BPM sci-fi dance
+http://listen.di.fm/public3/goapsy.pls
+
+#beats a little too fast to dance to really
+http://listen.di.fm/public3/liquiddnb.pls
+http://listen.di.fm/public3/drumandbass.pls
+
+Breakbeat uses complex rhythmn arrangements
+http://listen.di.fm/public3/breaks.pls
+
+http://listen.di.fm/public3/futuresynthpop.pls
+
+Grimy, dark and mechanical, straight outta Croydon! 
+http://listen.di.fm/public3/dubstep.pls
+
+
+Insanely fast
+http://listen.di.fm/public3/hardcore.pls
+http://listen.di.fm/public3/harddance.pls
+
+Dance music for skinheads. Simply horrible.
+http://listen.di.fm/public3/gabber.pls
+http://listen.di.fm/public3/hardstyle.pls

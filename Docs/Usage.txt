@@ -1,0 +1,139 @@
+
+USAGE:
+Generally you need to get the url of the webpage that the video would normally appear on if it were playing in your browser. Here are some examples of what URLs might look like:
+
+Youtube: http://www.youtube.com/watch?v=oP59tQf_njc
+Daily Motion: http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news
+UCSD.tv: http://www.ucsd.tv/naturematters/desert/
+TED: http://www.ted.com/talks/john_gerzema_the_post_crisis_consumer.html
+
+So:
+
+movgrab 'http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news'
+
+Note the use of quotes (') is a good idea, as many urls have characters like '&' in them that will confuse the shell if they are not in quotes.
+
+'movgrab -?' or just 'movgrab' will print out a short usage instruction. 
+
+If you want to specify the file to save the move to, use '-o <filename>'.
+Using '-o -' will pump the movie data out of stdout, so you can feed it to another program, like this:
+
+movgrab -o -  http://www.youtube.com/watch?v=oP59tQf_njc | mplayer -
+
+But an even better solution is 
+
+movgrab -s  http://www.youtube.com/watch?v=oP59tQf_njc | mplayer -
+
+This will activate 'streaming mode' in which data is written to a file, and then written out of standard out. This handles 'pause' on mplayer better, movgrab will keep writing to the cache file, even downloading the whole movie while mplayer is paused, and then resuming transfer to mplayer when it is unpaused.
+
+movgrab -sc  http://www.youtube.com/watch?v=oP59tQf_njc | mplayer -
+
+This command works the same as the -s streaming command, except that the file will be kept after playing is finished (not deleted as with -s). If movgrab is asked to get the same file again, it will check in the current directory to see if a previous download exists, and replay that rather than downloading a fresh copy.
+
+-q will tell movgrab to be 'quiet', not to print out any information as it works.
+
+-b will tell movgrab to fork into the background so you can carry on using the console (implies -q too)
+
+-v increases the debugging level. Two -v will cause every webpage visited to be printed out for inspection. Three -v will cause some extra information about headers etc to be printed out.
+
+-p allows you to specify a proxy server in http://username:password@url:port format. So, something like 'movgrab -p http://guest:password@myproxy.com:8080 . 'Username', 'password' and 'port' are optional if there is no user logon and the port is 80.
+
+-x attempts to get around 'family filter' on some websites
+
+-P allows you to specify a 'Player program' (e.g. 'mplayer') to run when a certain percentage (default, 25%) of the file has been downloaded.
+
+-Pp allow you to set what percent of download to launch the 'Player program' at.
+
+
+In some cases websites have more than one format of a video on offer. In general movgrab tries to extract Flash video (flv) first. If you want a different format, you can first see what the website offers by doing this:
+
+movgrab -T http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news
+
+
+----- OUTPUT FROM MOVGRAB ------
+
+Formats available for this Movie: flv-h264:640x360 mp4:480x360 flv:400x240 
+
+TEST MODE: would have downloaded 'SPIN' url=http://v21.lscache1.c.youtube.com/videoplayback?sparams=id,expire,ip,ipbits,itag,algorithm,burst,factor&fexp=903903,910700&algorithm=throttle-factor&itag=18&ipbits=8&burst=40&sver=3&signature=6995A96BF52D06725F81299EC069F97E11FDED26.9403E631ABB0D480F9B1BDDF90B6333456D662C0&expire=1299823200&key=yt1&ip=82.0.0.0&factor=1.25&id=a0fe7db507ff9e37
+
+----- OUTPUT FROM MOVGRAB ------
+
+This tells you that you can specify 'flv' or 'flv-h264' or 'mp4' (movgrab will go with the first thing that matches, regardless of resolution) or to be more specific 'flv:400x240' or 'flv-h264:640x360', thusly:
+
+
+movgrab -f flv:80x60 http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news
+
+You can combine formats in preference lists like this:
+
+movgrab -f flv:320x240,flv-h264:512x384,flv,mp4,mov,wmv,mp3,m4a  http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news
+
+Note, no gaps between formats, use ',' as a separator
+
+'*' can be used to mean 'any format' (but don't forget to put quotes round the whole format list, or the shell will mess with it. 
+
+movgrab -f flv:320x240,flv,mp4,*  http://www.dailymotion.com/video/xbfxzk_making-friends-with-the-polar-bear_news
+
+The above line asks for 320x240 flv first, then flv, then mp4, then says 'anything you can get'.
+
+Some websites (currently only Berkeley) have many media files on one page. If you movgrab such a page, you will see:
+
+
+----- OUTPUT FROM MOVGRAB ------
+Multiple downloads exist on this page.
+Please select by using the command-line argument -n <num>
+        e.g. -n all
+             -n 0-4
+             -n 3-
+
+           0: .mp4  
+           1: .mp4  Lecture 2
+           2: .mp4  Lecture 3
+----- OUTPUT FROM MOVGRAB ------
+
+use of the -f flag can limit which downloads appear in this numeric list. Berkeley offers both .mp4 video and .m4a audio, which appear in the list as seperate programs. Ideally you want to use '-f' to select one or the other. Then you can use the -n flag to say:
+
+		-n all   Download all items in list
+		-n 2-6   Only items 2-6
+		-n 2-		 2 onwards
+		-n -4		 Up to item 4
+
+Changes made to websites frequently break the downloading systems, and other times websites are down or go out of business. In order to test which ones are working and which broken use 'movgrab -test-sites'. Currently it will produce output like:
+
+Checking youtube               okay
+Checking metacafe              BROKEN
+Checking dailymotion           okay
+Checking break                 okay
+Checking ehow                  BROKEN
+Checking vimeo                 BROKEN
+Checking almostkilled          okay
+Checking 5min                  okay
+Checking ign                   BROKEN
+Checking vbox7                 okay
+Checking blip.tv               okay
+Checking ted                   okay
+Checking myvideo               okay
+Checking clipshack             okay
+Checking mytopclip             okay
+Checking redbalcony            okay
+Checking mobango               okay
+Checking izlese                okay
+Checking izles                 BROKEN
+Checking berkeley              okay
+Checking yale                  okay
+Checking sdnhm                 okay
+Checking uchannel              BROKEN
+Checking princeton             BROKEN
+Checking uctv.tv               okay
+Checking reuters               okay
+Checking clipfish.de           okay
+Checking liveleak              okay
+Checking academicearth         okay
+Checking photobucket           okay
+Checking videoemo              okay
+Checking videosfacebook        BROKEN
+Checking aljazeera             okay
+Checking mefeedia              okay
+Checking myvido1               BROKEN
+Checking iviewtube             okay
+
+That's about it! Have fun!
