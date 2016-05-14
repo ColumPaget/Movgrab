@@ -72,14 +72,13 @@ if (StrLen(Title)) ptr=Title;
 else 
 {
 	Tempstr=CopyStr(Tempstr, URL);
-		//Assume the filename is the document part of the url
-		ptr=strrchr(Tempstr,'?');
-		if (ptr) *ptr='\0';
+	//Assume the filename is the document part of the url
+	ptr=strrchr(Tempstr,'?');
+	if (ptr) *ptr='\0';
 
-
-		ptr=strrchr(Tempstr,'/');
-		if (ptr) ptr++;
-		else ptr=Tempstr;
+	ptr=strrchr(Tempstr,'/');
+	if (ptr) ptr++;
+	else ptr=Tempstr;
 }
 
 RetStr=MakeFilesystemSafeName(RetStr, ptr);
@@ -123,8 +122,9 @@ if (strcmp(Path,"-")==0)
 }
 else
 {
-	S=STREAMOpenFile(Path,O_CREAT | O_RDWR);
-
+	S=STREAMOpenFile(Path, STREAM_CREAT | STREAM_RDWR);
+	if (S)
+	{
 	if (! STREAMLock(S,LOCK_EX|LOCK_NB)) 
 	{
 		if (! (Flags & FLAG_QUIET)) fprintf(stderr,"Already downloading this item!\n");
@@ -138,6 +138,7 @@ else
 		fstat(S->in_fd,&FStat);
 		*FileSize=(double) FStat.st_size;
 		STREAMSeek(S,0,SEEK_END);
+	}
 	}
 }
 
@@ -159,7 +160,7 @@ glob(Tempstr,0,0,&Glob);
 
 if (Glob.gl_pathc > 0)
 {
-S=STREAMOpenFile(Glob.gl_pathv[0],O_RDONLY);
+S=STREAMOpenFile(Glob.gl_pathv[0],STREAM_RDONLY);
 }
 
 globfree(&Glob);
@@ -178,7 +179,7 @@ void OpenOutputFiles(const char *Title, const char *URL, double *FileSize)
 char *Tempstr=NULL;
 ListNode *Curr;
 int val=0, Resume=FALSE;
-STREAM *S;
+STREAM *S=NULL;
 
 if ((Flags & FLAG_RESUME) && (ListSize(OutputFiles)==1)) Resume=TRUE;
 
@@ -188,7 +189,8 @@ while (Curr)
 	if (StrLen(Curr->Tag)==0) 
 	{
 		Tempstr=GetSaveFilePath(Tempstr, Title, URL);
-		Curr->Item=OpenSaveFile(Tempstr, FileSize, Resume);
+		S=OpenSaveFile(Tempstr, FileSize, Resume);
+		Curr->Item=S;
 	}
 	else if (strcmp(Curr->Tag,"-")==0) 
 	{
@@ -202,6 +204,18 @@ while (Curr)
 Curr=ListGetNext(Curr);
 }
 
+Curr=ListGetNext(OutputFiles);
+while (Curr)
+{
+if (Curr->Item) S=Curr->Item;
+Curr=ListGetNext(Curr);
+}
+
+if (! S)
+{
+	printf("ERROR: FAILED TO OPEN ANY OUTPUT FILES\n");
+	exit(1);
+}
 
 DestroyString(Tempstr);
 }
@@ -214,8 +228,8 @@ ListNode *Curr;
 Curr=ListGetNext(OutputFiles);
 while (Curr)
 {
-if (Curr->Item) STREAMWriteBytes((STREAM *) Curr->Item,Data,Len);
-Curr=ListGetNext(Curr);
+	if (Curr->Item) STREAMWriteBytes((STREAM *) Curr->Item,Data,Len);
+	Curr=ListGetNext(Curr);
 }
 }
 

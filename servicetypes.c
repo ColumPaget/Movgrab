@@ -63,7 +63,7 @@ NULL};
 //works with movgrab
 char *TestLinks[]={"", "",
 "http://www.youtube.com/watch?v=Vxp3seoRNgY",
-"https://youtu.be/OdrEId7YI1k",
+"http://youtu.be/OdrEId7YI1k",
 "http://www.metacafe.com/watch/6063075/how_to_use_chopsticks/",
 "http://www.dailymotion.com/video/x5790e_hubblecast-16-galaxies-gone-wild_tech",
 "http://www.break.com/index/ninja-cat.html",

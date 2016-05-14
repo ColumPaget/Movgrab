@@ -3551,16 +3551,10 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_ptsname_r" >&5
 $as_echo "$ac_cv_lib_c_ptsname_r" >&6; }
 if test "x$ac_cv_lib_c_ptsname_r" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBC 1
-_ACEOF
-
-  LIBS="-lc $LIBS"
-
+  cf_have_ptsname_r=yes
 fi
 
-cf_have_ptsname_r=$ac_cv_lib_c_ptsname_r
-if test "$cf_have_ptsname_r"
+if test "$cf_have_ptsname_r" = "yes"
 then
 $as_echo "#define HAVE_PTSNAME_R 1" >>confdefs.h
 

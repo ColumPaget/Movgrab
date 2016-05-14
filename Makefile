@@ -1,12 +1,12 @@
 CC = gcc
 VERSION = 1.2.1
 CFLAGS = -g -O2
-LIBS = -lcrypto -lssl -lz 
-INSTALL=/bin/install -c
+LIBS = -lz 
+INSTALL=/usr/bin/install -c
 prefix=/usr/local
 bindir=$(prefix)${exec_prefix}/bin
 DESTDIR=
-FLAGS=$(CFLAGS) -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -DHAVE_LIBZ=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -DHAVE_LIBSSL=1 -DHAVE_LIBCRYPTO=1 
+FLAGS=$(CFLAGS) -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -DHAVE_LIBZ=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 
 OBJ=containerfiles.o outputfiles.o common.o ehow.o  youtube.o servicetypes.o extract_text.o download.o display.o
 
 all: $(OBJ)

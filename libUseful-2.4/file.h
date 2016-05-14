@@ -41,24 +41,24 @@
 #define FLUSH_ALWAYS 4
 #define FLUSH_BUFFER 8
 
-#define SF_RDWR 0 //is the default
+#define STREAM_RDWR 0 //is the default
 //FLUSH_ flags go in this gap
-#define SF_RDONLY 16
-#define SF_WRONLY 32
-#define SF_CREAT 64
-#define SF_CREATE 64
-#define SF_APPEND 128
-#define SF_TRUNC 256
-#define SF_MMAP  512
-#define SF_WRLOCK 1024
-#define SF_RDLOCK 2048
-#define SF_FOLLOW 4096
-#define SF_SECURE 8192
-#define SF_NONBLOCK 16384
-#define SF_EXEC_INHERIT 131072
-#define SF_SYMLINK_OK 262144
-#define SF_NOCACHE 524288
-#define SF_SORTED  1048576
+#define STREAM_RDONLY 16
+#define STREAM_WRONLY 32
+#define STREAM_CREAT 64
+#define STREAM_CREATE 64
+#define STREAM_APPEND 128
+#define STREAM_TRUNC 256
+#define STREAM_MMAP  512
+#define STREAM_WRLOCK 1024
+#define STREAM_RDLOCK 2048
+#define STREAM_FOLLOW 4096
+#define STREAM_SECURE 8192
+#define STREAM_NONBLOCK 16384
+#define STREAM_EXEC_INHERIT 131072
+#define STREAM_SYMLINK_OK 262144
+#define STREAM_NOCACHE 524288
+#define STREAM_SORTED  1048576
 
 
 //Stream state values

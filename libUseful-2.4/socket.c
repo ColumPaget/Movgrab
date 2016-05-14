@@ -99,9 +99,13 @@ if (SetFlags & SOCK_DONTROUTE) result=setsockopt(sock, SOL_SOCKET, SO_DONTROUTE,
 
 if (SetFlags & SOCK_REUSEPORT) result=setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &result,sizeof(int));
 
+#ifdef IP_TRANSPARENT
 if (SetFlags & SOCK_TPROXY) result=setsockopt(sock, IPPROTO_IP, IP_TRANSPARENT, &result,sizeof(int));
+#endif
 
+#ifdef SO_PASSCRED
 if (SetFlags & SOCK_PEERCREDS) result=setsockopt(sock, SOL_SOCKET, SO_PASSCRED, &result,sizeof(int));
+#endif
 
 //Default is KEEPALIVE ON
 setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &result,sizeof(int));
@@ -118,9 +122,13 @@ if (UnsetFlags & SOCK_DONTROUTE) result=setsockopt(sock, SOL_SOCKET, SO_DONTROUT
 
 if (UnsetFlags & SOCK_REUSEPORT) result=setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &result,sizeof(int));
 
+#ifdef IP_TRANSPARENT
 if (UnsetFlags & SOCK_TPROXY) result=setsockopt(sock, IPPROTO_IP, IP_TRANSPARENT, &result,sizeof(int));
+#endif
 
+#ifdef SO_PASSCRED
 if (UnsetFlags & SOCK_PEERCREDS) result=setsockopt(sock, SOL_SOCKET, SO_PASSCRED, &result,sizeof(int));
+#endif
 }
 
 
@@ -209,7 +217,8 @@ const char *GetInterfaceIP(const char *Interface)
 }
 
 
-
+//ICMP stuff is linux specific unfortunately
+#ifdef SOL_IP
 #include <netinet/ip_icmp.h>
 
 /*--------------------------------------------------------------------*/
@@ -230,6 +239,7 @@ unsigned short checksum(void *b, int len)
     result = ~sum;
     return result;
 }
+#endif
 
 
 int ICMPSend(int sock, const char *Host, int Type, int Code, int TTL, char *Data, int len)
@@ -239,8 +249,10 @@ char *Tempstr=NULL;
 int packet_len;
 static int seq=0;
 struct sockaddr_in sa;
-int result;
+int result=0;
 
+//right now this will only work on linux which has SOL_IP
+#ifdef SOL_IP
 result=TTL;
 if (setsockopt(sock, SOL_IP, IP_TTL, &result, sizeof(int)) != 0) return(0);
 
@@ -258,6 +270,8 @@ sa.sin_family=AF_INET;
 sa.sin_port=0;
 sa.sin_addr.s_addr=StrtoIP(Host);
 result=sendto(sock, Tempstr, packet_len, 0, (struct sockaddr*) &sa, sizeof(struct sockaddr));
+#endif
+
 
 DestroyString(Tempstr);
 
@@ -856,7 +870,7 @@ if (S->in_fd > -1)
 {
 //We will have been non-blocking during connection, but if we don't 
 //really want the stream to be non blocking, we unset that here
-if (! (Flags & CONNECT_NONBLOCK))  STREAMSetFlags(S, 0, SF_NONBLOCK);
+if (! (Flags & CONNECT_NONBLOCK))  STREAMSetFlags(S, 0, STREAM_NONBLOCK);
 
 S->Type=STREAM_TYPE_TCP;
 result=TRUE;
@@ -912,7 +926,7 @@ while (Curr)
 //just connect to host
 if ((HopNo==0) && StrLen(Host))
 {
-	if (Flags & CONNECT_NONBLOCK) S->Flags |= SF_NONBLOCK;
+	if (Flags & CONNECT_NONBLOCK) S->Flags |= STREAM_NONBLOCK;
 	
 	//Flags are handled in this function
 	S->in_fd=TCPConnectWithAttributes(Host,Port,Flags,TTL,ToS);
@@ -926,7 +940,7 @@ if (result==TRUE)
 	if (Flags & CONNECT_NONBLOCK) 
 	{
 		S->State |=SS_CONNECTING;
-		S->Flags |=SF_NONBLOCK;
+		S->Flags |=STREAM_NONBLOCK;
 	}
 	else
 	{

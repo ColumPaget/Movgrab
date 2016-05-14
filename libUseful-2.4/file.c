@@ -94,7 +94,7 @@ int val;
   //Handling nonblock flag involves setting nonblock on or off
   //sadly fcntl does not honor O_CLOEXEC flag, so we have to set
   //that using F_SETFD below
-  if (S->Flags & SF_NONBLOCK) val |= O_NONBLOCK;
+  if (S->Flags & STREAM_NONBLOCK) val |= O_NONBLOCK;
   else val &= (~O_NONBLOCK);
 
   //these two sets of flags should be the same
@@ -105,7 +105,7 @@ int val;
   //F_GETFD, NOT F_GETFL as above
   val=fcntl(S->in_fd,F_GETFD, NULL);
   //Handling close-on-exec flag
-  if (S->Flags & SF_EXEC_INHERIT) val &= (~FD_CLOEXEC);
+  if (S->Flags & STREAM_EXEC_INHERIT) val &= (~FD_CLOEXEC);
   else val |= FD_CLOEXEC;
 
   //NOTE F_SETFD IS NOT SAME AS F_SETFL ABOVE!
@@ -135,17 +135,17 @@ S->BlockSize=BlockSize;
 /* the file pointer to that position */
 void STREAMResizeBuffer(STREAM *S, int size)
 {
-	if (S->Flags & SF_MMAP) return;
+	if (S->Flags & STREAM_MMAP) return;
 
-	if (S->Flags & SF_SECURE) 
+	if (S->Flags & STREAM_SECURE) 
 	{
-		if (! (S->Flags & SF_WRONLY)) SecureRealloc(&S->InputBuff, S->BuffSize, size, SMEM_SECURE);
-		if (! (S->Flags & SF_RDONLY)) SecureRealloc(&S->OutputBuff, S->BuffSize, size, SMEM_SECURE);
+		if (! (S->Flags & STREAM_WRONLY)) SecureRealloc(&S->InputBuff, S->BuffSize, size, SMEM_SECURE);
+		if (! (S->Flags & STREAM_RDONLY)) SecureRealloc(&S->OutputBuff, S->BuffSize, size, SMEM_SECURE);
 	}
   else 
 	{
-		if (! (S->Flags & SF_WRONLY)) S->InputBuff =(char *) realloc(S->InputBuff,size);
-		if (! (S->Flags & SF_RDONLY)) S->OutputBuff=(char *) realloc(S->OutputBuff,size);
+		if (! (S->Flags & STREAM_WRONLY)) S->InputBuff =(char *) realloc(S->InputBuff,size);
+		if (! (S->Flags & STREAM_RDONLY)) S->OutputBuff=(char *) realloc(S->OutputBuff,size);
 	}
 	S->BuffSize=size;
 
@@ -167,7 +167,7 @@ struct stat Stat;
   if (S->InEnd > S->InStart) return(TRUE);
   if (S->in_fd==-1) return(FALSE);
 
-	if (S->Flags & SF_FOLLOW) 
+	if (S->Flags & STREAM_FOLLOW) 
 	{
 		while (1)
 		{
@@ -321,16 +321,16 @@ else
 		if (result == 0) return(STREAM_TIMEOUT);
 	}
 
-	if (S->Flags & SF_WRLOCK) flock(S->out_fd,LOCK_EX);
+	if (S->Flags & STREAM_WRLOCK) flock(S->out_fd,LOCK_EX);
 	result=DataLen-count;
 	//if (S->BlockSize && (S->BlockSize < (DataLen-count))) result=S->BlockSize;
   result=write(S->out_fd, Data + count, result);
-	if (S->Flags & SF_WRLOCK) flock(S->out_fd,LOCK_UN);
+	if (S->Flags & STREAM_WRLOCK) flock(S->out_fd,LOCK_UN);
 
 	//yes, we neglect to do a sync. The idea here is to work opportunisitically, flushing out those pages
 	//that have been written. We do a sync and another fadvise in STREAMClose
 	#ifdef POSIX_FADV_DONTNEED
-	if (S->Flags & SF_NOCACHE) posix_fadvise(S->out_fd, 0,0,POSIX_FADV_DONTNEED);
+	if (S->Flags & STREAM_NOCACHE) posix_fadvise(S->out_fd, 0,0,POSIX_FADV_DONTNEED);
 	#endif
 
 }
@@ -502,14 +502,14 @@ char *ptr;
 int MProt=PROT_READ;
 
 if (S->InputBuff) free(S->InputBuff);
-if (Flags & (SF_WRONLY | SF_RDWR)) MProt |= PROT_WRITE;
+if (Flags & (STREAM_WRONLY | STREAM_RDWR)) MProt |= PROT_WRITE;
 ptr=(char *) mmap(0, len, MProt, MAP_SHARED, S->in_fd, offset);
 if (ptr==MAP_FAILED) return(FALSE);
 S->InEnd=len;
 S->InStart=0;
-S->Flags |= SF_MMAP;
+S->Flags |= STREAM_MMAP;
 S->InputBuff=ptr;
-if (Flags & SF_SECURE) mlock(ptr, len);
+if (Flags & STREAM_SECURE) mlock(ptr, len);
 
 return(TRUE);
 }
@@ -521,24 +521,25 @@ int fd, Mode=0;
 STREAM *Stream;
 struct stat myStat;
 
-if (Flags & SF_WRONLY) Mode=O_WRONLY;
-else if (Flags & SF_RDONLY) Mode=O_RDONLY;
+if (Flags & STREAM_WRONLY) Mode=O_WRONLY;
+else if (Flags & STREAM_RDONLY) Mode=O_RDONLY;
 else Mode=O_RDWR;
 
-if (Flags & SF_CREATE) Mode |= O_CREAT;
+if (Flags & STREAM_CREATE) Mode |= O_CREAT;
 
 if (strcmp(FilePath,"-")==0)
 {
-Stream=STREAMFromDualFD(0,1);
-Stream->Path=CopyStr(Stream->Path,FilePath);
-Stream->Flags=Flags;
+	Stream=STREAMFromDualFD(0,1);
+	Stream->Path=CopyStr(Stream->Path,FilePath);
+	Stream->Flags=Flags;
 }
 else
 {
 	fd=open(FilePath, Mode, 0600);
+
 	if (fd==-1) return(NULL);
 
-	if (Flags & SF_WRLOCK)
+	if (Flags & STREAM_WRLOCK)
 	{
 		if (flock(fd,LOCK_EX | LOCK_NB)==-1)
 		{
@@ -547,7 +548,7 @@ else
 		}
 	}
 
-	if (Flags & SF_RDLOCK)
+	if (Flags & STREAM_RDLOCK)
 	{
 		if (flock(fd,LOCK_SH | LOCK_NB)==-1)
 		{
@@ -562,7 +563,7 @@ else
 	// to get us to write somewhere other than intended.
 	
 	
-	if (! (Flags & SF_SYMLINK_OK))
+	if (! (Flags & STREAM_SYMLINK_OK))
 	{
 		if (lstat(FilePath, &myStat) !=0)
 		{
@@ -586,16 +587,16 @@ else
 	Stream=STREAMFromFD(fd);
 	STREAMSetTimeout(Stream,0);
 
-	if ( (Flags & (SF_RDONLY | SF_MMAP)) == (SF_RDONLY | SF_MMAP) ) STREAMOpenMMap(Stream, 0, myStat.st_size, Flags);
+	if ( (Flags & (STREAM_RDONLY | STREAM_MMAP)) == (STREAM_RDONLY | STREAM_MMAP) ) STREAMOpenMMap(Stream, 0, myStat.st_size, Flags);
 	else
 	{
-	if (Flags & SF_TRUNC) ftruncate(fd,0);
-	if (Flags & SF_APPEND) lseek(fd,0,SEEK_END);
+	if (Flags & STREAM_TRUNC) ftruncate(fd,0);
+	if (Flags & STREAM_APPEND) lseek(fd,0,SEEK_END);
 	}
 
 }
 Stream->Flags |= Flags;
-if (Stream->Flags & SF_SECURE) STREAMResizeBuffer(Stream, Stream->BuffSize);
+if (Stream->Flags & STREAM_SECURE) STREAMResizeBuffer(Stream, Stream->BuffSize);
 Stream->Path=CopyStr(Stream->Path,FilePath);
 STREAMSetFlushType(Stream,FLUSH_FULL,0,0);
 
@@ -621,7 +622,7 @@ if (
 	if ((S->out_fd != -1) && (S->out_fd != S->in_fd)) 
 	{
 		#ifdef POSIX_FADV_DONTNEED
-		if (S->Flags & SF_NOCACHE)
+		if (S->Flags & STREAM_NOCACHE)
 		{
 	  		fdatasync(S->out_fd);
  	 		posix_fadvise(S->out_fd, 0,0,POSIX_FADV_DONTNEED);
@@ -634,7 +635,7 @@ if (
 	if (S->in_fd != -1)
 	{
 		#ifdef POSIX_FADV_DONTNEED
-		if (S->Flags & SF_NOCACHE) posix_fadvise(S->in_fd, 0,0,POSIX_FADV_DONTNEED);
+		if (S->Flags & STREAM_NOCACHE) posix_fadvise(S->in_fd, 0,0,POSIX_FADV_DONTNEED);
 		#endif
 
 		close(S->in_fd);
@@ -652,14 +653,14 @@ while (Curr)
 	Curr=ListGetNext(Curr);
 }
 
-if (S->Flags & SF_SECURE) 
+if (S->Flags & STREAM_SECURE) 
 {
 	SecureDestroy(S->InputBuff,S->BuffSize);
 	SecureDestroy(S->OutputBuff,S->BuffSize);
 }
 else
 {
-	if (! (S->Flags & SF_MMAP)) DestroyString(S->InputBuff);
+	if (! (S->Flags & STREAM_MMAP)) DestroyString(S->InputBuff);
 	DestroyString(S->OutputBuff);
 }
 
@@ -679,7 +680,7 @@ int fd;
 if (! S) return(-1);
 fd=S->in_fd;
 STREAMFlush(S);
-if (! (S->Flags & SF_MMAP)) DestroyString(S->InputBuff);
+if (! (S->Flags & STREAM_MMAP)) DestroyString(S->InputBuff);
 DestroyString(S->OutputBuff);
 DestroyString(S->Path);
 free(S);
@@ -706,7 +707,7 @@ if (! S) return(0);
 if (S->State & SS_EMBARGOED) return(0);
 
 //we don't read to mmaped streams. We just update pointers to the mmap
-if (S->Flags & SF_MMAP)
+if (S->Flags & STREAM_MMAP)
 {
 	result=S->InEnd-S->InStart;
 	if (result < 1) return(STREAM_CLOSED);
@@ -748,7 +749,7 @@ if (SSL_pending((SSL *) SSL_CTX) > 0) WaitForBytes=FALSE;
 #endif
 
 
-//if ((S->Timeout > 0) && (! (S->Flags & SF_NONBLOCK)) && WaitForBytes)
+//if ((S->Timeout > 0) && (! (S->Flags & STREAM_NONBLOCK)) && WaitForBytes)
 if ((S->Timeout > 0) && WaitForBytes)
 {
    FD_ZERO(&selectset);
@@ -795,9 +796,9 @@ if (read_result==0)
 	else
 	#endif
 	{
-		if (S->Flags & SF_RDLOCK) flock(S->in_fd,LOCK_SH);
+		if (S->Flags & STREAM_RDLOCK) flock(S->in_fd,LOCK_SH);
 		read_result=read(S->in_fd, tmpBuff, S->BuffSize-S->InEnd);
-		if (S->Flags & SF_RDLOCK) flock(S->in_fd,LOCK_UN);
+		if (S->Flags & STREAM_RDLOCK) flock(S->in_fd,LOCK_UN);
 	}
 
 	if (read_result > 0) 
@@ -877,7 +878,7 @@ while (total < Buffsize)
 		//we didn't have enough to satisfy another read like the one we just had
 	
 		//We must check for '< 1' rather than '-1' because 
-		if (S->Flags & SF_MMAP) result=-1;
+		if (S->Flags & STREAM_MMAP) result=-1;
 		else result=FDCheckForBytes(S->in_fd);
 
 		if (result ==-1) 
@@ -906,7 +907,7 @@ double STREAMTell(STREAM *S)
 {
 double pos;
 
-if (S->Flags & SF_MMAP) return((double) S->InStart);
+if (S->Flags & STREAM_MMAP) return((double) S->InStart);
 if (S->OutEnd > 0) STREAMFlush(S);
 
 #ifdef _LARGEFILE64_SOURCE
@@ -925,7 +926,7 @@ double STREAMSeek(STREAM *S, double offset, int whence)
 double pos;
 int wherefrom;
 
-if (S->Flags & SF_MMAP)
+if (S->Flags & STREAM_MMAP)
 {
   switch (whence)
   {
@@ -1371,7 +1372,7 @@ double Size, delta, pos;
 int result, inchar;
 
 
-if (S->Flags & SF_MMAP) Size=S->InEnd;
+if (S->Flags & STREAM_MMAP) Size=S->InEnd;
 else
 {
 	fstat(S->in_fd, &Stat);
@@ -1439,7 +1440,7 @@ char *Tempstr=NULL;
 
 if (!S) return(FALSE);
 
-if (S->Flags & SF_SORTED) return(STREAMFindBinarySearch(S, Item, Delimiter, RetStr));
+if (S->Flags & STREAM_SORTED) return(STREAMFindBinarySearch(S, Item, Delimiter, RetStr));
 
 Tempstr=STREAMReadLine(Tempstr, S);
 while (Tempstr)

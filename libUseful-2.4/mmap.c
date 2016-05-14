@@ -5,7 +5,7 @@ main()
 STREAM *S;
 char *Tempstr=NULL;
 
-S=STREAMOpenFile("/etc/services",SF_RDONLY | SF_MMAP);
+S=STREAMOpenFile("/etc/services",STREAM_RDONLY | STREAM_MMAP);
 Tempstr=STREAMReadLine(Tempstr, S);
 while (Tempstr)
 {

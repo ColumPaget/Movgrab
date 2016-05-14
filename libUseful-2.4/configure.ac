@@ -19,9 +19,8 @@ cf_have_sendfile=no
 cf_have_ptsname_r=no
 
 
-AC_CHECK_LIB(c,ptsname_r,,)
-cf_have_ptsname_r=$ac_cv_lib_c_ptsname_r
-if test "$cf_have_ptsname_r"
+AC_CHECK_LIB(c,[ptsname_r],[cf_have_ptsname_r=yes])
+if test "$cf_have_ptsname_r" = "yes"
 then
 AC_DEFINE([HAVE_PTSNAME_R])
 fi
