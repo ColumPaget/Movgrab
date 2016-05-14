@@ -624,8 +624,11 @@ if (
 		#ifdef POSIX_FADV_DONTNEED
 		if (S->Flags & STREAM_NOCACHE)
 		{
+		//if we've got fdatasync as well as fadvise we can do this
+		#ifdef fdatasync
 	  		fdatasync(S->out_fd);
  	 		posix_fadvise(S->out_fd, 0,0,POSIX_FADV_DONTNEED);
+		#endif
 		}
 		#endif
 	

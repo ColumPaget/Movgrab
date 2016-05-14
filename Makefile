@@ -1,4 +1,4 @@
-CC = gcc
+CC = cc
 VERSION = 1.2.1
 CFLAGS = -g -O2
 LIBS = -lz 
