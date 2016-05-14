@@ -24,16 +24,18 @@ DestroyString(Tempstr);
 
 
 
-void YouTubeFormatGetData(char *Data, char **URL, char **Code)
+void YouTubeFormatGetData(char *Data, char **URL, char **Code, ListNode *Vars)
 {
 char *Name=NULL, *Value=NULL, *ptr;
+char *Extra=NULL;
 
 ptr=GetNameValuePair(Data,"&","=",&Name,&Value);
 while (ptr)
 {
  if (StrLen(Name))
  {
-	if (strcmp(Name,"sig")==0) *URL=MCatStr(*URL,"&signature=", Value, NULL);
+	if (strcmp(Name,"sig")==0) Extra=MCatStr(Extra,"&signature=", Value, NULL);
+	if (strcmp(Name,"fallback_host")==0) Extra=MCatStr(Extra,"&fallback_host=", Value, NULL);
 	if (strcmp(Name,"url")==0) *URL=HTTPUnQuote(*URL,Value);
 	if (strcmp(Name,"itag")==0) *Code=CopyStr(*Code,Value);
  }
@@ -41,8 +43,10 @@ while (ptr)
 ptr=GetNameValuePair(ptr,"&","=",&Name,&Value);
 }
 
+*URL=CatStr(*URL,Extra);
 DestroyString(Name);
 DestroyString(Value);
+DestroyString(Extra);
 }
 
 
@@ -53,7 +57,7 @@ char *Token=NULL, *Tempstr=NULL, *TypeCode=NULL, *URL=NULL, *ptr;
 ptr=GetToken(Formats,",",&Token,0);
 while (ptr)
 {
-	YouTubeFormatGetData(Token, &URL, &TypeCode);
+	YouTubeFormatGetData(Token, &URL, &TypeCode, Vars);
 	switch (atoi(TypeCode))
 	{
 			case 5:
@@ -115,6 +119,11 @@ while (ptr)
 
 			case 46:
 			SetVar(Vars,"item:webm:1920x1080",URL);
+			break;
+
+			case 59:
+			case 78:
+			SetVar(Vars,"item:mp4:640x480",URL);
 			break;
 
 			case 82:

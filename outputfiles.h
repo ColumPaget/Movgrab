@@ -5,10 +5,10 @@
 #include "common.h"
 
 char *OutputFilesGetFilePath();
-void OpenOutputFiles(char *Title, char *URL, double *FileSize);
-void WriteOutputFiles(char *Data, int Len);
-void AddOutputFile(char *Path, int SingleOutput);
-char *GuessExtn(char *ContentType, char *Format, char *ID);
+void OpenOutputFiles(const char *Title, const char *URL, double *FileSize);
+void WriteOutputFiles(const char *Data, int Len);
+void AddOutputFile(const char *Path, int SingleOutput);
+char *GuessExtn(const char *ContentType, const char *Format, const char *ID);
 
 
 #endif

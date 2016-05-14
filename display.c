@@ -3,6 +3,7 @@
 pid_t PlayerPid=0;
 char *Player=NULL;
 int PlayerLaunchPercent=25;
+int DisplayTitleWidth=50;
 extern char *CmdLine, *ProgName;
 
 
@@ -12,7 +13,7 @@ void LaunchPlayer()
 char *Tempstr=NULL;
 
 Tempstr=MCopyStr(Tempstr,Player," ",OutputFilesGetFilePath(),NULL);
-PlayerPid=Spawn(Tempstr);
+PlayerPid=Spawn(Tempstr,"","","");
 
 DestroyString(Tempstr);
 }
@@ -39,13 +40,13 @@ if (strcmp(Token,"reference") !=0)
 
 	if (ShowSize)
 	{
-	S=HTTPMethod("HEAD",URL,NULL,NULL);
+	S=HTTPMethod("HEAD",URL,NULL,NULL,NULL,NULL,0);
 	if (S)
 	{
 		Tempstr=CopyStr(Tempstr,STREAMGetValue(S,"HTTP:ResponseCode"));
 		if (strcmp(Tempstr,"403") ==0) 
 		{
-			printf("\nERROR: %s response for %s\n",Tempstr,URL);
+			fprintf(stderr,"\nERROR: %s response for %s\n",Tempstr,URL);
 			result=FALSE;
 			break;
 		}
@@ -76,7 +77,7 @@ return(result);
 
 
 //Display progress of download
-void DisplayProgress(char *FullTitle, char *Format, double bytes_read, double DocSize, int PrintName)
+void DisplayProgress(const char *FullTitle, const char *Format, double bytes_read, double DocSize, int PrintName)
 {
 double Percent=0, Bps=0, ETAsecs=0;
 char *HUDocSize=NULL, *BpsStr=NULL, *ETAStr=NULL, *Title=NULL;
@@ -90,8 +91,13 @@ if (bytes_read==0) SpeedStart=Now;
 if (CheckForKeyboardInput()) PrintName=TRUE;
 
 
-Title=CopyStrLen(Title,FullTitle,30);
+if ((DisplayTitleWidth > 0) && (StrLen(FullTitle) > DisplayTitleWidth))
+{
+Title=CopyStrLen(Title, FullTitle, DisplayTitleWidth);
 Title=CatStr(Title,"...");
+}
+else Title=CopyStr(Title, FullTitle);
+
 if (! (Flags & FLAG_QUIET)) 
 {
 if (PrintName) fprintf(stderr,"\nGetting: %s  Size: %s  Format: %s\n",Title,GetHumanReadableDataQty(DocSize,0), Format);

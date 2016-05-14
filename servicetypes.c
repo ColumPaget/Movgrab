@@ -13,31 +13,24 @@ Then site specific
 
 
 //Site type names used at the command line etc
-char *DownloadTypes[]={"none","generic","youtube","metacafe","dailymotion","break","ehow","vimeo","vbox7","blip.tv","ted","myvideo","mytopclip","redbalcony","mobango","yale","princeton","reuters","liveleak","academicearth","photobucket","aljazeera","mefeedia","iviewtube","washingtonpost","cbsnews","france24","euronews","metatube","motionfeeds","escapist","guardian","redorbit","scivee","izlese","uctv.tv","royalsociety.tv","britishacademy","kitp","dotsub","astronomy.com","teachertube.com","discovery","bloomberg","nationalgeographic","videobash","ibtimes","smh","videojug","animehere","funnyordie",NULL};
+char *DownloadTypes[]={"none","generic","youtube","youtu.be","metacafe","dailymotion","break","ehow","vimeo","ted","redbalcony","yale","reuters","liveleak","photobucket","iviewtube","washingtonpost","cbsnews","france24","euronews","metatube","guardian","redorbit","scivee","izlese","uctv.tv","royalsociety.tv","britishacademy","kitp","dotsub","astronomy.com","discovery","bloomberg","nationalgeographic","videobash","ibtimes","smh","animehere","funnyordie",NULL};
 
 //Longer names used in display
 char *DownloadNames[]={"none",
 "Generic: Search in page for http://*.flv, http://*.mp3, http//*.mp4 etc, etc, etc",
 "YouTube: http://www.youtube.com",
+"youtu.be: http://www.youtu.be",
 "Metacafe: http://www.metacafe.com",
 "Daily Motion: http://www.dailymotion.com",
 "www.break.com",
 "www.ehow.com",
 "www.vimeo.com",
-"www.vbox7.com",
-"www.blip.tv",
 "www.ted.com",
-"www.myvideo.de",
-"www.mytopclip.com",
 "www.redbalcony.com",
-"www.mobango.com",
 "Yale University: http://oyc.yale.edu",
-"Princeton University: http://www.princeton.edu/WebMedia/",
 "Reuters: http://www.reuters.com/",
 "Liveleak: http://www.liveleak.com",
-"Academic Earth: http://www.academicearth.org",
 "Photobucket: http://www.photobucket.com",
-"Aljazeera: english.aljazeera.net",
 "mefeedia.com",
 "iViewTube: www.iviewtube.com",
 "Washington Post: www.washingtonpost.com",
@@ -45,8 +38,6 @@ char *DownloadNames[]={"none",
 "France24: www.france24.com",
 "Euronews: www.euronews.net",
 "www.metatube.com",
-"www.motionfeeds.com",
-"www.escapistmagazine.com",
 "www.guardian.co.uk",
 "www.redorbit.com",
 "www.scivee.tv",
@@ -57,14 +48,12 @@ char *DownloadNames[]={"none",
 "KAVLI INSTITUTE: http://online.itp.ucsb.edu/plecture/",
 "dotsub.com",
 "astronomy.com",
-"teachertube.com",
 "dsc.discovery.com",
 "www.bloomberg.com (not bloomberg.tv)",
 "National Geographic (http://video.nationalgeographic.com)",
 "videobash",
 "International Business Times",
 "Sidney Morning Herald",
-"www.videojug.com",
 "www.animehere.com",
 "Funny or Die (http://www.funnyordie.com)",
 NULL};
@@ -74,36 +63,26 @@ NULL};
 //works with movgrab
 char *TestLinks[]={"", "",
 "http://www.youtube.com/watch?v=Vxp3seoRNgY",
+"https://youtu.be/OdrEId7YI1k",
 "http://www.metacafe.com/watch/6063075/how_to_use_chopsticks/",
 "http://www.dailymotion.com/video/x5790e_hubblecast-16-galaxies-gone-wild_tech",
 "http://www.break.com/index/ninja-cat.html",
 "http://www.ehow.com/video_6819748_creamy-thyme-scrambled-eggs-recipe.html",
 "broken",
-"http://www.vbox7.com/play:1417ad5a",
-"http://blip.tv/greshamcollege/whengalaxiescollide_carolincrawford-6575570",
 "http://www.ted.com/talks/janine_benyus_shares_nature_s_designs.html",
-"http://www.myvideo.de/watch/9949/tornados",
-"http://www.mytopclip.com/videos/32501/flip-over-card-trick-revealed",
 "http://www.redbalcony.com/?vid=29433",
-"http://www.mobango.com/media_details/struck_in_tsunami/%21tKpzdHIo5E%3D/",
 "http://oyc.yale.edu/economics/game-theory/contents/sessions/session-1-introduction-five-first-lessons",
-"http://www.princeton.edu/WebMedia/flash/lectures/20100428_publect_taibbi_tett.shtml",
-"http://www.reuters.com/news/video/story?videoId=193471398&videoChannel=4",
-"http://www.liveleak.com/view?i=a7b_1299633723",
-"http://www.academicearth.org/lectures/interaction-with-physical-environment",
+"http://www.reuters.com/video/2016/05/02/foam-swords-drawn-in-mass-play-fight-in?videoId=368328211",
+"http://www.liveleak.com/view?i=e28_1462299205",
 "http://gs147.photobucket.com/groups/r299/QM25Y4IJEP/?action=view&current=BlackSwan1.mp4",
-"http://english.aljazeera.net/programmes/countingthecost/2011/02/2011219142816937101.html",
-"http://www.mefeedia.com/video/36135458",
 "http://www.iviewtube.com/v/152128/insane-hail-storm-oklahoma-city",
 "http://www.washingtonpost.com/business/on-leadership-modern-day-machiavellis-/2011/02/18/ABYgckH_video.html",
 "http://www.cbsnews.com/video/watch/?id=7357739n",
-"http://www.france24.com/en/20110219-beyond-business-cybercriminality-iphone-mobile-security",
+"http://www.france24.com/en/20160430-down-earth-fast-fashion-pollution-environment-ethical-consumption",
 "http://www.euronews.com/news/bulletin/",
 "http://www.metatube.com/en/videos/cid2/Funny-Videos/53210/Rail-Jump-Fail/",
-"http://www.motionfeeds.com/10401/helsinki-travel-guide.html",
-"http://www.escapistmagazine.com/videos/view/zero-punctuation/1776-Red-Dead-Redemption",
 "http://www.guardian.co.uk/world/video/2011/may/13/fukushima-radiation-dairy-farmers-video",
-"http://www.redorbit.com/news/video/science_2/2598565/unlocking_mysteries_of_sharks/index.html",
+"http://www.redorbit.com/video/using-f1-technology-to-transform-healthcare-012016/"
 "http://www.scivee.tv/node/5300",
 "http://www.izlese.org/hot-girl-hot-cars-911-turbo-vs-mercedes-s550-vs-rally-car.html",
 "http://www.uctv.tv/search-details.aspx?showID=20888",
@@ -112,14 +91,12 @@ char *TestLinks[]={"", "",
 "http://online.itp.ucsb.edu/plecture/bmonreal11/",
 "http://dotsub.com/view/5d90ef11-d5e5-42fb-8263-a4c128fb64df",
 "http://www.astronomy.com/News-Observing/Liz%20and%20Bills%20Cosmic%20Adventures/2011/02/Episode%202.aspx",
-"http://www.teachertube.com/viewVideo.php?video_id=114089&title=Marco_Polo",
 "http://dsc.discovery.com/videos/how-the-universe-works-birth-of-a-black-hole.html",
 "http://www.bloomberg.com/video/72477250/",
 "http://video.nationalgeographic.com/video/environment/environment-natural-disasters/earthquakes/earthquake-101/",
 "http://www.videobash.com/video_show/wing-suit-amazing-footage-6086",
 "http://tv.ibtimes.com/woolly-mammoth-skeleton-discovered-near-paris-nicknamed-helmut-7190",
 "http://www.smh.com.au/technology/sci-tech/newly-discovered-planets-include-superearth-20110913-1k7tl.html",
-"http://www.videojug.com/film/how-to-do-the-best-card-trick-in-the-world",
 "http://www.animehere.com/accel-world-episode-1.html",
 "http://www.funnyordie.com/videos/032785be3a/genie-on-hard-times-with-parker-posey?playlist=featured_videos",
 NULL};
@@ -129,15 +106,32 @@ int SelectDownloadFormat(ListNode *Vars, int WebsiteType, int DisplaySize);
 
 
 //Guess service type from servername in URL
-int IdentifyServiceType(char *Server)
+int IdentifyServiceType(const char *URL)
 {
-int Type=0;
+int Type=TYPE_NONE;
+char *Proto=NULL, *Server=NULL, *Tempstr=NULL;
+
+if (! URL) return(TYPE_NONE);
+
+Type=GetContainerFileType(URL);
+if (Type != TYPE_NONE) return(Type);
+
+ParseURL(URL,&Proto,&Server,&Tempstr,NULL,NULL,NULL,NULL);
+if (! StrValid(Server))
+{
+DestroyString(Proto);
+DestroyString(Server);
+DestroyString(Tempstr);
+return(TYPE_NONE);
+}
 
 if (
 	(strstr(Server,"youtube")) 
    ) Type=TYPE_YOUTUBE;
-
-if (strcmp(Server,"www.metacafe.com")==0)
+else if (
+	(strcmp(Server,"youtu.be")==0) 
+   ) Type=TYPE_YOUTUBE_SHORT;
+else if (strcmp(Server,"www.metacafe.com")==0)
 {
  Type=TYPE_METACAFE;
 }
@@ -161,41 +155,17 @@ else if (strcmp(Server,"oyc.yale.edu")==0)
 {
  Type=TYPE_YALE;
 }
-else if (strcmp(Server,"www.princeton.edu")==0)
-{
- Type=TYPE_PRINCETON;
-}
-else if (strcmp(Server,"www.academicearth.org")==0)
-{
- Type=TYPE_ACADEMIC_EARTH;
-}
 else if (strstr(Server,"photobucket.com"))
 {
  Type=TYPE_PHOTOBUCKET;
-}
-else if (strstr(Server,"vbox7.com"))
-{
- Type=TYPE_VBOX7;
-}
-else if (strstr(Server,"myvideo"))
-{
- Type=TYPE_MYVIDEO;
 }
 else if (strstr(Server,"redbalcony.com"))
 {
  Type=TYPE_REDBALCONY;
 }
-else if (strstr(Server,"mobango.com"))
-{
- Type=TYPE_MOBANGO;
-}
 else if (strstr(Server,"izlese.org"))
 {
  Type=TYPE_IZLESE;
-}
-else if (strstr(Server,"mytopclip.com"))
-{
- Type=TYPE_MYTOPCLIP;
 }
 else if (strstr(Server,"liveleak"))
 {
@@ -209,10 +179,6 @@ else if (strstr(Server,"smh.com.au"))
 {
  Type=TYPE_SMH;
 }
-else if (strstr(Server,"blip.tv"))
-{
- Type=TYPE_BLIPTV;
-}
 else if (strstr(Server,"vimeo.com"))
 {
  Type=TYPE_VIMEO;
@@ -221,10 +187,6 @@ else if (strstr(Server,"reuters"))
 {
  Type=TYPE_REUTERS;
 }
-else if (strstr(Server,"mefeedia.com"))
-{
- Type=TYPE_MEFEEDIA;
-}
 else if (strstr(Server,"ucsd.tv"))
 {
  Type=TYPE_UCTV;
@@ -232,10 +194,6 @@ else if (strstr(Server,"ucsd.tv"))
 else if (strstr(Server,"uctv.tv"))
 {
  Type=TYPE_UCTV;
-}
-else if (strstr(Server,"aljazeera.net"))
-{
- Type=TYPE_ALJAZEERA;
 }
 else if (strstr(Server,"iviewtube.com"))
 {
@@ -261,10 +219,6 @@ else if (strstr(Server,"metatube"))
 {
  Type=TYPE_METATUBE;
 }
-else if (strstr(Server,"motionfeeds"))
-{
- Type=TYPE_MOTIONFEEDS;
-}
 else if (strstr(Server,"guardian"))
 {
  Type=TYPE_GUARDIAN;
@@ -276,10 +230,6 @@ else if (strstr(Server,"redorbit"))
 else if (strstr(Server,"scivee"))
 {
  Type=TYPE_SCIVEE;
-}
-else if (strstr(Server,"escapistmagazine.com"))
-{
- Type=TYPE_ESCAPIST;
 }
 else if (strcmp(Server,"royalsociety.tv")==0)
 {
@@ -305,10 +255,6 @@ else if (strstr(Server,"astronomy.com"))
 {
  Type=TYPE_ASTRONOMYCOM;
 }
-else if (strstr(Server,"teachertube.com"))
-{
- Type=TYPE_TEACHERTUBE;
-}
 else if (strstr(Server,"discovery.com"))
 {
  Type=TYPE_DISCOVERY;
@@ -325,10 +271,6 @@ else if (strstr(Server,"www.videobash.com"))
 {
  Type=TYPE_VIDEOBASH;
 }
-else if (strstr(Server,"www.videojug.com"))
-{
- Type=TYPE_VIDEOJUG;
-}
 else if (strstr(Server,"animehere.com"))
 {
  Type=TYPE_ANIMEHERE;
@@ -342,36 +284,15 @@ else if (strstr(Server,".google."))
  Type=TYPE_GOOGLE_URL;
 }
 
+
+DestroyString(Server);
+DestroyString(Proto);
+DestroyString(Tempstr);
+
 return(Type);
 }
 
 
-
-//A couple of old functions related to specific sites. As these sites no longer
-//work it is likely that these functions will be removed some day
-int DoVBOX7(char *ID, char *Title)
-{
-char *Dir=NULL, *Tempstr=NULL;
-int i, RetVal=FALSE;
-
-Dir=CopyStrLen(Dir,ID,2);
-
-for (i=1; i < 50; i++)
-{
-	if (i==0) Tempstr=FormatStr(Tempstr,"http://media.vbox7.com/s/%s/%s.flv",Dir,ID);
-  else Tempstr=FormatStr(Tempstr,"http://media%02d.vbox7.com/s/%s/%s.flv",i,Dir,ID);
-  if (DownloadItem(Tempstr, Title, Flags))
-	{
-		RetVal=TRUE;
-		 break;
-	}
-}
-
-DestroyString(Dir);
-DestroyString(Tempstr);
-
-return(RetVal);
-}
 
 
 char *ExtractMetacafeMediaURL(char *RetStr, char *Data, char *Start, char *End)
@@ -396,66 +317,6 @@ return(RetStr);
 }
 
 
-// These functions used by escapist magazine, but the method might be more 
-// generic than just that one side
-void ParseFlashPlaylistItem(char *Data,ListNode *Vars)
-{
-char *Name=NULL, *Value=NULL, *URL=NULL, *Type=NULL, *ptr;
-
-strrep(Data,'\'',' ');
-ptr=GetNameValuePair(Data,",",":",&Name,&Value);
-while (ptr)
-{
-StripTrailingWhitespace(Name);
-StripLeadingWhitespace(Name);
-StripQuotes(Name);
-
-StripTrailingWhitespace(Value);
-StripLeadingWhitespace(Value);
-StripQuotes(Value);
-
-
-if (StrLen(Name))
-{
-  if (strcmp(Name,"eventCategory")==0) Type=CopyStr(Type,Value);
-  if (strcmp(Name,"url")==0) URL=CopyStr(URL,Value);
-}
-
-ptr=GetNameValuePair(ptr,",",":",&Name,&Value);
-}
-
-if (StrLen(Type) && (strcmp(Type,"Video")==0)) SetVar(Vars,"item:mp4",URL);
-
-DestroyString(Name);
-DestroyString(Value);
-DestroyString(URL);
-DestroyString(Type);
-
-}
-
-
-void ParseFlashPlaylist(char *Data, ListNode *Vars)
-{
-char *Tempstr=NULL, *Item=NULL,  *ptr;
-
-//This clips the playlist structure out into Tempstr
-ptr=GetToken(Data,"{'playlist':[",&Tempstr,0);
-ptr=GetToken(ptr,"]",&Tempstr,0);
-
-ptr=GetToken(Tempstr,"{",&Item,0);
-while (ptr)
-{
-//'Item' no contains one playlist item
-ptr=GetToken(ptr,"}",&Item,0);
-ParseFlashPlaylistItem(Item,Vars);
-
-ptr=GetToken(ptr,"{",&Item,0);
-}
-
-DestroyString(Tempstr);
-DestroyString(Item);
-}
-
 
 
 //This function is called before we even pull the first page from a site
@@ -469,9 +330,17 @@ char *ptr, *Token=NULL;
 
 NextPath=CopyStr(RetBuff,Path);
 
-if (*Type==TYPE_YOUTUBE)
+switch (*Type)
 {
+case TYPE_YOUTUBE_SHORT:
+	//something like	https://youtu.be/OdrEId7YI1k
+	ptr=Doc;
+	while (*ptr=='/') ptr++;
+	NextPath=MCopyStr(NextPath,Proto,"://www.youtube.com/get_video_info?&video_id=",ptr,"&el=detailpage&ps=default&eurl=&gl=US&hl=enB",NULL);
+	*Type=TYPE_YOUTUBE;
+break;
 
+case TYPE_YOUTUBE:
 	//hmm.. have we been given the http://www.youtube.com/v/ or https://www.youtube.com/embed/ format?
 
 	if (strncmp(Doc,"/v/",3)==0) Token=CopyStr(Token,Doc+3);
@@ -495,9 +364,10 @@ if (*Type==TYPE_YOUTUBE)
 	//Do we have authentication info?
 	//if (StrLen(Username) && StrLen(Password)) YoutubeLogin(Username,Password);
 
-}
-else if (*Type==TYPE_METACAFE)
-{
+break;
+
+
+case TYPE_METACAFE:
 	ptr=GetToken(Doc,"watch/",&Token,0);
 	ptr=GetToken(ptr,"/",&Token,0);
 	if (strchr(Token,'-'))
@@ -528,7 +398,7 @@ else if (*Type==TYPE_METACAFE)
 		{
 		//Initial 'turn off family filter'
 		Tempstr=FormatStr(Tempstr,"%s://%s:%d/f/index.php?inputType=filter&controllerGroup=user&filters=0&submit=Continue+-+I%27m+over+18",Proto,Server,Port);
-		S=HTTPMethod("POST",Tempstr,"","");
+		S=HTTPMethod("POST",Tempstr,"","","","",0);
 		STREAMClose(S);
 
 		//But we have to do it twice, probably something to do with cookies
@@ -536,46 +406,42 @@ else if (*Type==TYPE_METACAFE)
 		}
 		else NextPath=CopyStr(NextPath,Path);
 	}
-}
-else if (*Type==TYPE_DAILYMOTION)
-{
+break;
+
+case TYPE_DAILYMOTION:
 	if (*Flags & FLAG_PORN)
 	{
 		Tempstr=HTTPQuote(Tempstr,Doc);
 		NextPath=FormatStr(NextPath,"http://%s:%d/family_filter?urlback=/%s&enable=false",Server,Port,Tempstr);
 	}
 	else NextPath=CopyStr(NextPath,Path);
-}
-else if (*Type==TYPE_PRINCETON)
-{
-	ptr=strrchr(Doc,'/');
+break;
+
+case TYPE_VIMEO:
+ 	NextPath=MCopyStr(NextPath,"http://player.vimeo.com/video/",Doc,NULL);
+break;
+
+case TYPE_GOOGLE_URL:
+
+	ptr=strchr(Path, '?');
 	if (ptr)
 	{
 		ptr++;
-		*Title=CopyStr(*Title,ptr);
-		ptr=strrchr(*Title,'.');
-		if (ptr) *ptr='\0';
+ 		ptr=GetToken(ptr,"&",&Token,0);
+		while (ptr)
+		{
+		if (strncmp(Token, "url=", 4)==0) NextPath=HTTPUnQuote(NextPath,Token+4);
+		if (strncmp(Token, "q=", 2)==0) NextPath=HTTPUnQuote(NextPath,Token+2);
+ 		ptr=GetToken(ptr,"&",&Token,0);
+		}
+		*Type=IdentifyServiceType(NextPath);
 	}
- 	NextPath=CopyStr(NextPath,Path);
-}
-else if (*Type==TYPE_VIMEO)
-{
- 	NextPath=MCopyStr(NextPath,"http://player.vimeo.com/video/",Doc,NULL);
-}
-else if (*Type==TYPE_GOOGLE_URL)
-{
-	ptr=strstr(Path,"url?q=");
-	if (ptr)
-	{
-		ptr+=6;
- 		ptr=GetToken(ptr,"&",&Token,NULL);
- 		NextPath=HTTPUnQuote(NextPath,Token);
-		*Type==TYPE_REFERENCE;
-	}
-}
-else
-{
+break;
+
+default:
  NextPath=CopyStr(NextPath,Path);
+break;
+
 }
 
 DestroyString(Tempstr);
@@ -644,7 +510,6 @@ endpos=MediaCount;
 		Tempstr=FormatStr(Tempstr,"ID:%d",i);
 		ptr=GetVar(Vars,Tempstr);
 		SetVar(Vars,"ID",ptr);
-		//GetNextURL(Type, Server, Flags, Vars);
 		GrabMovie(ptr, TYPE_YOUTUBE);
 		}
 
@@ -663,16 +528,27 @@ int GetNextURL(int Type, char *Server, int Flags, ListNode *Vars)
 {
 char *Tempstr=NULL, *Title=NULL, *Fmt=NULL, *ptr;
 int RetVal=FALSE;
+STREAM *Con;
 
 Title=CopyStr(Title,GetVar(Vars,"Title"));
 Fmt=CopyStr(Fmt,GetVar(Vars,"DownloadFormat"));
 
 switch (Type)
 {
-case TYPE_REFERENCE:
+case TYPE_M3U8_STREAM:
 	Tempstr=CopyStr(Tempstr,GetVar(Vars,"ID"));
-  if (GetContainerFileType(Tempstr) != -1)	RetVal=DownloadContainer(Tempstr, Title, Flags);
-	else RetVal=GrabMovie(Tempstr,TYPE_NONE);
+	Con=ConnectAndRetryUntilDownload(Tempstr, 0, 0);
+	if (Con)
+	{
+	M3UStreamDownload(Con, Tempstr, Title);
+	STREAMClose(Con);
+	}
+break;
+
+case TYPE_REFERENCE:
+case TYPE_GOOGLE_URL:
+	Tempstr=CopyStr(Tempstr,GetVar(Vars,"ID"));
+	RetVal=GrabMovie(Tempstr,TYPE_NONE);
 break;
 
 case TYPE_YOUTUBE:
@@ -685,27 +561,6 @@ case TYPE_YOUTUBE_PLAYLIST:
   	RetVal=DownloadPage(Tempstr,TYPE_YOUTUBE, Title, Flags);
 break;
 
-
-case TYPE_BREAK_COM:
-		Tempstr=CopyStr(Tempstr,GetVar(Vars,"ID"));
-  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
-
-case TYPE_EHOW:
-	ptr=GetVar(Vars,"ID");
-	if (strncmp(ptr,"http:",5)==0) RetVal=DownloadItem(ptr,Title, Fmt, Flags);
-	else
-	{
-		Tempstr=SubstituteVarsInString(Tempstr,"http://$(Server):$(Port)/embedvars.aspx?isEhow=true&show_related=true&id=$(ID)",Vars,0);
-  	RetVal=DownloadPage(Tempstr,TYPE_EHOW_STAGE2, Title,Flags);
-	}
-break;
-
-case TYPE_EHOW_STAGE2:
-  	RetVal=DownloadItem(GetVar(Vars,"ID"), Title, Fmt, Flags);
-break;
-
-
 case TYPE_METACAFE:
 #define METACAFE_OVER_18 "allowAdultContent=1&submit=Continue+-+I%27m+over+18"
  Tempstr=SubstituteVarsInString(Tempstr,"$(ID)&$(METACAFE_OVER_18)",Vars,0);
@@ -713,41 +568,15 @@ case TYPE_METACAFE:
 break;
 
 
+
+case TYPE_BREAK_COM:
+		Tempstr=CopyStr(Tempstr,GetVar(Vars,"ID"));
+  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
+break;
+
 case TYPE_DAILYMOTION:
-  Tempstr=SubstituteVarsInString(Tempstr,"http://www.dailymotion.com/services/oembed?url=$(ID)&format=xml",Vars,0);
-  RetVal=DownloadPage(Tempstr,TYPE_DAILYMOTION_STAGE2,Title,Flags);
-break;
-
-case TYPE_DAILYMOTION_STAGE2:
-  Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  RetVal=DownloadPage(Tempstr,TYPE_DAILYMOTION_STAGE3,Title,Flags);
-break;
-
-case TYPE_DAILYMOTION_STAGE3:
   Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
   RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
-
-case TYPE_VIDEOJUG:
-  Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  RetVal=DownloadPage(Tempstr,TYPE_VIDEOJUG_STAGE2,Title,Flags);
-break;
-
-case TYPE_VIDEOJUG_STAGE2:
-  Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  RetVal=DownloadPage(Tempstr,TYPE_VIDEOJUG_STAGE3,Title,Flags);
-break;
-
-case TYPE_VIDEOJUG_STAGE3:
-  Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
-
-
-
-case TYPE_MOBANGO:
- //Tempstr=SubstituteVarsInString(Tempstr,"http://www.mobango.com/$(ID)",Vars,0);
- RetVal=DownloadItem(GetVar(Vars,"ID"), Title, Fmt, Flags);
 break;
 
 case TYPE_WASHINGTONPOST_JSON:
@@ -759,15 +588,6 @@ case TYPE_WASHINGTONPOST_STAGE2:
  	RetVal=DownloadItem(Tempstr,Title, Fmt, Flags);
 break;
 
-
-case TYPE_MYVIDEO:
-		Tempstr=SubstituteVarsInString(Tempstr,"$(MyVidURL)/$(ID).flv",Vars,0);
-  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
-
-case TYPE_VBOX7:
-	RetVal=DoVBOX7(GetVar(Vars,"ID"), Title);
-break;
 
 case TYPE_VIMEO:
  	RetVal=DownloadPage(GetVar(Vars,"ID"),TYPE_VIMEO_STAGE2,Title,Flags);
@@ -784,26 +604,12 @@ case TYPE_YALE:
  	RetVal=DownloadItem(Tempstr,Title, Fmt, Flags);
 break;
 
-case TYPE_BLIPTV:
- 		Tempstr=FormatStr(Tempstr,"http://%s/%s",Server,GetVar(Vars,"ID"));
-  	RetVal=DownloadPage(Tempstr,TYPE_BLIPTV_STAGE2, Title,Flags);
-break;
-
-case TYPE_ESCAPIST:
- 		Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  	RetVal=DownloadPage(Tempstr,TYPE_ESCAPIST_STAGE2, Title,Flags);
-break;
-
 case TYPE_REDBALCONY:
  		Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
   	RetVal=DownloadPage(Tempstr,TYPE_REDBALCONY_STAGE2, Title,Flags);
 break;
 
 
-case TYPE_REDORBIT:
- 		Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  	RetVal=DownloadPage(Tempstr,TYPE_REDORBIT_STAGE2, Title,Flags);
-break;
 
 case TYPE_ROYALSOCIETY:
 		ptr=GetVar(Vars,"ID");
@@ -817,7 +623,7 @@ break;
 
 case TYPE_ROYALSOCIETY_STAGE2:
  		Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  	RetVal=DownloadM3U(Tempstr, Title, Flags);
+  	//RetVal=DownloadM3U(Tempstr, Title, Flags);
 break;
 
 
@@ -828,7 +634,7 @@ break;
 
 case TYPE_BRITISHACADEMY_STAGE2:
  		Tempstr=SubstituteVarsInString(Tempstr,"http://britac.studyserve.com/home/lectures/$(ID)",Vars,0);
-  	RetVal=DownloadASX(Tempstr, Title,Flags);
+  	RetVal=DownloadPage(Tempstr,TYPE_CONTAINERFILE_ASX, Title,Flags);
 break;
 
 case TYPE_KAVLIINSTITUTE:
@@ -836,24 +642,10 @@ case TYPE_KAVLIINSTITUTE:
   	RetVal=DownloadPage(Tempstr,TYPE_KAVLIINSTITUTE_STAGE2, Title,Flags);
 break;
 
-case TYPE_EURONEWS:
- Tempstr=SubstituteVarsInString(Tempstr,"http://video.euronews.net/$(ID).flv",Vars,0);
- RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
-
-case TYPE_DOTSUB:
- Tempstr=SubstituteVarsInString(Tempstr,"$(SERV)$(ID)",Vars,0);
- RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
-break;
 
 case TYPE_ASTRONOMYCOM:
  	Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
   RetVal=DownloadPage(Tempstr,TYPE_ASTRONOMYCOM_STAGE2, Title,Flags);
-break;
-
-case TYPE_TEACHERTUBE:
- 	Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
- 	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
 break;
 
 case TYPE_BLOOMBERG:
@@ -871,12 +663,10 @@ case TYPE_ANIMEHERE:
   RetVal=DownloadPage(Tempstr,TYPE_ANIMEHERE_STAGE2, Title,Flags);
 break;
 
+case TYPE_DOTSUB:
 case TYPE_KAVLIINSTITUTE_STAGE2:
 case TYPE_SCIVEE:
-case TYPE_BLIPTV_STAGE2:
 case TYPE_GENERIC:
-case TYPE_MYTOPCLIP:
-case TYPE_PRINCETON:
 case TYPE_TED:
 case TYPE_NATGEO:
 case TYPE_UCTV:
@@ -884,23 +674,27 @@ case TYPE_IZLESE:
 case TYPE_REUTERS:
 case TYPE_LIVELEAK:
 case TYPE_IBTIMES:
+case TYPE_EURONEWS:
 case TYPE_SMH:
-case TYPE_ACADEMIC_EARTH:
+case TYPE_REDORBIT:
 case TYPE_PHOTOBUCKET:
-case TYPE_ALJAZEERA:
 case TYPE_IVIEWTUBE:
 case TYPE_WASHINGTONPOST:
 case TYPE_CBSNEWS:
 case TYPE_FRANCE24:
 case TYPE_METATUBE:
-case TYPE_MOTIONFEEDS:
 case TYPE_GUARDIAN:
-case TYPE_ESCAPIST_STAGE2:
 case TYPE_REDORBIT_STAGE2:
 case TYPE_REDBALCONY_STAGE2:
 case TYPE_ASTRONOMYCOM_STAGE2:
 case TYPE_ANIMEHERE_STAGE2:
- Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
+case TYPE_FUNNYORDIE:
+case TYPE_EHOW:
+case TYPE_CONTAINERFILE_PLS:
+case TYPE_CONTAINERFILE_ASX:
+case TYPE_CONTAINERFILE_M3U8:
+ 	Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
+	if ((strncmp(Tempstr,"http:",5)!=0) && (strncmp(Tempstr,"https:",6)!=0)) Tempstr=SubstituteVarsInString(Tempstr,"http:$(ID)",Vars,0);
 
  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
 break;
@@ -947,8 +741,40 @@ DestroyString(Tempstr);
 
 
 
+void ExtractDailyMotion(const char *Line, const char *Start, const char *End, ListNode *Vars)
+{
+const char *ptr, *tptr, *eptr;;
+char *Item=NULL, *Name=NULL, *Res=NULL;
+
+    ptr=Line;
+		while (ptr)
+		{
+			ptr=GenericExtractFromLine(ptr, "item", Start, End, Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+			Item=CopyStr(Item,GetVar(Vars,"item"));
+			tptr=strstr(Item, "H264-");
+			if (tptr)
+			{
+				tptr+=5;
+				GetToken(tptr,"/",&Res,0);
+				Name=MCopyStr(Name,"item:mp4:",Res,NULL);
+				SetVar(Vars, Name, Item);
+			}
+		}
+
+DestroyString(Item);
+DestroyString(Name);
+DestroyString(Res);
+}
+
+
+
+
+
+/*******************************************************************************************************
 // This is the main function that 'screen scrapes' a webpage looking for 
 // information that it can use to get a video
+*******************************************************************************************************/
+
 int ExtractItemInfo(STREAM *S, int Type, char *URL, char *Title, int Flags)
 {
 char *Tempstr=NULL, *Token=NULL, *VarName=NULL, *Server=NULL;
@@ -973,14 +799,71 @@ SetVar(Vars,"Title",Title);
 
 	if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- DOWNLOADING DOCUMENT ------\n");
 Tempstr=STREAMReadLine(Tempstr, S);
+
 while (Tempstr)
 {
 	StripTrailingWhitespace(Tempstr);
 	StripLeadingWhitespace(Tempstr);
 	
 	if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"%s\n",Tempstr);
+
+
 switch (Type)
 {
+
+case TYPE_CONTAINERFILE_PLS:
+	ptr=GetToken(Tempstr,"=",&Token,0);
+	if (strncmp(Token,"File",4)==0)
+	{
+		GenericExtractFromLine(Tempstr, "item:mp3","=", "", Vars, EXTRACT_DESLASHQUOTE|EXTRACT_GUESSTYPE);
+	}
+break;
+
+case TYPE_CONTAINERFILE_ASX:
+	#define ASX_ITEM_START "<ref href=\""
+
+
+		if (strstr(Tempstr,ASX_ITEM_START)) 
+		{
+			GenericExtractFromLine(Tempstr, "item:mp3", ASX_ITEM_START, "\"", Vars, EXTRACT_DESLASHQUOTE|EXTRACT_GUESSTYPE);
+		}
+break;
+
+
+case TYPE_CONTAINERFILE_M3U8:
+if (strncmp(Tempstr,"#EXT-X-MEDIA-SEQUENCE",21)==0)
+{
+	//uh oh, this is an apple iphone download rather than a manifest of streams. Call downloader function
+	M3UStreamDownload(S, URL, Title);
+}
+else if (strncmp(Tempstr,"#EXT-X-STREAM-INF:",18)==0)
+{
+/* example of apple iphone stream MANIFEST
+#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=898000, RESOLUTION=640x360, CODECS="avc1.42001e,mp4a.40.2" 
+http://ipad-streaming.cbsnews.com/media/mpx/2016/04/17/667983939550/0417_60Min_Alfonsi_HackingYourPhoneKolbe_508208_800/0417_60Min_Alfonsi_HackingYourPhoneKolbe_508208_800.m3u8
+*/
+
+
+  M3UStreamVarName(Tempstr+18, &VarName);
+
+  Tempstr=STREAMReadLine(Tempstr,S);
+  StripTrailingWhitespace(Tempstr);
+	if (strncasecmp(Tempstr,"http:",5)==0) SetVar(Vars, VarName, Tempstr);
+	else if (strncasecmp(Tempstr,"https:",6)==0) SetVar(Vars, VarName, Tempstr);
+	else 
+	{
+		ptr=strrchr(URL,'/');
+		if (ptr)
+		{
+			Token=CopyStrLen(Token,URL,ptr-URL);
+			Token=MCatStr(Token,"/",Tempstr,NULL);
+  		SetVar(Vars, VarName, Token);
+		}
+	}
+}
+else if (*Tempstr !=0) 
+break;
+
 
 case TYPE_YOUTUBE:
 //#define YOUTUBE_PTR "new SWFObject(\"/player2.swf?"
@@ -988,22 +871,20 @@ case TYPE_YOUTUBE:
 //#define YOUTUBE_PTR "var swfArgs = {"
 #define YOUTUBE_DIV "url_encoded_fmt_stream_map="
 #define YOUTUBE_TITLE_START "&title="
-#define YOUTUBE_TITLE_END "&"
+#define YOUTUBE_END "&"
 
 	if (strstr(Tempstr,YOUTUBE_TITLE_START))
 	{
-		GenericExtractFromLine(Tempstr, "Title",YOUTUBE_TITLE_START, YOUTUBE_TITLE_END, Vars,EXTRACT_DEQUOTE);
+		GenericExtractFromLine(Tempstr, "Title",YOUTUBE_TITLE_START, YOUTUBE_END, Vars, EXTRACT_DEQUOTE);
 	}
-
 
 	if (strstr(Tempstr,YOUTUBE_DIV))
 	{
 		if (StrLen(GetVar(Vars,"item:flv"))==0) 
 		{
-			GenericExtractFromLine(Tempstr, "yt:url_fmt",YOUTUBE_DIV, "&", Vars,EXTRACT_DEQUOTE);
-			Tempstr=CopyStr(Tempstr,GetVar(Vars,"yt:url_fmt"));
-
-			DecodeYouTubeFormats(Tempstr,Vars);
+			GenericExtractFromLine(Tempstr, "yt:url_fmt",YOUTUBE_DIV, YOUTUBE_END, Vars,EXTRACT_DEQUOTE);
+			Token=CopyStr(Token,GetVar(Vars,"yt:url_fmt"));
+			DecodeYouTubeFormats(Token,Vars);
 		}
 	}
 
@@ -1021,7 +902,6 @@ if (strstr(Tempstr,YOUTUBE_PLAYLIST_ITEM))
 	VarName=FormatStr(VarName,"ID:%d",MediaCount);
 	SetVar(Vars,VarName,Tempstr);
 	MediaCount++;
-printf("PL! %s\n",Tempstr);
 }
 break;
 
@@ -1043,29 +923,6 @@ case TYPE_METACAFE:
 	}
 break;
 
-
-case TYPE_BLIPTV:
-#define BLIPTV_LINE "<link rel=\"alternate\" type=\"application/rss+xml\""
-#define BLIPTV_ITEM_START "href=\""
-#define BLIPTV_ITEM_END "\""
-	ptr=strstr(Tempstr,BLIPTV_LINE);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "ID",BLIPTV_ITEM_START,BLIPTV_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-	}
-break;
-
-case TYPE_BLIPTV_STAGE2:
-#define BLIP_SOURCE_LINE "blip:role=\"Source\""
-#define BLIP_LD_LINE "blip:role=\"Blip LD\""
-#define BLIP_SD_LINE "blip:role=\"Blip SD\""
-#define BLIP_HD_LINE "blip:role=\"Blip HD"
-
-		if (strstr(Tempstr,BLIP_SOURCE_LINE)) BlipTVExtractFromLine(Tempstr,Vars);
-		if (strstr(Tempstr,BLIP_LD_LINE)) BlipTVExtractFromLine(Tempstr,Vars);
-		if (strstr(Tempstr,BLIP_SD_LINE)) BlipTVExtractFromLine(Tempstr,Vars);
-		if (strstr(Tempstr,BLIP_HD_LINE)) BlipTVExtractFromLine(Tempstr,Vars);
-break;
 
 
 case TYPE_BREAK_COM:
@@ -1096,47 +953,15 @@ break;
 
 
 case TYPE_EHOW:
-#define EHOW_ITEM "\"source\":\""
-#define EHOW_ITEM_END "\""
-#define EHOW_HD_ITEM "\"sourcehd\":\""
-#define EHOW_HD_ITEM_END "\""
+#define EHOW_LINE "property=\"og:video\""
+#define EHOW_ITEM "source="
+#define EHOW_ITEM_END "&"
 #define EHOW_TITLE "<h1 class=\"Heading1a\">"
 #define EHOW_TITLE_END "</h1>"
-#define EHOW_ITEM2 "showPlayer({"
 
-	if (strstr(Tempstr,EHOW_ITEM))
+	if (strstr(Tempstr,EHOW_LINE))
 	{
 		GenericExtractFromLine(Tempstr, "item:flv",EHOW_ITEM,EHOW_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-	}
-
-	if (strstr(Tempstr,EHOW_HD_ITEM))
-	{
-		GenericExtractFromLine(Tempstr, "item:flv:hd",EHOW_HD_ITEM,EHOW_HD_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-	}
-
-
-	ptr=strstr(Tempstr,EHOW_ITEM2);
-	if (ptr)
-	{
-		EhowExtractShowPlayer(S,ptr,Vars);
-	}
-
-
-	ptr=strstr(Tempstr,EHOW_TITLE);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "Title",EHOW_TITLE,EHOW_TITLE_END,Vars,EXTRACT_DEQUOTE);
-	}
-break;
-
-case TYPE_EHOW_STAGE2:
-#define EHOW_STAGE2_ITEM "source="
-#define EHOW_STAGE2_ITEM_END "&"
-
-	ptr=strstr(Tempstr,EHOW_STAGE2_ITEM);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "item:flv",EHOW_STAGE2_ITEM,EHOW_STAGE2_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 	}
 
 	ptr=strstr(Tempstr,EHOW_TITLE);
@@ -1204,52 +1029,10 @@ case TYPE_VIMEO_STAGE3:
 break;
 
 
-case TYPE_VIDEOJUG:
-#define VIDEOJUG_ITEM "type=\"application/xml+oembed\" href=\""
-#define VIDEOJUG_ITEM_END "\""
-#define VIDEOJUG_TITLE "<meta property=\"og:title\" content=\""
-#define VIDEOJUG_TITLE_END "\""
-
-	ptr=strstr(Tempstr,VIDEOJUG_ITEM);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "ID",VIDEOJUG_ITEM,VIDEOJUG_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-	}
-
-	ptr=strstr(Tempstr,VIDEOJUG_TITLE);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "Title",VIDEOJUG_TITLE,VIDEOJUG_TITLE_END,Vars,EXTRACT_DEQUOTE);
-	}
-break;
-
-case TYPE_VIDEOJUG_STAGE2:
-#define VIDEOJUG_S2_LINE "<html>&lt;iframe"
-#define VIDEOJUG_S2_ITEM "src=\""
-#define VIDEOJUG_S2_ITEM_END "\""
-
-  if (strstr(Tempstr,VIDEOJUG_S2_LINE))
-  {
-    GenericExtractFromLine(Tempstr, "ID",VIDEOJUG_S2_ITEM,VIDEOJUG_S2_ITEM_END,Vars,EXTRACT_NOSPACES);
-  }
-break;
-
-case TYPE_VIDEOJUG_STAGE3:
-#define VIDEOJUG_S3_LINE "var html5Embed ="
-#define VIDEOJUG_S3_ITEM "src=\""
-#define VIDEOJUG_S3_ITEM_END "\""
-
-  if (strstr(Tempstr,VIDEOJUG_S3_LINE))
-  {
-    GenericExtractFromLine(Tempstr, "ID",VIDEOJUG_S3_ITEM,VIDEOJUG_S3_ITEM_END,Vars,EXTRACT_NOSPACES);
-  }
-break;
-
-
 
 case TYPE_DAILYMOTION:
-#define DAILYMOTION_ITEM "oembed?url="
-#define DAILYMOTION_ITEM_END "&format=xml"
+#define DAILYMOTION_ITEM "/mp4\",\"url\":\""
+#define DAILYMOTION_ITEM_END "\"}"
 #define DAILYMOTION_TITLE_START "<meta property=\"og:title\" content=\""
 #define DAILYMOTION_TITLE_END "\""
 
@@ -1262,60 +1045,9 @@ case TYPE_DAILYMOTION:
 
   if (strstr(Tempstr,DAILYMOTION_ITEM))
   {
-    GenericExtractFromLine(Tempstr, "ID",DAILYMOTION_ITEM,DAILYMOTION_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+		Token=DeQuoteStr(Token,Tempstr);
+		ExtractDailyMotion(Token, DAILYMOTION_ITEM, DAILYMOTION_ITEM_END, Vars);
   }
-break;
-
-
-case TYPE_DAILYMOTION_STAGE2:
-#define DAILYMOTION_S2_ITEM "iframe src=\""
-#define DAILYMOTION_S2_ITEM_END "\""
-
-  if (strstr(Tempstr,DAILYMOTION_S2_ITEM))
-  {
-    GenericExtractFromLine(Tempstr, "ID",DAILYMOTION_S2_ITEM,DAILYMOTION_S2_ITEM_END,Vars,EXTRACT_NOSPACES);
-  }
-break;
-
-case TYPE_DAILYMOTION_STAGE3:
-#define DAILYMOTION_S3_ITEM "stream_h264_url\":\""
-#define DAILYMOTION_S3_LD_ITEM "stream_h264_ld_url\":\""
-#define DAILYMOTION_S3_HD_ITEM "stream_h264_hd_url\":\""
-#define DAILYMOTION_S3_ITEM_END "\""
-
-  if (strstr(Tempstr,DAILYMOTION_S3_ITEM))
-  {
-    GenericExtractFromLine(Tempstr, "dailymotion:tmp",DAILYMOTION_S3_ITEM,DAILYMOTION_S3_ITEM_END,Vars,EXTRACT_NOSPACES| EXTRACT_DESLASHQUOTE);
-		DecodeDailyMotionFormats(GetVar(Vars,"dailymotion:tmp"), Vars);
-  }
-
-  if (strstr(Tempstr,DAILYMOTION_S3_LD_ITEM))
-  {
-    GenericExtractFromLine(Tempstr, "dailymotion:tmp",DAILYMOTION_S3_LD_ITEM,DAILYMOTION_S3_ITEM_END,Vars,EXTRACT_NOSPACES| EXTRACT_DESLASHQUOTE);
-		DecodeDailyMotionFormats(GetVar(Vars,"dailymotion:tmp"), Vars);
-  }
-
-  if (strstr(Tempstr,DAILYMOTION_S3_HD_ITEM))
-  {
-    GenericExtractFromLine(Tempstr, "dailymotion:tmp",DAILYMOTION_S3_HD_ITEM,DAILYMOTION_S3_ITEM_END,Vars,EXTRACT_NOSPACES| EXTRACT_DESLASHQUOTE);
-		DecodeDailyMotionFormats(GetVar(Vars,"dailymotion:tmp"), Vars);
-  }
-break;
-
-
-case TYPE_VBOX7:
-#define VBOX7_ITEM "so.addVariable(\"vid\", \""
-#define VBOX7_ITEM_END "\");"
-
-if (strstr(Tempstr,VBOX7_ITEM))
-{
-		GenericExtractFromLine(Tempstr, "item:flv",VBOX7_ITEM,VBOX7_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-}
-
-if (strstr(Tempstr,GENERIC_TITLE_START))
-{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
-}
 break;
 
 
@@ -1348,25 +1080,6 @@ if (strstr(Tempstr,GENERIC_TITLE_START))
 break;
 
 
-case TYPE_MYVIDEO:
-#define MYVIDEO_URL_START "link rel='image_src' href='"
-#define MYVIDEO_URL_END "/thumbs"
-#define MYVIDEO_VIDID_END "_"
-
-if (strstr(Tempstr,MYVIDEO_URL_START))
-{
-		ptr=GenericExtractFromLine(Tempstr, "MyVidURL",MYVIDEO_URL_START,MYVIDEO_URL_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		ptr=GenericExtractFromLine(ptr, "item:flv","/",MYVIDEO_VIDID_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-}
-
-
-if (strstr(Tempstr,GENERIC_TITLE_START))
-{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
-}
-break;
-
-
 
 case TYPE_YALE:
 
@@ -1389,7 +1102,6 @@ if (strstr(Tempstr,YALE_ITEM_LINE))
 			if (strcmp(ptr,"course_media_low")==0) Token=CopyStr(Token,"item:mov:LD");
 		}
 		GenericExtractFromLine(Tempstr, Token,YALE_ITEM_START,YALE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		printf("%s %s\n",Token,GetVar(Vars,Token));
 }
 
 
@@ -1406,7 +1118,7 @@ case TYPE_REDBALCONY:
 
 if (strstr(Tempstr,REDBALCONY_ITEM_START))
 {
-		GenericExtractFromLine(Tempstr, "ID",REDBALCONY_ITEM_START,REDBALCONY_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES | EXTRACT_GUESSTYPE);
+		GenericExtractFromLine(Tempstr, "ID",REDBALCONY_ITEM_START,REDBALCONY_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 }
 
 
@@ -1425,31 +1137,11 @@ case TYPE_REDBALCONY_STAGE2:
 if (strstr(Tempstr,REDBALCONY_S2_VID_LINE))
 {
 		GenericExtractFromLine(Tempstr, "item:flv",REDBALCONY_S2_ITEM_START,REDBALCONY_S2_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES );
-
 }
 
 break;
 
 
-
-case TYPE_MEFEEDIA:
-#define MEFEEDIA_FIND  "<li class=\"videosource\">"
-#define MEFEEDIA_ITEM_START "href=\""
-#define MEFEEDIA_ITEM_END "\""
-
-ptr=strstr(Tempstr,MEFEEDIA_FIND);
-if (ptr)
-{
-		GenericExtractFromLine(ptr, "item:reference",MEFEEDIA_ITEM_START,MEFEEDIA_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-}
-
-
-if (strstr(Tempstr,GENERIC_TITLE_START))
-{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
-}
-
-break;
 
 case TYPE_IVIEWTUBE:
 //#define IVIEWTUBE_ITEM_START "('ltas.mediaid','"
@@ -1458,12 +1150,12 @@ case TYPE_IVIEWTUBE:
 #define IVIEWTUBE_TITLE_START "name=\"flname\" value=\""
 #define IVIEWTUBE_TITLE_END "\""
 
-#define IVIEWTUBE_ITEM_START "http://www.iviewtube.com/player/player.swf?file="
-#define IVIEWTUBE_ITEM_END "&"
+#define IVIEWTUBE_ITEM_START "<source src=\""
+#define IVIEWTUBE_ITEM_END "\""
 
 if (strstr(Tempstr,IVIEWTUBE_ITEM_START))
 {
-		GenericExtractFromLine(Tempstr, "item:flv",IVIEWTUBE_ITEM_START,IVIEWTUBE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES | EXTRACT_GUESSTYPE);
+		GenericExtractFromLine(Tempstr, "item:mp4",IVIEWTUBE_ITEM_START,IVIEWTUBE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 }
 
 
@@ -1476,42 +1168,9 @@ break;
 
 
 
-case TYPE_MOBANGO:
-#define MOBANGO_EXT_START "extension="
-#define MOBANGO_EXT_END "&"
-#define MOBANGO_ITEM_START "href=\""
-#define MOBANGO_ITEM_END "\""
 
-if (strstr(Tempstr,MOBANGO_EXT_START))
-{
-		GenericExtractFromLine(Tempstr, "extension",MOBANGO_EXT_START,MOBANGO_EXT_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		ptr=GetVar(Vars,"extension");
-
-		Token=MCopyStr(Token,"item:",ptr,NULL);
-		GenericExtractFromLine(Tempstr, Token,MOBANGO_ITEM_START,MOBANGO_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-
-		ptr=GetVar(Vars,Token);
-		ptr=strstr(ptr,"title=");
-		if (ptr)
-		{
-			ptr+=6;
-			GetToken(ptr,"&",&Tempstr,0);
-			SetVar(Vars,"Title",Tempstr);
-		}
-	
-		ptr=GetVar(Vars,Token);
-		ptr=strstr(ptr,"sendtomobile=");
-		if (ptr) *ptr='\0';
-
-
-		
-}
-
-break;
-
-
-#define IZLESE_ITEM_START "file=http"
-#define IZLESE_ITEM_END "&"
+#define IZLESE_ITEM_START "itemprop=\"contentURL\" content=\""
+#define IZLESE_ITEM_END "\""
 #define IZLESE_TITLE_START "<h1>"
 #define IZLESE_TITLE_END "</h1>"
 #define IZLESE_TITLE2_START "<title>"
@@ -1520,22 +1179,16 @@ break;
 case TYPE_IZLESE:
 if (strstr(Tempstr,IZLESE_ITEM_START) && strstr(Tempstr,IZLESE_ITEM_END))
 {
-		GenericExtractFromLine(Tempstr, "tmp",IZLESE_ITEM_START,IZLESE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		ptr=GetVar(Vars,"tmp");
-		if (ptr)
-		{
-			//put 'http' back on
-			Tempstr=MCopyStr(Tempstr,"http",ptr,NULL);
-			
-		}
+	GenericExtractFromLine(Tempstr, "tmp",IZLESE_ITEM_START,IZLESE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	ptr=GetVar(Vars,"tmp");
 
 	if (strstr(ptr,"youtube"))
 	{
-		SetVar(Vars,"item:reference",Tempstr);
+		SetVar(Vars,"item:reference",ptr);
 	}
 	else 
 	{
-		SetVar(Vars,"item:flv",Tempstr);
+		SetVar(Vars,"item:flv",ptr);
 	}
 
 }
@@ -1579,22 +1232,6 @@ case TYPE_REUTERS:
 	{
 		GenericExtractFromLine(Tempstr, "Title",REUTERS_TITLE,",",Vars,EXTRACT_WITHIN_QUOTES | EXTRACT_NOSPACES);
 	}
-break;
-
-
-#define AE_YT_ITEM1_START "href=\"http://www.youtube.com/watch?v="
-#define AE_YT_ITEM1_END "\""
-
-case TYPE_ACADEMIC_EARTH:
-	ptr=strstr(Tempstr,AE_YT_ITEM1_START);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "item:reference",AE_YT_ITEM1_START,AE_YT_ITEM1_END,Vars, EXTRACT_NOSPACES);
-
-		Tempstr=MCopyStr(Tempstr,"http://youtube.com/watch?v=",GetVar(Vars,"item:reference"),NULL);
-		SetVar(Vars,"item:reference",Tempstr);
-	}
-
 break;
 
 
@@ -1749,28 +1386,38 @@ break;
 
 
 
+
 case TYPE_CBSNEWS:
-ExtractCBSNews(Vars, Tempstr);
+#define CBS_ITEM_START "\"bitrate\":1000,\"url\":\""
+#define CBS_ITEM_END "\""
+
 if (strstr(Tempstr,GENERIC_TITLE_START))
 {
 		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
 }
 
+if (strstr(Tempstr,CBS_ITEM_START) )
+{
+		ptr=Tempstr;
+		while (ptr) ptr=GenericExtractFromLine(ptr, "item:flv",CBS_ITEM_START,CBS_ITEM_END,Vars,EXTRACT_GUESSTYPE|EXTRACT_DESLASHQUOTE);
+}
 break;
 
 
 case TYPE_FRANCE24:
-#define FRANCE24_ITEM_START "meta property=\"og:video\" content=\""
+#define FRANCE24_ITEM_LINE "window.BSPlayer.items"
+#define FRANCE24_ITEM_START "\"is_default\":0,\"source\":\""
 #define FRANCE24_ITEM_END "\""
 #define FRANCE24_ITEM2_START "file="
 #define FRANCE24_ITEM2_END "&"
 
-if (strstr(Tempstr,FRANCE24_ITEM_START) )
+if (strstr(Tempstr,FRANCE24_ITEM_LINE) )
 {
-		GenericExtractFromLine(Tempstr, "item:flv",FRANCE24_ITEM_START,FRANCE24_ITEM_END,Vars,EXTRACT_GUESSTYPE);
+		ptr=Tempstr;
+		while (ptr) ptr=GenericExtractFromLine(ptr, "item:flv",FRANCE24_ITEM_START,FRANCE24_ITEM_END,Vars,EXTRACT_GUESSTYPE|EXTRACT_DESLASHQUOTE);
+		
 }
-
-if (strstr(Tempstr,FRANCE24_ITEM2_START) )
+else if (strstr(Tempstr,FRANCE24_ITEM2_START) )
 {
 		GenericExtractFromLine(Tempstr, "item:flv",FRANCE24_ITEM2_START,FRANCE24_ITEM2_END,Vars,EXTRACT_GUESSTYPE);
 }
@@ -1786,7 +1433,7 @@ break;
 
 
 case TYPE_EURONEWS:
-#define EURONEWS_ITEM_START "videofile:\""
+#define EURONEWS_ITEM_START "sources: [{file: \""
 #define EURONEWS_BULLETIN_START "vid0:\""
 #define EURONEWS_ITEM_END "\""
 
@@ -1794,7 +1441,7 @@ if (strstr(Tempstr,EURONEWS_ITEM_START) )
 {
 		//don't try using 'guesstype' here, as we stick .flv on later, and need
 		//to be able to find 'ID', not 'item:guessed'
-		GenericExtractFromLine(Tempstr, "ID",EURONEWS_ITEM_START,EURONEWS_ITEM_END,Vars,0);
+		GenericExtractFromLine(Tempstr, "ID",EURONEWS_ITEM_START,EURONEWS_ITEM_END,Vars,EXTRACT_GUESSTYPE);
 }
 
 if (strstr(Tempstr,EURONEWS_BULLETIN_START) )
@@ -1814,85 +1461,30 @@ break;
 
 
 case TYPE_METATUBE:
-#define METATUBE_ITEM_START "flashvars.src = \""
-#define METATUBE_ITEM_END "\";"
+#define METATUBE_ITEM_START "\"sources\":[\""
+#define METATUBE_ITEM_END "\""
 #define METATUBE_ITEM2_START "<video src=\""
 #define METATUBE_ITEM2_END "\""
 
 if (strstr(Tempstr,METATUBE_ITEM_START) )
 {
-		GenericExtractFromLine(Tempstr, "item:flv",METATUBE_ITEM_START,METATUBE_ITEM_END,Vars,EXTRACT_GUESSTYPE);
+		GenericExtractFromLine(Tempstr, "item:flv",METATUBE_ITEM_START,METATUBE_ITEM_END,Vars,EXTRACT_GUESSTYPE | EXTRACT_DESLASHQUOTE);
 }
 
+/*
 if (strstr(Tempstr,METATUBE_ITEM2_START) )
 {
 		GenericExtractFromLine(Tempstr, "item:flv",METATUBE_ITEM2_START,METATUBE_ITEM2_END,Vars,EXTRACT_GUESSTYPE);
 }
-
-if (strstr(Tempstr,GENERIC_TITLE_START))
-{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,0);
-}
-
-break;
-
-case TYPE_MOTIONFEEDS:
-#define MOTIONFEEDS_ITEM_LINE "param name=\"movie\" "
-#define MOTIONFEEDS_ITEM_START1 "file="
-#define MOTIONFEEDS_ITEM_START2 "value="
-#define MOTIONFEEDS_ITEM_START3 "http://www.youtube.com/watch?v="
-#define MOTIONFEEDS_ITEM_END "&"
-
-if (strstr(Tempstr,MOTIONFEEDS_ITEM_LINE) )
-{
-if (strstr(Tempstr,MOTIONFEEDS_ITEM_START1) ) GenericExtractFromLine(Tempstr, "item:flv",MOTIONFEEDS_ITEM_START1,MOTIONFEEDS_ITEM_END,Vars,0);
-else if (strstr(Tempstr,MOTIONFEEDS_ITEM_START2) ) GenericExtractFromLine(Tempstr, "item:reference",MOTIONFEEDS_ITEM_START2,MOTIONFEEDS_ITEM_END,Vars,0);
-}
-
-
-if (strstr(Tempstr,GENERIC_TITLE_START))
-{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,0);
-}
-
-if (strstr(Tempstr,MOTIONFEEDS_ITEM_START3) ) 
-{
-GenericExtractFromLine(Tempstr, "item:reference",MOTIONFEEDS_ITEM_START3,MOTIONFEEDS_ITEM_END,Vars,0);
-Tempstr=MCopyStr(Tempstr,MOTIONFEEDS_ITEM_START3,GetVar(Vars,"item:reference"),NULL);
-SetVar(Vars,"item:reference",Tempstr);
-}
-
-break;
-
-
-
-case TYPE_ESCAPIST:
-#define ESCAPIST_ITEM_START "swf?config="
-#define ESCAPIST_ITEM_END "&"
-#define ESCAPIST_TITLE_START "<meta property=\"og:title\" content=\""
-#define ESCAPIST_TITLE_END "\""
-
-if (strstr(Tempstr,ESCAPIST_ITEM_START) )
-{
- GenericExtractFromLine(Tempstr, "ID",ESCAPIST_ITEM_START,ESCAPIST_ITEM_END,Vars,EXTRACT_DEQUOTE);
-}
-
-if (strstr(Tempstr,ESCAPIST_TITLE_START) ) 
-{
-GenericExtractFromLine(Tempstr, "Title",ESCAPIST_TITLE_START,ESCAPIST_TITLE_END,Vars,0);
-}
-break;
-
-case TYPE_ESCAPIST_STAGE2:
-/*
-#define ESCAPIST_STAGE2_ITEM_START "'},{'url':'"
-#define ESCAPIST_STAGE2_ITEM_END "'"
-if (strstr(Tempstr,ESCAPIST_STAGE2_ITEM_START) ) GenericExtractFromLine(Tempstr, "item:mp4",ESCAPIST_STAGE2_ITEM_START,ESCAPIST_STAGE2_ITEM_END,Vars,0);
-
 */
 
-ParseFlashPlaylist(Tempstr, Vars);
+if (strstr(Tempstr,GENERIC_TITLE_START))
+{
+		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,0);
+}
+
 break;
+
 
 
 case TYPE_GUARDIAN:
@@ -1923,12 +1515,13 @@ if (strstr(Tempstr,GENERIC_TITLE_START))
 break;
 
 case TYPE_REDORBIT:
-#define REDORBIT_ITEM_START "playlist="
-#define REDORBIT_ITEM_END "'"
+#define REDORBIT_ITEM_LINE "<source type=\"video/"
+#define REDORBIT_ITEM_START "src=\""
+#define REDORBIT_ITEM_END "\""
 
-if (strstr(Tempstr,REDORBIT_ITEM_START) )
+if (strstr(Tempstr,REDORBIT_ITEM_LINE) )
 {
-		GenericExtractFromLine(Tempstr, "ID",REDORBIT_ITEM_START,REDORBIT_ITEM_END,Vars,EXTRACT_DEQUOTE);
+		GenericExtractFromLine(Tempstr, "ID",REDORBIT_ITEM_START,REDORBIT_ITEM_END,Vars,EXTRACT_DEQUOTE|EXTRACT_GUESSTYPE);
 }
 
 
@@ -1940,15 +1533,6 @@ if (strstr(Tempstr,GENERIC_TITLE_START))
 
 break;
 
-case TYPE_REDORBIT_STAGE2:
-#define REDORBIT2_ITEM_START "<media:content url=\""
-#define REDORBIT2_ITEM_END "\""
-
-if (strstr(Tempstr,REDORBIT2_ITEM_START) )
-{
-		GenericExtractFromLine(Tempstr, "item:flv",REDORBIT2_ITEM_START,REDORBIT2_ITEM_END,Vars,EXTRACT_GUESSTYPE);
-}
-break;
 
 case TYPE_SCIVEE:
 #define SCIVEE_ITEM_START "<param name=\"flashvars\" value=\"id="
@@ -2043,18 +1627,13 @@ case TYPE_KAVLIINSTITUTE_STAGE2:
 break;
 
 case TYPE_DOTSUB:
-#define DOTSUB_ITEMSTART "mediaUri = '"
-#define DOTSUB_ITEMEND "'"
-#define DOTSUB_SERVSTART "webAppUrl = '"
+#define DOTSUB_ITEMSTART "<source src=\""
+#define DOTSUB_ITEMEND "\""
 #define DOTSUB_TITLESTART "og:title\" content=\""
 #define DOTSUB_TITLEEND "\""
 
-		if (strstr(Tempstr,DOTSUB_ITEMSTART)) GenericExtractFromLine(Tempstr, "ID",DOTSUB_ITEMSTART,DOTSUB_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		if (strstr(Tempstr,DOTSUB_SERVSTART)) GenericExtractFromLine(Tempstr, "SERV",DOTSUB_SERVSTART,DOTSUB_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		if (strstr(Tempstr,DOTSUB_TITLESTART))
-		{
-		GenericExtractFromLine(Tempstr, "Title",DOTSUB_TITLESTART,DOTSUB_TITLEEND,Vars,0);
-		}
+		if (strstr(Tempstr,DOTSUB_ITEMSTART)) GenericExtractFromLine(Tempstr, "ID",DOTSUB_ITEMSTART,DOTSUB_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES | EXTRACT_GUESSTYPE);
+		if (strstr(Tempstr,DOTSUB_TITLESTART)) GenericExtractFromLine(Tempstr, "Title",DOTSUB_TITLESTART,DOTSUB_TITLEEND,Vars,0);
 break;
 
 case TYPE_ASTRONOMYCOM:
@@ -2088,21 +1667,6 @@ case TYPE_ASTRONOMYCOM_STAGE2:
 			 GenericExtractFromLine(Tempstr, "ID",ASTRONOMYCOM_S2_ITEMSTART,ASTRONOMYCOM_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 		}
 	
-break;
-
-case TYPE_TEACHERTUBE:
-#define TEACHERTUBE_ITEMSTART "'file': '"
-#define TEACHERTUBE_ITEMEND "'"
-
-	if (strstr(Tempstr,GENERIC_TITLE_START))
-	{
-		GenericExtractFromLine(Tempstr, "Title",GENERIC_TITLE_START,GENERIC_TITLE_END,Vars,EXTRACT_DEQUOTE);
-	}
-
-		if (strstr(Tempstr,TEACHERTUBE_ITEMSTART))
-		{
-			 GenericExtractFromLine(Tempstr, "ID",TEACHERTUBE_ITEMSTART,TEACHERTUBE_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-		}
 break;
 
 
@@ -2219,19 +1783,13 @@ break;
 
 case TYPE_FUNNYORDIE:
 #define FOD_ITEMSTART "<source src=\""
-#define FOD_ITEMEND ".m3u8"
-#define FOD_TITLE_START "title: \""
+#define FOD_ITEMEND "\""
+#define FOD_TITLE_START "meta property=\"og:title\" content=\""
 #define FOD_TITLE_END "\""
 
 	if (strstr(Tempstr,FOD_ITEMSTART))
 	{
-		GenericExtractFromLine(Tempstr, "item:reference",FOD_ITEMSTART,FOD_ITEMEND,Vars,EXTRACT_DESLASHQUOTE | EXTRACT_NOSPACES);
-		ptr=GetVar(Vars,"item:reference");
-		if (ptr)
-		{
-			Tempstr=MCopyStr(Tempstr,ptr,".m3u8",NULL);
-			SetVar(Vars,"item:reference",Tempstr);
-		}
+		GenericExtractFromLine(Tempstr, "ID",FOD_ITEMSTART,FOD_ITEMEND,Vars,EXTRACT_DESLASHQUOTE | EXTRACT_NOSPACES | EXTRACT_GUESSTYPE);
 	}
 
 	if (strstr(Tempstr,FOD_TITLE_START))
@@ -2244,15 +1802,13 @@ break;
 
 case TYPE_GOOGLE_URL:
 		SetVar(Vars,"item:reference",URL);
+		Type=TYPE_REFERENCE;
 break;
 
 
 
-case TYPE_MYTOPCLIP:
-case TYPE_PRINCETON:
 case TYPE_UCTV:
 case TYPE_GENERIC:
-case TYPE_ALJAZEERA:
 
 //some sites are actually just frontends to youtube
 #define YOUTUBE_REFERENCE1 "http://www.youtube.com/watch?v="
@@ -2279,7 +1835,7 @@ if (strstr(Tempstr,YOUTUBE_REFERENCE2))
 														 //pick up on it
 }
 
-for (i=0; i < ContainerTypes[i]; i++)
+for (i=0; ContainerTypes[i] !=NULL; i++)
 {
 if (strstr(Tempstr,ContainerTypes[i]))
 {
@@ -2335,6 +1891,8 @@ break;
 
 if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- END DOCUMENT ------\n\n");
 
+//ptr=GetVar(Vars,"item:m3u8");
+//if (StrValid(ptr)) M3UContainer(ptr, Vars);
 
 if (MediaCount > 0) HandleMultipleMedia(Type,Server,Flags,Vars,MediaCount);
 else
@@ -2345,6 +1903,7 @@ else
 	}	
 
 	ptr=GetVar(Vars,"ID");
+
 	if (ptr) RetVal=GetNextURL(Type, Server, Flags, Vars);
 	else if (! (Flags & FLAG_QUIET))
 	{

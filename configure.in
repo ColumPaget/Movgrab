@@ -5,7 +5,7 @@ AC_INIT([main.c])
 VERSION="1.2.1" 
 AC_SUBST(VERSION) 
 
-AC_CONFIG_SUBDIRS([libUseful-2.0])
+AC_CONFIG_SUBDIRS([libUseful-2.4])
 
 AC_PROG_CC 
 AC_LANG_C 
@@ -19,7 +19,7 @@ cf_have_libz=$ac_cv_lib_z_deflate
 AC_ARG_ENABLE(largefiles, [  --enable-largefiles       enable largefile support], cf_use_largefiles=$enableval )
 AC_ARG_ENABLE(ssl, [  --enable-ssl       use Secure Sockets Layer], cf_use_ssl=$enableval )
 
-if test "$cf_use_largefiles" = "yes" 
+if test "$cf_use_largefiles" != "no" 
 then
 AC_DEFINE([_LARGEFILE64_SOURCE])
 AC_DEFINE([_FILE_OFFSET_BITS],[64])
@@ -47,7 +47,7 @@ else
 echo "SSL and https enabled"
 fi
 
-if test	"$cf_use_largefiles" != "yes" 
+if test	"$cf_use_largefiles" = "no" 
 then
 echo "Largefiles NOT enabled"
 else

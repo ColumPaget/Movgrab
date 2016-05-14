@@ -1,14 +1,16 @@
 #include "containerfiles.h"
 #include "outputfiles.h"
 #include "servicetypes.h"
+#include "download.h"
 
 
 #define M3U_STREAMINFO 1
 #define M3U_PLAYLIST   2
 
-char *ContainerTypes[]={".m3u",".m3u8",".pls",".asx",NULL};
+const char *ContainerTypes[]={".m3u",".m3u8",".pls",".asx",NULL};
+int ContainerIDs[]={TYPE_CONTAINERFILE_M3U8, TYPE_CONTAINERFILE_M3U8, TYPE_CONTAINERFILE_PLS, TYPE_CONTAINERFILE_ASX};
 
-int GetContainerFileType(char *URL)
+int GetContainerFileType(const char *URL)
 {
 char *Tempstr=NULL, *ptr;
 int val;
@@ -25,12 +27,14 @@ ptr=strrchr(Tempstr,'.');
 val=MatchTokenFromList(ptr,ContainerTypes,0);
 
 DestroyString(Tempstr);
+if (val==-1) return(TYPE_NONE);
 
-return(val);
+if (Flags & FLAG_DEBUG2) fprintf(stderr,"CONTAINERTYPE: %s\n",ContainerTypes[val]);
+return(ContainerIDs[val]);
 }
 
 
-int DownloadStream(char *URL, char *Title, ListNode *Items, int Flags)
+int DownloadStream(const char *URL, const char *Title, ListNode *Items, int Flags)
 {
 STREAM *Con=NULL, *S=NULL;
 ListNode *Curr;
@@ -80,262 +84,87 @@ return(TRUE);
 }
 
 
-void M3UParseStreamInfo(char *Line, char **Resolution, char **Bandwidth)
+void M3UStreamVarName(const char *Config, char **VarName)
 {
-char *Name=NULL, *Value=NULL, *ptr;
+char *Name=NULL, *Value=NULL;
+char *Resolution=NULL, *Codec=NULL, *Bandwidth=NULL;
+const char *ptr;
 
-ptr=GetToken(Line,":",&Name,0);
-ptr=GetNameValuePair(ptr,",","=",&Name,&Value);
+ptr=GetNameValuePair(Config, ",", "=", &Name, &Value);
 while (ptr)
 {
-	StripLeadingWhitespace(Name);
 	StripTrailingWhitespace(Name);
-	StripLeadingWhitespace(Value);
 	StripTrailingWhitespace(Value);
-	if (strcasecmp(Name,"RESOLUTION")==0) *Resolution=CopyStr(*Resolution,Value);
-	if (strcasecmp(Name,"BANDWIDTH")==0) *Bandwidth=CopyStr(*Bandwidth,Value);
-ptr=GetNameValuePair(ptr,",","=",&Name,&Value);
+	if (strcasecmp(Name,"resolution")==0) Resolution=CopyStr(Resolution, Value);
+	if (strcasecmp(Name,"codec")==0) Codec=CopyStr(Codec, Value);
+	if (strcasecmp(Name,"bandwidth")==0) Bandwidth=CopyStr(Bandwidth, Value);
+	while (isspace(*ptr)) ptr++;
+	ptr=GetNameValuePair(ptr, ",", "=", &Name, &Value);
 }
+
+if (StrValid(Resolution)) *VarName=MCopyStr(*VarName, "item:m3u8-stream:", Resolution, NULL);
+else *VarName=MCopyStr(*VarName, "item:m3u8-stream:", Bandwidth, NULL);
 
 DestroyString(Name);
 DestroyString(Value);
+DestroyString(Codec);
+DestroyString(Resolution);
+DestroyString(Bandwidth);
 }
 
 
 
 
-int M3UStreamInfo(STREAM *S, char *Title, char *URL, char *FirstLine, int Flags)
+
+int M3UStreamDownload(STREAM *ManifestCon, const char *URL, const char *Title)
 {
-	char *Tempstr=NULL, *Doc=NULL, *Resolution=NULL, *Bandwidth=NULL, *ptr;
-	ListNode *Vars=NULL;
-	int RetVal=FALSE;
-
-	Vars=ListCreate();
-	Tempstr=CopyStr(Tempstr,FirstLine);
-	while (Tempstr)
-	{
-	StripTrailingWhitespace(Tempstr);
-  if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"%s\n",Tempstr);
-
-	if (strncmp("#EXT-X-STREAM-INF",Tempstr,StrLen("#EXT-X-STREAM-INF"))==0) M3UParseStreamInfo(Tempstr, &Resolution, &Bandwidth);
-	else if (*Tempstr != '#') 
-	{
-		if (strncasecmp(Tempstr,"http",4) !=0) 
-		{
-			Doc=CopyStr(Doc,URL);
-			ptr=strrchr(Doc,'/');
-			if (ptr) *ptr='\0';
-			Doc=MCatStr(Doc,"/",Tempstr,NULL);
-		}
-		else Doc=CopyStr(Doc,Tempstr);
-
-		ptr=FileTypeFromURL(Doc);
-		if (strcmp(ptr,"m3u8")==0) ptr="stream";
-		if (StrLen(Resolution)) 
-		{
-			if (StrLen(ptr)) Tempstr=MCopyStr(Tempstr,"item:",ptr,":",Resolution,NULL);
-			else Tempstr=MCopyStr(Tempstr,"item:stream:",Resolution,NULL);
-		}
-		else if (StrLen(Bandwidth)) 
-		{
-			if (StrLen(ptr)) Tempstr=MCopyStr(Tempstr,"item:",ptr,":",Bandwidth,NULL);
-			else Tempstr=MCopyStr(Tempstr,"item:stream:",Bandwidth,NULL);
-		}
-		else Tempstr=CopyStr(Tempstr,"ID");
-		SetVar(Vars,Tempstr,Doc);
-	}
-	Tempstr=STREAMReadLine(Tempstr,S);
-	}
-
-	ptr=GetVar(Vars,"ID");
-	if (! StrLen(ptr)) Type=SelectDownloadFormat(Vars, TYPE_REFERENCE, FALSE);
-	ptr=GetVar(Vars,"ID");
-	if (StrLen(ptr)) RetVal=DownloadM3U(ptr, Title, Flags);
-
-	ListDestroy(Vars,DestroyString);
-	DestroyString(Tempstr);
-	DestroyString(Resolution);
-	DestroyString(Bandwidth);
-	DestroyString(Doc);
-
-	return(RetVal);
-}
-
-
-int DownloadM3U(char *URL, char *Title, int Flags)
-{
-char *Tempstr=NULL, *ID=NULL, *Doc=NULL, *ptr;
-int Port=0, BytesRead=0, len=0, count=0;
-int RetVal=FALSE;
-ListNode *Items, *Curr;
-int M3UType=M3U_PLAYLIST;
-STREAM *Con;
-
-if (Flags & FLAG_DEBUG) fprintf(stderr,"M3U STREAM: %s\n",URL);
-
-
-Items=ListCreate();
-Con=ConnectAndRetryUntilDownload(URL, 0, 0);
-if (Con)
-{
-Tempstr=STREAMReadLine(Tempstr,Con);
-while (Tempstr)
-{
-StripTrailingWhitespace(Tempstr);
-StripLeadingWhitespace(Tempstr);
-
-if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"%s\n",Tempstr);
-if (StrLen(Tempstr))
-{
-	if (strncmp("#EXT-X-STREAM-INF",Tempstr,StrLen("#EXT-X-STREAM-INF"))==0)
-	{
-			RetVal=M3UStreamInfo(Con,Title,URL,Tempstr,Flags);
-			M3UType=M3U_STREAMINFO;
-	}
-	else if (strncmp("#EXT-X-MEDIA-SEQUENCE",Tempstr,StrLen("#EXT-X-MEDIA-SEQUENCE"))==0) M3UType=M3U_PLAYLIST;
-	else if (*Tempstr != '#') 
-	{
-		if (strncasecmp(Tempstr,"http",4) !=0) 
-		{
-			Doc=CopyStr(Doc,URL);
-			ptr=strrchr(Doc,'/');
-			if (ptr) *ptr='\0';
-			Doc=MCatStr(Doc,"/",Tempstr,NULL);
-		}
-		else Doc=CopyStr(Doc,Tempstr);
-		ListAddItem(Items,CopyStr(NULL,Doc));
-	}
-}
-
-Tempstr=STREAMReadLine(Tempstr,Con);
-}
-
-STREAMClose(Con);
-if (M3UType == M3U_PLAYLIST) RetVal=DownloadStream(URL, Title, Items, Flags);
-}
-
-ListDestroy(Items,DestroyString);
-DestroyString(Tempstr);
-DestroyString(Doc);
-DestroyString(ID);
-
-
-return(RetVal);
-}
-
-
-int DownloadPLS(char *URL, char *Title, int Flags)
-{
-char *Tempstr=NULL, *Token=NULL, *ptr;
-int Port=0, len=0;
 STREAM *Con=NULL;
-int RetVal=FALSE;
-ListNode *Items;
+char *Tempstr=NULL, *BasePath=NULL, *Line=NULL;
+const char *ptr;
+ListNode *Segments, *Curr;
+int result;
+double BytesRead=0;
 
-if (Flags & FLAG_DEBUG) fprintf(stderr,"PLS STREAM: %s\n",URL);
-
-Items=ListCreate();
-Con=ConnectAndRetryUntilDownload(URL, 0, 0);
-if (Con)
+Segments=ListCreate();
+ptr=strrchr(URL, '/');
+if (ptr)
 {
-Tempstr=STREAMReadLine(Tempstr,Con);
-while (Tempstr)
-{
-StripTrailingWhitespace(Tempstr);
-StripLeadingWhitespace(Tempstr);
-
-  if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"%s\n",Tempstr);
-if (StrLen(Tempstr))
-{
-	ptr=GetToken(Tempstr,"=",&Token,0);
-	if (strncmp(Token,"File",4)==0) ListAddItem(Items,CopyStr(NULL,ptr));
-}
-
-Tempstr=STREAMReadLine(Tempstr,Con);
-}
-
-//Close the Connection and Download the next stage
-STREAMClose(Con);
-
-RetVal=DownloadStream(URL, Title, Items, Flags);
-}
-	
-ListDestroy(Items,DestroyString);
-DestroyString(Tempstr);
-
-return(RetVal);
-}
-
-
-int DownloadASX(char *URL, char *Title, int Flags)
-{
-char *Tempstr=NULL, *Token=NULL, *ptr;
-int Port=0, len=0;
-int RetVal=FALSE;
-STREAM *Con=NULL;
-ListNode *Items;
-
-if (Flags & FLAG_DEBUG) fprintf(stderr,"ASX STREAM: %s\n",URL);
-
-Items=ListCreate();
-Con=ConnectAndRetryUntilDownload(URL, 0, 0);
-if (Con)
-{
-Tempstr=STREAMReadLine(Tempstr,Con);
-while (Tempstr)
-{
-StripTrailingWhitespace(Tempstr);
-StripLeadingWhitespace(Tempstr);
-
-  if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"%s\n",Tempstr);
-	if (StrLen(Tempstr) && (strncasecmp(Tempstr,"<Ref href",9)==0))
+BasePath=CopyStrLen(BasePath, URL, ptr - URL);
+	Line=STREAMReadLine(Line,ManifestCon);
+	while (Line)
 	{
-		ptr=GetToken(Tempstr,"=",&Token,0);
-		while (isspace(*ptr)) ptr++;
-		if (*ptr=='"') ptr++;
-		ptr=GetToken(ptr,"\"",&Token,0);
-
-		ListAddItem(Items,CopyStr(NULL,Token));
+		StripLeadingWhitespace(Line);
+		StripTrailingWhitespace(Line);
+		
+		if (*Line != '#')
+		{
+			Tempstr=MCopyStr(Tempstr, BasePath, "/", Line, NULL);
+			ListAddItem(Segments, CopyStr(NULL, Tempstr));
+		}
+	Line=STREAMReadLine(Line,ManifestCon);
 	}
 
-Tempstr=STREAMReadLine(Tempstr,Con);
+	OpenOutputFiles(Title, URL, &BytesRead);
+	Tempstr=SetStrLen(Tempstr,BUFSIZ);
+	Curr=ListGetNext(Segments);
+	while (Curr)
+	{
+		Con=ConnectAndRetryUntilDownload(Curr->Item, 0, 0);
+		if (Con)
+		{
+		TransferItem(Con, Title, URL, "m3u8-stream", 0, 0, &BytesRead, FALSE);
+		STREAMClose(Con);
+		}
+
+	Curr=ListGetNext(Curr);
+	}
+	CloseOutputFiles();
 }
 
-STREAMClose(Con);
-
-RetVal=DownloadStream(URL, Title, Items, Flags);
-}
-	
-ListDestroy(Items,DestroyString);
+ListDestroy(Segments, DestroyString);
 DestroyString(Tempstr);
-
-
-return(RetVal);
+DestroyString(BasePath);
+DestroyString(Line);
 }
 
 
-int DownloadContainer(char *Path, char *Title, int Flags)
-{
-char *ptr;
-int val, RetVal=FALSE;
-
-val=GetContainerFileType(Path);
-
-switch (val)
-{
-	case CONT_M3U:
-	case CONT_M3U8:
-   RetVal=DownloadM3U(Path, Title, Flags);
-	break;
-
-	case CONT_PLS:
-    RetVal=DownloadPLS(Path, Title, Flags);
-	break;
-
-	case CONT_ASX:
-  	RetVal=DownloadASX(Path, Title, Flags);
-	break;
-}
-
-return(RetVal);
-}

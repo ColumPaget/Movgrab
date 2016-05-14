@@ -2,9 +2,9 @@
 #ifndef MOVGRAB_COMMON
 #define MOVGRAB_COMMON
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "1.2.1"
+#define Version "2.0.0"
 
-#include "libUseful-2.0/libUseful.h"
+#include "libUseful-2.4/libUseful.h"
 #include <string.h>
 #include <glob.h>
 #include "extract_text.h"
@@ -36,5 +36,7 @@ extern char *FileTypes[];
 extern char *ItemSelectionArg;
 
 char *FileTypeFromURL(char *URL);
+char *ItemCodeFromFileExtension(char *RetBuf, const char *Default, const char *URL);
+
 
 #endif

@@ -28,7 +28,7 @@ return(Str);
 
 //guess the extension of a file, some sites don't have extensions
 //on their filenames
-char *GuessExtn(char *ContentType, char *Format, char *ID)
+char *GuessExtn(const char *ContentType, const char *Format, const char *ID)
 {
 static char *Extn=NULL;
 char *ptr;
@@ -63,27 +63,27 @@ return(Extn);
 
 //URL is used to provide a unique MD5 so that two downloads from
 //different sites with the same title don't overwrite each other
-char *GetSaveFilePath(char *RetStr, char *Title, char *URL)
+char *GetSaveFilePath(char *RetStr, const char *Title, const char *URL)
 {
 char *ptr=NULL;
 char *Tempstr=NULL, *MD5=NULL;
 
-
 if (StrLen(Title)) ptr=Title;
 else 
 {
+	Tempstr=CopyStr(Tempstr, URL);
 		//Assume the filename is the document part of the url
-		ptr=strrchr(URL,'?');
+		ptr=strrchr(Tempstr,'?');
 		if (ptr) *ptr='\0';
 
 
-		ptr=strrchr(URL,'/');
+		ptr=strrchr(Tempstr,'/');
 		if (ptr) ptr++;
-		else ptr=URL;
+		else ptr=Tempstr;
 }
 
-Tempstr=MakeFilesystemSafeName(RetStr, ptr);
-ptr=strrchr(Tempstr,'.');
+RetStr=MakeFilesystemSafeName(RetStr, ptr);
+ptr=strrchr(RetStr,'.');
 
 //some titles might have '.' in them, but not have an extension
 //only assume it's an extension if it's under six chars long
@@ -91,16 +91,16 @@ if (ptr && (StrLen(ptr) < 6)) *ptr='\0';
 
 if (! (Flags & FLAG_RESUME))
 {
-	HashBytes(&MD5,"md5",URL,StrLen(URL),ENCODE_HEX);
+	HashBytes(&MD5,"md5",Tempstr,StrLen(Tempstr),ENCODE_HEX);
 	Tempstr=MCatStr(Tempstr,"-",MD5,NULL);
 }
 
 //Some stupid sites start pagenames with a space, and we don't want this in the filename
-StripLeadingWhitespace(Tempstr);
+StripLeadingWhitespace(RetStr);
 
 DestroyString(MD5);
 
-return(Tempstr);
+return(RetStr);
 }
 
 
@@ -109,7 +109,7 @@ return(Tempstr);
 //If that's set to '-' then open stdout and write to that, if it's
 //set to anything else, then use that as the filename. Otherwise
 //build the filename from available info.
-STREAM *OpenSaveFile(char *Path, double *FileSize, int ResumeDownload)
+STREAM *OpenSaveFile(const char *Path, double *FileSize, int ResumeDownload)
 {
 STREAM *S=NULL;
 struct stat FStat;
@@ -145,6 +145,7 @@ else
 return(S);
 }
 
+
 STREAM *OpenCacheFile(char *Title, char *URL)
 {
 char *Tempstr=NULL;
@@ -168,11 +169,16 @@ DestroyString(Tempstr);
 return(S);
 }
 
-void OpenOutputFiles(char *Title, char *URL, double *FileSize)
+
+//some apps expect to be able to read data in multiples of 1024, so if we are writing
+//to standard out (probably piped into such an app) we work in blocks
+#define BLOCKSIZE 4096
+void OpenOutputFiles(const char *Title, const char *URL, double *FileSize)
 {
 char *Tempstr=NULL;
 ListNode *Curr;
 int val=0, Resume=FALSE;
+STREAM *S;
 
 if ((Flags & FLAG_RESUME) && (ListSize(OutputFiles)==1)) Resume=TRUE;
 
@@ -184,7 +190,13 @@ while (Curr)
 		Tempstr=GetSaveFilePath(Tempstr, Title, URL);
 		Curr->Item=OpenSaveFile(Tempstr, FileSize, Resume);
 	}
-	else if (strcmp(Curr->Tag,"-")==0) Curr->Item=STREAMFromFD(1); 
+	else if (strcmp(Curr->Tag,"-")==0) 
+	{
+		S=STREAMFromFD(1); 
+		STREAMResizeBuffer(S, BLOCKSIZE * 8);
+		STREAMSetFlushType(S, FLUSH_BLOCK, BLOCKSIZE * 4, BLOCKSIZE);
+		Curr->Item=S;
+	}
 	else Curr->Item=OpenSaveFile(Curr->Tag, FileSize, Resume);
 
 Curr=ListGetNext(Curr);
@@ -195,7 +207,7 @@ DestroyString(Tempstr);
 }
 
 
-void WriteOutputFiles(char *Data, int Len)
+void WriteOutputFiles(const char *Data, int Len)
 {
 ListNode *Curr;
 
@@ -206,6 +218,7 @@ if (Curr->Item) STREAMWriteBytes((STREAM *) Curr->Item,Data,Len);
 Curr=ListGetNext(Curr);
 }
 }
+
 
 void CloseOutputFiles(char *Extn)
 {
@@ -232,7 +245,7 @@ DestroyString(Tempstr);
 }
 
 
-void AddOutputFile(char *Path, int SingleOutput)
+void AddOutputFile(const char *Path, int SingleOutput)
 {
 //if 'SingleOutput' is set then overwrite any existing outputs, this should be the
 //only one

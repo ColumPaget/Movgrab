@@ -8,26 +8,22 @@ All the HTTP stuff is in here
 */ 
 
 
-char *Proxy=NULL;
 extern int STREAMTimeout;
 
-STREAM *ConnectAndSendHeaders(char *URL, int Flags, double BytesRange)
+STREAM *ConnectAndSendHeaders(const char *URL, int Flags, double BytesRange)
 {
 STREAM *Con;
-char *Tempstr=NULL, *Method=NULL;
+char *Tempstr=NULL, *Method=NULL, *ptr;
 HTTPInfoStruct *Info;
 static char *LastPage=NULL;
-
-if (StrLen(Proxy)) HTTPSetProxy(Proxy);
 
 if (Flags & FLAG_POST) Method=CopyStr(Method,"POST");
 else Method=CopyStr(Method,"GET");
 
 Info=HTTPInfoFromURL(Method, URL);
 //if (DLFlags & DL_NOREDIRECT) Info->Flags |=HTTP_NOREDIRECT;
-if (Flags & FLAG_HTTPS) Info->Flags |= HTTP_SSL|HTTP_SSL_REWRITE;
 if (Flags & FLAG_DEBUG3) Info->Flags |= HTTP_DEBUG;
-
+//Info->Flags |= HTTP_DEBUG;
 
 if (StrLen(LastPage)) SetVar(Info->CustomSendHeaders,"Referer",LastPage); 
 
@@ -38,12 +34,15 @@ if (BytesRange > 0)
 	SetVar(Info->CustomSendHeaders,"Range",Tempstr); 
 }
 
+SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
+
 Con=HTTPTransact(Info);
 if ((! Con) && (! (Flags & FLAG_QUIET))) 
 {
 	if (StrLen(Info->ResponseCode)) fprintf(stderr,"ERROR: Server %s item '%s' not retrieved\nResponseCode: %s\n",Info->Host, Info->Doc,Info->ResponseCode);
 	else fprintf(stderr,"ERROR: Connection failed to %s can't get file=%s \n",Info->Host, Info->Doc);
 }
+
 DestroyString(Tempstr);
 DestroyString(Method);
 
@@ -52,7 +51,7 @@ return(Con);
 
 
 
-STREAM *ConnectAndRetryUntilDownload(char *URL, int Flags, double BytesRead)
+STREAM *ConnectAndRetryUntilDownload(const char *URL, int Flags, double BytesRead)
 {
 STREAM *Con;
 int i;
@@ -95,40 +94,98 @@ return(Con);
 }
 
 
-
-
-
-int TransferItem(STREAM *Con, char *Title, char *URL, char *Format, double SegmentSize, double DocSize, double *BytesRead, int PrintName)
+void ICYReadString(STREAM *Con, char **Title)
 {
-char *Tempstr=NULL;
-int result, RetVal=FALSE, PrintDownloadName;
+int len, remaining, result;
+uint8_t icysize;
+char *Tempstr=NULL, *Name=NULL, *Value=NULL, *ptr;
+
+	result=STREAMReadBytes(Con,&icysize,1);
+	if (icysize > 0) 
+	{
+		len=icysize * 16;
+		remaining=len;
+		Tempstr=SetStrLen(Tempstr, len);
+		len=0;
+		while (remaining > 0)
+		{
+		result=STREAMReadBytes(Con,Tempstr + len, remaining);
+		if (result==EOF) break;
+		remaining-=result;
+		len+=result;
+		}
+
+		Name=CopyStr(Name,"");		
+		ptr=GetNameValuePair(Tempstr, ";", "=", &Name, &Value);
+		while (ptr)
+		{
+		if (strcasecmp(Name,"StreamTitle")==0) *Title=CopyStr(*Title, Value);
+		ptr=GetNameValuePair(ptr, ";", "=", &Name, &Value);
+		}
+	}
+
+DestroyString(Tempstr);
+DestroyString(Name);
+DestroyString(Value);
+}
+
+
+
+int TransferItem(STREAM *Con, const char *InitialTitle, const char *URL, const char *Format, double SegmentSize, double DocSize, double *BytesRead, int PrintName)
+{
+char *Buffer=NULL, *Title=NULL, *Tempstr=NULL, *ptr;
+int result, RetVal=FALSE, val;
 double ReadThisTime=0;
+unsigned long IcyInterval=0, BlockRemaining=0;
+
+Title=CopyStr(Title, InitialTitle);
+ptr=STREAMGetValue(Con,"HTTP:icy-metaint");
+if (StrLen(ptr)) IcyInterval=strtoul(ptr,NULL,10);
 
 DisplayProgress(Title, Format, *BytesRead, DocSize, PrintName);
-Tempstr=SetStrLen(Tempstr,BUFSIZ);
-result=STREAMReadBytes(Con,Tempstr,BUFSIZ);
-while (result != EOF) 
+
+while (1) 
 {
+	if (BlockRemaining==0)
+	{
+		if (IcyInterval) BlockRemaining=IcyInterval;
+		else BlockRemaining=BUFSIZ;
+		Buffer=SetStrLen(Buffer,BlockRemaining);
+	}
+
+	result=STREAMReadBytes(Con,Buffer,BlockRemaining);
+	if (result==EOF) break;
+	
 	ReadThisTime +=result;
 	(*BytesRead) +=result;
+	BlockRemaining-=result;
 
-	DisplayProgress(Title, Format, *BytesRead,DocSize,FALSE);
+	if (IcyInterval && (BlockRemaining==0)) 
+	{
+		Tempstr=CopyStr(Tempstr,Title);
+		ICYReadString(Con, &Tempstr);
+		if (strcmp(Tempstr, Title) !=0)
+		{
+		Title=CopyStr(Title, Tempstr);
+		DisplayProgress(Title, Format, *BytesRead,DocSize,TRUE);
+		}
+		else DisplayProgress(Title, Format, *BytesRead,DocSize,FALSE);
+	}
+	else DisplayProgress(Title, Format, *BytesRead,DocSize,FALSE);
 
-	WriteOutputFiles(Tempstr,result);
+	WriteOutputFiles(Buffer,result);
 	if ((SegmentSize > 0) && (ReadThisTime >= SegmentSize))
 	{
 		 break;
 	}
-	result=STREAMReadBytes(Con,Tempstr,BUFSIZ);
 }
 RetVal=TRUE;
-
-//give a bit of time for 'player' program to finish
-sleep(3);
 
 DisplayProgress(Title, Format, *BytesRead,DocSize,FALSE);
 
 DestroyString(Tempstr);
+DestroyString(Buffer);
+DestroyString(Title);
 
 return(RetVal);
 }
@@ -136,7 +193,7 @@ return(RetVal);
 
 
 //----- Download an actual Video ----------------------
-int DownloadItem(char *URL, char *Title, char *Format, int Flags)
+int DownloadItem(const char *URL, const char *Title, const char *Format, int Flags)
 {
 STREAM *Con=NULL, *S=NULL;
 char *Tempstr=NULL, *Token=NULL, *ptr;
@@ -156,13 +213,17 @@ if (Flags & FLAG_DEBUG) fprintf(stderr,"Next URL: %s\n",URL);
 
 if (! (Flags & FLAG_TEST_SITES)) OpenOutputFiles(Title,URL,&BytesRead);
 
+
+
 if (! Con) Con=ConnectAndRetryUntilDownload(URL, Flags, BytesRead);
 if (Con)
 {
 	//Some sites throttle excessively
 	STREAMSetTimeout(Con,STREAMTimeout);
 
-
+	if (strncmp(Format,"m3u8-stream:",12)==0) RetVal=M3UStreamDownload(Con, URL, Title);
+	else
+	{
 	Token=CopyStr(Token,STREAMGetValue(Con,"HTTP:Content-Range"));
 	if (StrLen(Token))
 	{
@@ -188,6 +249,8 @@ if (Con)
 		Extn=CopyStr(Extn,GuessExtn(GetVar(Con->Values,"HTTP:Content-Type"), Format, Tempstr));
 		CloseOutputFiles(Extn);
 	}
+	}
+
 	STREAMClose(Con);
 }
 
@@ -202,7 +265,7 @@ return(RetVal);
 
 
 
-int DownloadPage(char *URL, int Type, char *Title, int DLFlags)
+int DownloadPage(const char *URL, int Type, const char *Title, int DLFlags)
 {
 char *ptr, *Args=NULL;
 char *Tempstr=NULL, *Token=NULL;

@@ -24,8 +24,6 @@
 #include "download.h"
 #include "outputfiles.h"
 #include "youtube.h"
-#include "dailymotion.h"
-#include "cbsnews.h"
 #include "ehow.h"
 #include "display.h"
 
@@ -37,7 +35,8 @@ char *FormatPreference=NULL;
 ListNode *DownloadQueue=NULL;
 STREAM *StdIn=NULL;
 char *Username=NULL, *Password=NULL;
-int STREAMTimeout=30;
+char *Proxy=NULL;
+int STREAMTimeout=3000;
 int Type=TYPE_NONE;
 
 int CheckForKeyboardInput()
@@ -80,23 +79,18 @@ if (!StrLen(Path)) return(FALSE);
 Type=MovType;
 NextPath=CopyStr(NextPath,Path);
 ParseURL(Path,&Proto,&Server,&Tempstr,NULL,NULL,&Doc,NULL);
-Port=atoi(Tempstr);
+if (Tempstr) Port=atoi(Tempstr);
 
-if (strcasecmp(Proto,"https")==0) 
+if (Proto && (strcasecmp(Proto,"https")==0) )
 {
-	if (SSLAvailable) Flags |= FLAG_HTTPS;
-	else
+	if (! SSLAvailable)
 	{
 		printf("SSL NOT COMPILED IN! Switching from 'https' to 'http'\n");
 		NextPath=MCopyStr(NextPath,"http://",Server,"/",ptr);
 	}
 }
 
-if (Type==TYPE_NONE) 
-{
-if (GetContainerFileType(Path) != -1) Type=TYPE_CONTAINERFILE;
-else Type=IdentifyServiceType(Server);
-}
+if (Type==TYPE_NONE) Type=IdentifyServiceType(Path);
 
 
 if (Type==TYPE_NONE)
@@ -105,13 +99,8 @@ if (! (Flags & FLAG_QUIET)) fprintf(stderr,"Unrecognized url type. Falling Back 
 Type=TYPE_GENERIC;
 }
 
-if (Type==TYPE_CONTAINERFILE) RetVal=DownloadContainer(NextPath,Title,Flags);
-else
-{
 NextPath=SiteSpecificPreprocessing(NextPath, Path, Proto, Server, Port, Doc, &Type, &Title, &Flags);
-
-if (DownloadPage(NextPath, Type,Title,Flags)) RetVal=TRUE;
-}
+if (DownloadPage(NextPath, Type, Title, Flags)) RetVal=TRUE;
 
 DestroyString(Tempstr);
 DestroyString(Server);
@@ -172,8 +161,9 @@ Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
 	for (i=0; i < 3; i++)
 	{
  		if (DisplayAvailableFormats(Vars, Tempstr, DisplaySize)) break;
-		printf("Connection Refused, sleeping for 20 secs before retry\n");
-		sleep(10);
+		//printf("Connection Refused, sleeping for 20 secs before retry\n");
+		//sleep(10);
+		break;
 	}
 	}
 
@@ -189,9 +179,8 @@ Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
 		Curr=ListGetNext(Vars);
 		while (Curr)
 		{
-
 			if (FmtIDMatches(FmtID,Curr->Tag, (char *) Curr->Item))
-				{
+			{
 					if (Flags & (FLAG_DEBUG)) 
 					{
 						Tempstr=GatherMatchingFormats(Tempstr,FmtID,Vars);
@@ -217,14 +206,15 @@ Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
 if (StrLen(Selected))
 {
 	if (strcmp(Selected,"item:reference")==0) RetVal=TYPE_REFERENCE;
+	if (strncmp(Selected,"item:m3u8-stream",16)==0) RetVal=TYPE_CONTAINERFILE_M3U8;
 	else RetVal=WebsiteType;
 }
 
 if (! (Flags & FLAG_TEST_SITES))
 {
-if (RetVal==-1) fprintf(stderr,"No suitable download format found from '%s'\n\n",FormatPreference);
-else if (RetVal==TYPE_REFERENCE) fprintf(stderr,"Reference to another site: %s\n",GetVar(Vars,"ID"));
-else fprintf(stderr,"Selected format %s\n",Selected);
+	if (RetVal==-1) fprintf(stderr,"No suitable download format found from '%s'\n\n",FormatPreference);
+	else if (RetVal==TYPE_REFERENCE) fprintf(stderr,"Reference to another site: %s\n",GetVar(Vars,"ID"));
+	else fprintf(stderr,"Selected format %s\n",Selected);
 }
 
 
@@ -271,6 +261,7 @@ fprintf(stdout,"'-p'		address of http/https/sstunnel proxy server in URL format.
 fprintf(stdout,"'-proxy'		address of http/https/sstunnel proxy server in URL format.\n");
 fprintf(stdout,"'-w'		Wait for addresses to be entered on stdin.\n");
 fprintf(stdout,"'-st'		Connection inactivity timeout in seconds. Set high for sites that 'throttle'\n");
+fprintf(stdout,"'-tw <int>'		Set max width of item title in progress display (Default 50 chars)\n");
 fprintf(stdout,"'-t'		specifies website type.\n");
 fprintf(stdout,"'-r'		Resume download (only works when writing a single file, not with +o).\n");
 fprintf(stdout,"'-f'		specifies preferred video/audio formats for sites that offer more than one\n");
@@ -364,6 +355,7 @@ for (i=1; i < argc; i++)
 	else if (strcmp(argv[i],"-x")==0) Flags |= FLAG_PORN;
 	else if (strcmp(argv[i],"-T")==0) Flags |= FLAG_TEST;
 	else if (strcmp(argv[i],"-w")==0) Flags |= FLAG_STDIN;
+	else if (strcmp(argv[i],"-dt")==0) DisplayTitleWidth=atoi(argv[++i]);
 	else if (strcmp(argv[i],"-st")==0) STREAMTimeout=atoi(argv[++i]);
 	else if (strcmp(argv[i],"-P")==0) Player=CopyStr(Player,argv[++i]);
 	else if (strcmp(argv[i],"-Pp")==0) PlayerLaunchPercent=atoi(argv[++i]);
@@ -407,23 +399,11 @@ if (DebugLevel > 2) Flags |= FLAG_DEBUG3;
 void CheckSettings()
 {
 char *Token=NULL, *ptr;
-char *ProxyTypes[]={"http","https","sshtunnel",NULL};
 int i;
 
 if ((! isatty(1)) && (! (Flags & FLAG_STDOUT)))
 {
 fprintf(stderr,"\nWARNING: Stdout does not seem to be a terminal, so it could be a pipe to another program.	But you've not used '-o -' or '+o -' to redirect output into a pipe. Hence output will be written to a file. If you're piping into a player app, and there's no sound/video, then you need to add '-o -'\n\n");
-}
-
-if (StrLen(Proxy))
-{
-	ptr=GetToken(Proxy,":",&Token,0);
-	if (MatchTokenFromList(Token,ProxyTypes,0)==-1)
-	{
-		 fprintf(stderr,"\nWARNING: Unknown proxy type '%s'. Probably won't work. Known types are: ",Proxy);
-		for (i=0; ProxyTypes[i] != NULL; i++) fprintf(stderr," %s,",ProxyTypes[i]);
-		fprintf(stderr,"\n\n");
-	}
 }
 
 DestroyString(Token);
@@ -466,7 +446,7 @@ int OverrideType=TYPE_NONE;
 char *Tempstr=NULL;
 int result;
 
-HTTPSetFlags(HTTP_NOCOMPRESS);
+//HTTPSetFlags(HTTP_NOCOMPRESS);
 StdIn=STREAMFromFD(0);
 STREAMSetTimeout(StdIn,0);
 ParseEnvironmentVariables();
@@ -474,11 +454,20 @@ ParseEnvironmentVariables();
 DownloadQueue=ListCreate();
 Tempstr=MCopyStr(Tempstr,"Movgrab ",Version,NULL);
 HTTPSetUserAgent(Tempstr);
-FormatPreference=CopyStr(FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,reference,mp3,m4a,wma,stream");
+FormatPreference=CopyStr(FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,reference,mp3,m4a,wma,m3u8,m3u8-stream");
 AddOutputFile("", TRUE);
 
 ParseCommandLine(argc, argv, DownloadQueue, &OverrideType);
 CheckSettings();
+if (StrLen(Proxy)) 
+{
+	if (! SetGlobalConnectionChain(Proxy))
+	{
+		printf("ERROR: Failed to set proxy settings to '%s'\n",Proxy);
+		exit(1);
+	}
+}
+
 
 
 if (Flags & FLAG_PRINT_USAGE) PrintUsage();
@@ -506,6 +495,7 @@ while (1)
 			fprintf(stderr,"Checking %-20s ",Curr->Tag);
 			fflush(NULL);
 		}
+
 
 		result=GrabMovie((char *) Curr->Item,OverrideType);
 		Next=ListGetNext(Curr); //must do this after grab movie
