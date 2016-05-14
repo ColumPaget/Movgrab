@@ -427,9 +427,9 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/root/Movgrab'
+ac_pwd='/home/meta/Movgrab'
 srcdir='.'
-INSTALL='/usr/bin/install -c'
+INSTALL='/bin/install -c'
 test -n "$AWK" || AWK=awk
 # The default lists apply if the user does not specify any file.
 ac_need_defaults=:
@@ -584,20 +584,20 @@ echo 'BEGIN {' >"$ac_tmp/subs1.awk" &&
 cat >>"$ac_tmp/subs1.awk" <<\_ACAWK &&
 S["LTLIBOBJS"]=""
 S["LIBOBJS"]=""
-S["EGREP"]="/usr/bin/grep -E"
-S["GREP"]="/usr/bin/grep"
-S["CPP"]="cc -E"
+S["EGREP"]="/bin/grep -E"
+S["GREP"]="/bin/grep"
+S["CPP"]="gcc -E"
 S["INSTALL_DATA"]="${INSTALL} -m 644"
 S["INSTALL_SCRIPT"]="${INSTALL}"
 S["INSTALL_PROGRAM"]="${INSTALL}"
 S["SET_MAKE"]=""
 S["OBJEXT"]="o"
 S["EXEEXT"]=""
-S["ac_ct_CC"]=""
+S["ac_ct_CC"]="gcc"
 S["CPPFLAGS"]=""
 S["LDFLAGS"]=""
 S["CFLAGS"]="-g -O2"
-S["CC"]="cc"
+S["CC"]="gcc"
 S["subdirs"]=" libUseful-2.4"
 S["VERSION"]="1.2.1"
 S["target_alias"]=""

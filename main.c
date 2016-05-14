@@ -258,7 +258,7 @@ fprintf(stdout,"'-a'		Authentication info in Username:Password format.\n");
 fprintf(stdout,"'-q'		QUIET. No progress/informative output.\n");
 fprintf(stdout,"'-b'		Background. Fork into background and nohup\n");
 fprintf(stdout,"'-p'		address of http/https/sstunnel proxy server in URL format.\n");
-fprintf(stdout,"'-proxy'		address of http/https/sstunnel proxy server in URL format.\n");
+fprintf(stdout,"'-proxy'		address of http/https/socks4/socks5/sstunnel proxy server in URL format.\n");
 fprintf(stdout,"'-w'		Wait for addresses to be entered on stdin.\n");
 fprintf(stdout,"'-st'		Connection inactivity timeout in seconds. Set high for sites that 'throttle'\n");
 fprintf(stdout,"'-tw <int>'		Set max width of item title in progress display (Default 50 chars)\n");
@@ -285,6 +285,8 @@ fprintf(stdout,"The url should be that of the page that the movie would normally
 
 fprintf(stdout,"\nDownload types are:\n");
 for (i=1; DownloadTypes[i] !=NULL; i++) fprintf(stdout,"%-20s %s\n",DownloadTypes[i],DownloadNames[i]);
+
+fprintf(stdout,"\nThe -proxy argument has the form <protocol>:<username>:<password>@<host>:<port>. So, for example socks4:192.168.1.1:8080 or socks5:user1:secret@192.168.1.1:5050\n");
 
 fprintf(stdout,"\nIf a website is not in the list, try 'movgrab -t generic <url>'\n");
 fprintf(stdout,"\nMovgrab can also be used to stream from internet radio and pipe it into a player. E.g.'\n		movgrab -o - -q -proxy ssltunnel://guest:s3cr3t@sshserver:1022 http://schizoid.in/schizoid-psy.pls | mpg123 -\n");

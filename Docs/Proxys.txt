@@ -10,5 +10,7 @@ If no authentication is needed to use the proxy then the '<username>:<password>@
 	http				A standard http proxy
 	https				An http proxy that uses encrypted connections
 	ssltunnel 	An ssh server that supports connection forwarding
+	socks4      A socks4 proxy (openssh or tor using proxy)
+	socks5			A socks5 proxy
 
 All connections will then be forwarded through the proxy. 	

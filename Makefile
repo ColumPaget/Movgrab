@@ -1,8 +1,8 @@
-CC = cc
+CC = gcc
 VERSION = 1.2.1
 CFLAGS = -g -O2
 LIBS = -lz 
-INSTALL=/usr/bin/install -c
+INSTALL=/bin/install -c
 prefix=/usr/local
 bindir=$(prefix)${exec_prefix}/bin
 DESTDIR=
