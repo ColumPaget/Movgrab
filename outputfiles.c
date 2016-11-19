@@ -122,7 +122,7 @@ if (strcmp(Path,"-")==0)
 }
 else
 {
-	S=STREAMOpenFile(Path, STREAM_CREAT | STREAM_RDWR);
+	S=STREAMOpenFile(Path, SF_CREAT | SF_RDWR);
 	if (S)
 	{
 	if (! STREAMLock(S,LOCK_EX|LOCK_NB)) 
@@ -160,7 +160,7 @@ glob(Tempstr,0,0,&Glob);
 
 if (Glob.gl_pathc > 0)
 {
-S=STREAMOpenFile(Glob.gl_pathv[0],STREAM_RDONLY);
+S=STREAMOpenFile(Glob.gl_pathv[0],SF_RDONLY);
 }
 
 globfree(&Glob);

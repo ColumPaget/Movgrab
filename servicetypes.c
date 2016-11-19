@@ -1045,7 +1045,7 @@ case TYPE_DAILYMOTION:
 
   if (strstr(Tempstr,DAILYMOTION_ITEM))
   {
-		Token=DeQuoteStr(Token,Tempstr);
+		Token=UnQuoteStr(Token,Tempstr);
 		ExtractDailyMotion(Token, DAILYMOTION_ITEM, DAILYMOTION_ITEM_END, Vars);
   }
 break;

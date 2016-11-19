@@ -38,8 +38,8 @@ int GTF=0;
 
 
     if (ExtractFlags & EXTRACT_DEQUOTE) Item=HTTPUnQuote(Item,Token);
-    else if (ExtractFlags & EXTRACT_DEHTMLQUOTE) Item=HtmlDeQuote(Item,Token);
-    else if (ExtractFlags & EXTRACT_DESLASHQUOTE) Item=DeQuoteStr(Item,Token);
+    else if (ExtractFlags & EXTRACT_DEHTMLQUOTE) Item=HtmlUnQuote(Item,Token);
+    else if (ExtractFlags & EXTRACT_DESLASHQUOTE) Item=UnQuoteStr(Item,Token);
     else Item=CopyStr(Item,Token);
 		StripLeadingWhitespace(Item);
 		StripTrailingWhitespace(Item);

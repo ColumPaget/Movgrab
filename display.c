@@ -13,7 +13,7 @@ void LaunchPlayer()
 char *Tempstr=NULL;
 
 Tempstr=MCopyStr(Tempstr,Player," ",OutputFilesGetFilePath(),NULL);
-PlayerPid=Spawn(Tempstr,"","","");
+PlayerPid=Spawn(Tempstr,0,"");
 
 DestroyString(Tempstr);
 }
