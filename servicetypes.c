@@ -1214,14 +1214,30 @@ case TYPE_PHOTOBUCKET:
 break;
 
 
-#define LIVELEAK_ITEM_START "file: \""
-#define LIVELEAK_ITEM_END "'\""
+#define LIVELEAK_ITEM_START "<source "
+#define LIVELEAK_ITEM_END ">"
 case TYPE_LIVELEAK:
 GenericTitleExtract(Tempstr, Vars);
 ptr=strstr(Tempstr,LIVELEAK_ITEM_START);
-if (ptr)
+while (ptr)
 {
-	GenericExtractFromLine(Tempstr, "item:flv",LIVELEAK_ITEM_START,LIVELEAK_ITEM_END,Vars,EXTRACT_WITHIN_QUOTES | EXTRACT_NOSPACES | EXTRACT_GUESSTYPE);
+	ptr=GenericExtractFromLine(ptr, "liveleak:mediadef",LIVELEAK_ITEM_START,LIVELEAK_ITEM_END,Vars,0);
+	ptr2=GetVar(Vars,"liveleak:mediadef");
+	if (StrValid(ptr2)) 
+	{
+		ptr2=GetNameValuePair(ptr2," ","=",&VarName,&Token);
+		while (ptr2)
+		{
+		StripQuotes(VarName);
+		StripQuotes(Token);
+		if (strcmp(VarName,"src")==0) SetVar(Vars,"liveleak:url",Token);
+		if (strcmp(VarName,"res")==0) SetVar(Vars,"liveleak:resolution",Token);
+		ptr2=GetNameValuePair(ptr2," ","=",&VarName,&Token);
+		}	
+	}
+	VarName=MCopyStr(VarName, "item:mp4:",GetVar(Vars,"liveleak:resolution"),NULL);
+	SetVar(Vars,VarName,GetVar(Vars,"liveleak:url"));
+	ptr=strstr(ptr,LIVELEAK_ITEM_START);
 }
 
 break;
