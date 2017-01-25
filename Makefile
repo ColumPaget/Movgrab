@@ -7,7 +7,7 @@ prefix=/usr/local
 bindir=$(prefix)${exec_prefix}/bin
 DESTDIR=
 FLAGS=$(CFLAGS) -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -DHAVE_LIBZ=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -DHAVE_LIBSSL=1 -DHAVE_LIBCRYPTO=1 
-OBJ=containerfiles.o outputfiles.o common.o ehow.o  youtube.o servicetypes.o extract_text.o download.o display.o
+OBJ=containerfiles.o outputfiles.o common.o ehow.o ign.o youtube.o servicetypes.o extract_text.o download.o display.o selectformat.o
 
 all: $(OBJ)
 	@cd libUseful-2.6; $(MAKE)
@@ -28,6 +28,9 @@ common.o: common.c common.h
 ehow.o: ehow.c ehow.h
 	$(CC) $(FLAGS) -c ehow.c
 
+ign.o: ign.c ign.h
+	$(CC) $(FLAGS) -c ign.c
+
 youtube.o: youtube.c youtube.h
 	$(CC) $(FLAGS) -c youtube.c
 
@@ -39,6 +42,9 @@ download.o: download.c download.h
 
 display.o: display.c display.h
 	$(CC) $(FLAGS) -c display.c
+
+selectformat.o: selectformat.c selectformat.h
+	$(CC) $(FLAGS) -c selectformat.c
 
 extract_text.o: extract_text.c extract_text.h
 	$(CC) $(FLAGS) -c extract_text.c

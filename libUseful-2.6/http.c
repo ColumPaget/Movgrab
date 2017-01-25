@@ -481,6 +481,11 @@ char *AppendCookies(char *InStr, ListNode *CookieList)
 return(Tempstr);
 }
 
+void HTTPClearCookies()
+{
+ListClear(Cookies, DestroyString);
+}
+
 int HTTPHandleWWWAuthenticate(char *Line, int *Type, char **Config)
 {
 char *ptr, *ptr2, *Token=NULL, *Name=NULL, *Value=NULL;
@@ -853,7 +858,7 @@ else
 }
 
 ptr=LibUsefulGetValue("HTTP:User-Agent");
-//if (StrValid(ptr)) SendStr=MCatStr(SendStr,"User-Agent: ",ptr, "\r\n",NULL);
+if (StrValid(ptr)) SendStr=MCatStr(SendStr,"User-Agent: ",ptr, "\r\n",NULL);
 
 Curr=ListGetNext(Info->CustomSendHeaders);
 while (Curr)

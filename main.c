@@ -31,7 +31,6 @@
 
 int Flags=0;
 char *ProgName=NULL, *CmdLine=NULL;
-char *FormatPreference=NULL;
 ListNode *DownloadQueue=NULL;
 STREAM *StdIn=NULL;
 char *Username=NULL, *Password=NULL;
@@ -115,118 +114,6 @@ return(RetVal);
 
 
 
-char *GatherMatchingFormats(char *Buffer, char *Type, ListNode *Vars)
-{
-ListNode *Curr;
-char *Tempstr=NULL;
-
-Tempstr=CopyStr(Buffer,"");
-Curr=ListGetNext(Vars);
-while (Curr)
-{
-if (strncmp(Curr->Tag,"item:",5)==0)
-{
-if ((StrLen(Type)==0) || (strncmp(Curr->Tag,Type,StrLen(Type))==0)) Tempstr=MCatStr(Tempstr,Curr->Tag+5," ",NULL);
-}
-
-Curr=ListGetNext(Curr);
-}
-
-return(Tempstr);
-}
-
-int FmtIDMatches(char *FmtID, char *CurrItem, char *ItemData)
-{
-				if (strncmp(CurrItem,"item:",5) !=0) return(FALSE);
-				if (StrLen(FmtID)==0) return(TRUE);
-				if (strcmp(FmtID,"item:*")==0) return(TRUE);
-				if ((strncmp(CurrItem,FmtID,StrLen(FmtID))==0) && (StrLen(ItemData))) return(TRUE);
-			return(FALSE);
-}
-
-
-
-//this function compares the video formats found on the page to the list of
-//preferences expressed by the user with the '-f' flag, and contained in the
-//global variable 'FormatPreference'
-int SelectDownloadFormat(ListNode *Vars, int WebsiteType, int DisplaySize)
-{
-ListNode *Curr;
-char *ptr, *Tempstr=NULL, *Fmt=NULL, *FmtID=NULL, *Selected=NULL, *p_ItemFormat;
-int RetVal=-1, FoundMatch=FALSE, i;
-
-Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
-	if (! (Flags & FLAG_QUIET))
-	{
-	for (i=0; i < 3; i++)
-	{
- 		if (DisplayAvailableFormats(Vars, Tempstr, DisplaySize)) break;
-		//printf("Connection Refused, sleeping for 20 secs before retry\n");
-		//sleep(10);
-		break;
-	}
-	}
-
-	ptr=GetToken(FormatPreference,",",&Fmt,0);
-	while (ptr)
-	{
-	if (StrLen(Fmt)) FmtID=MCopyStr(FmtID,"item:",Fmt,NULL);
-	else FmtID=CopyStr(FmtID,"");
-
-	if (Flags & FLAG_DEBUG) fprintf(stderr,"  %s ",Fmt);
-
-		FoundMatch=FALSE;
-		Curr=ListGetNext(Vars);
-		while (Curr)
-		{
-			if (FmtIDMatches(FmtID,Curr->Tag, (char *) Curr->Item))
-			{
-					if (Flags & (FLAG_DEBUG)) 
-					{
-						Tempstr=GatherMatchingFormats(Tempstr,FmtID,Vars);
-						fprintf(stderr,"... YES! %s\n",Tempstr);
-					}
-
-					FoundMatch=TRUE;
-					//where available a local filetype overrides a reference
-					if ((RetVal==-1) || (RetVal==TYPE_REFERENCE))
-					{
-					Selected=CopyStr(Selected,Curr->Tag);
-					SetVar(Vars,"ID",(char *) Curr->Item);
-					}
-					break;
-				}
-				Curr=ListGetNext(Curr);
-			}
-			if ((! FoundMatch) && (Flags & (FLAG_DEBUG))) fprintf(stderr,"... no\n",Fmt);
-			ptr=GetToken(ptr,",",&Fmt,0);
-	}
-
-
-if (StrLen(Selected))
-{
-	if (strcmp(Selected,"item:reference")==0) RetVal=TYPE_REFERENCE;
-	if (strncmp(Selected,"item:m3u8-stream",16)==0) RetVal=TYPE_CONTAINERFILE_M3U8;
-	else RetVal=WebsiteType;
-}
-
-if (! (Flags & FLAG_TEST_SITES))
-{
-	if (RetVal==-1) fprintf(stderr,"No suitable download format found from '%s'\n\n",FormatPreference);
-	else if (RetVal==TYPE_REFERENCE) fprintf(stderr,"Reference to another site: %s\n",GetVar(Vars,"ID"));
-	else fprintf(stderr,"Selected format %s\n",Selected);
-}
-
-
-//+5 to get past leading 'item:' in variable name
-if (StrLen(Selected)) SetVar(Vars,"DownloadFormat",Selected+5);
-
-DestroyString(Selected);
-DestroyString(Tempstr);
-DestroyString(Fmt);
-return(RetVal);
-}
-
 
 
 void PrintVersion()
@@ -262,6 +149,7 @@ fprintf(stdout,"'-proxy'		address of http/https/socks4/socks5/sstunnel proxy ser
 fprintf(stdout,"'-w'		Wait for addresses to be entered on stdin.\n");
 fprintf(stdout,"'-st'		Connection inactivity timeout in seconds. Set high for sites that 'throttle'\n");
 fprintf(stdout,"'-tw <int>'		Set max width of item title in progress display (Default 50 chars)\n");
+fprintf(stdout,"'-np <path>'	File to write current title to. Useful as 'now plaing' for internet radio streams\n");
 fprintf(stdout,"'-t'		specifies website type.\n");
 fprintf(stdout,"'-r'		Resume download (only works when writing a single file, not with +o).\n");
 fprintf(stdout,"'-f'		specifies preferred video/audio formats for sites that offer more than one\n");
@@ -358,6 +246,7 @@ for (i=1; i < argc; i++)
 	else if (strcmp(argv[i],"-T")==0) Flags |= FLAG_TEST;
 	else if (strcmp(argv[i],"-w")==0) Flags |= FLAG_STDIN;
 	else if (strcmp(argv[i],"-dt")==0) DisplayTitleWidth=atoi(argv[++i]);
+	else if (strcmp(argv[i],"-np")==0) NowPlayingFile=CopyStr(NowPlayingFile, argv[++i]);
 	else if (strcmp(argv[i],"-st")==0) STREAMTimeout=atoi(argv[++i]);
 	else if (strcmp(argv[i],"-P")==0) Player=CopyStr(Player,argv[++i]);
 	else if (strcmp(argv[i],"-Pp")==0) PlayerLaunchPercent=atoi(argv[++i]);
@@ -456,7 +345,7 @@ ParseEnvironmentVariables();
 DownloadQueue=ListCreate();
 Tempstr=MCopyStr(Tempstr,"Movgrab ",Version,NULL);
 HTTPSetUserAgent(Tempstr);
-FormatPreference=CopyStr(FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,reference,mp3,m4a,wma,m3u8,m3u8-stream");
+FormatPreference=CopyStr(FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,mp3,m4a,wma,m3u8,m3u8-stream,reference");
 AddOutputFile("", TRUE);
 
 ParseCommandLine(argc, argv, DownloadQueue, &OverrideType);
@@ -510,6 +399,7 @@ while (1)
 			}
 			
 		ListDeleteNode(Curr);
+		HTTPClearCookies();
 
 		Curr=Next;
 	}

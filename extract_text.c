@@ -1,6 +1,7 @@
 #include "extract_text.h"
 
 
+
 //This function Extracts Text from a line that's found between two specified
 //chunks of text 'ItemStart' and 'ItemEnd'
 char *GenericExtractFromLine(char *Line, const char *ItemName, const char *ItemStart, const char *ItemEnd, ListNode *Vars, int ExtractFlags)
@@ -55,16 +56,7 @@ int GTF=0;
 			}
 		}
 
-		//Do this without disturbing ptr, as we must return ptr
-		ptr2=ItemName;
-		if (ExtractFlags & EXTRACT_GUESSTYPE) 
-		{
-			Token=ItemCodeFromFileExtension(Token, ItemName, Item);
-			if (StrValid(Token)) ptr2=Token;
-		}
-
-		SetVar(Vars,ptr2,Item);
-		if (Flags & FLAG_DEBUG2) fprintf(stderr,"Extracted Item: [%s] [%s]\n",ptr2,Item);
+		VarsAddDownloadItem(ItemName, Item, Vars, ExtractFlags);
 
 DestroyString(Token);
 DestroyString(Item);
@@ -72,3 +64,18 @@ DestroyString(Item);
 return(ptr);
 }
 	
+
+void GenericTitleExtract(const char *Line, ListNode *Vars)
+{
+if (strstr(Line,"<title>")) GenericExtractFromLine(Line, "Title:html","<title>","</title>", Vars,EXTRACT_DEQUOTE);
+
+if (strstr(Line,"<meta name=\"title\" content=\"")) 
+{
+	GenericExtractFromLine(Line, "Title:meta","<meta name=\"title\" content=\"","\"", Vars,EXTRACT_DEQUOTE);
+}
+
+if (strstr(Line,"<meta property=\"og:title\" content=\"")) 
+{
+	GenericExtractFromLine(Line, "Title:meta","<meta property=\"og:title\" content=\"", "\"", Vars,EXTRACT_DEQUOTE);
+}
+}

@@ -75,6 +75,19 @@ return(result);
 }
 
 
+void WriteNowPlayingFile(const char *Title)
+{
+STREAM *S;
+
+S=STREAMOpenFile(NowPlayingFile, SF_WRONLY | SF_CREAT | SF_TRUNC);
+if (S)
+{
+STREAMWriteLine(Title, S);
+STREAMWriteLine("\n", S);
+STREAMClose(S);
+}
+}
+
 
 //Display progress of download
 void DisplayProgress(const char *FullTitle, const char *Format, double bytes_read, double DocSize, int PrintName)
@@ -93,14 +106,18 @@ if (CheckForKeyboardInput()) PrintName=TRUE;
 
 if ((DisplayTitleWidth > 0) && (StrLen(FullTitle) > DisplayTitleWidth))
 {
-Title=CopyStrLen(Title, FullTitle, DisplayTitleWidth);
-Title=CatStr(Title,"...");
+	Title=CopyStrLen(Title, FullTitle, DisplayTitleWidth);
+	Title=CatStr(Title,"...");
 }
 else Title=CopyStr(Title, FullTitle);
 
 if (! (Flags & FLAG_QUIET)) 
 {
-if (PrintName) fprintf(stderr,"\nGetting: %s  Size: %s  Format: %s\n",Title,GetHumanReadableDataQty(DocSize,0), Format);
+if (PrintName) 
+{
+	fprintf(stderr,"\nGetting: %s  Size: %s  Format: %s\n",Title,GetHumanReadableDataQty(DocSize,0), Format);
+	if (StrLen(NowPlayingFile)) WriteNowPlayingFile(Title);
+}
 }
 
 if ((Now != SpeedStart) && (Now != LastDisplay))

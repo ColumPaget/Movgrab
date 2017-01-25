@@ -34,7 +34,7 @@ if (BytesRange > 0)
 	SetVar(Info->CustomSendHeaders,"Range",Tempstr); 
 }
 
-SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
+//SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
 
 Con=HTTPTransact(Info);
 if ((! Con) && (! (Flags & FLAG_QUIET))) 
@@ -42,6 +42,7 @@ if ((! Con) && (! (Flags & FLAG_QUIET)))
 	if (StrLen(Info->ResponseCode)) fprintf(stderr,"ERROR: Server %s item '%s' not retrieved\nResponseCode: %s\n",Info->Host, Info->Doc,Info->ResponseCode);
 	else fprintf(stderr,"ERROR: Connection failed to %s can't get file=%s \n",Info->Host, Info->Doc);
 }
+
 
 DestroyString(Tempstr);
 DestroyString(Method);

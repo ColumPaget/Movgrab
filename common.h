@@ -34,9 +34,12 @@
 extern int Type, Flags;
 extern char *FileTypes[];
 extern char *ItemSelectionArg;
+extern char *NowPlayingFile;
+extern char *FormatPreference;
 
 char *FileTypeFromURL(char *URL);
 char *ItemCodeFromFileExtension(char *RetBuf, const char *Default, const char *URL);
+void VarsAddDownloadItem(const char *ItemName, const char *URL, ListNode *Vars, int AddFlags);
 
 
 #endif

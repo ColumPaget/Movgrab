@@ -2,6 +2,8 @@
 
 char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp",NULL};
 char *ItemSelectionArg=NULL;
+char *NowPlayingFile=NULL;
+char *FormatPreference=NULL;
 
 char *FileTypeFromURL(char *URL)
 {
@@ -55,3 +57,22 @@ DestroyString(Tempstr);
 return(RetStr);
 }
 
+
+void VarsAddDownloadItem(const char *ItemName, const char *URL, ListNode *Vars, int AddFlags)
+{
+const char *ptr;
+char *Token=NULL;
+
+    //Do this without disturbing ptr, as we must return ptr
+    ptr=ItemName;
+    if (AddFlags & EXTRACT_GUESSTYPE)
+    {
+      Token=ItemCodeFromFileExtension(Token, ItemName, URL);
+      if (StrValid(Token)) ptr=Token;
+    }
+
+    SetVar(Vars,ptr,URL);
+    if (Flags & FLAG_DEBUG2) fprintf(stderr,"Extracted Item: [%s] [%s]\n",ptr,URL);
+
+DestroyString(Token);
+}
