@@ -7,11 +7,13 @@
 
 #define EXTRACT_DEQUOTE  1
 #define EXTRACT_WITHIN_QUOTES 2
-#define EXTRACT_NOSPACES 4
+#define EXTRACT_WITHIN_HTMLTAG 4
 #define EXTRACT_INCLUDE_START 8
 #define EXTRACT_GUESSTYPE 16
 #define EXTRACT_DESLASHQUOTE 32
 #define EXTRACT_DEHTMLQUOTE 64
+#define EXTRACT_HTTP_ONLY 128
+#define EXTRACT_NOSPACES 256
 
 
 //This function Extracts Text from a line that's found between two specified

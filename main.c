@@ -383,7 +383,7 @@ while (1)
 	{
 		if (Flags & FLAG_TEST_SITES)
 		{
-			fprintf(stderr,"Checking %-20s ",Curr->Tag);
+			fprintf(stderr,"Checking %-20s %s",Curr->Tag,Curr->Item);
 			fflush(NULL);
 		}
 
