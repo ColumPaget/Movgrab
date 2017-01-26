@@ -2,7 +2,7 @@
 #ifndef MOVGRAB_COMMON
 #define MOVGRAB_COMMON
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "2.1.0"
+#define Version "3.0.0"
 
 #include "libUseful-2.6/libUseful.h"
 #include <string.h>
@@ -36,6 +36,10 @@ extern char *FileTypes[];
 extern char *ItemSelectionArg;
 extern char *NowPlayingFile;
 extern char *FormatPreference;
+extern char *Username, *Password;
+extern char *Proxy;
+extern char *ProgName, *CmdLine, *UserAgent;
+extern int STREAMTimeout;
 
 char *FileTypeFromURL(char *URL);
 char *ItemCodeFromFileExtension(char *RetBuf, const char *Default, const char *URL);

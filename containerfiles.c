@@ -129,7 +129,7 @@ Segments=ListCreate();
 ptr=strrchr(URL, '/');
 if (ptr)
 {
-BasePath=CopyStrLen(BasePath, URL, ptr - URL);
+	BasePath=CopyStrLen(BasePath, URL, ptr - URL);
 	Line=STREAMReadLine(Line,ManifestCon);
 	while (Line)
 	{

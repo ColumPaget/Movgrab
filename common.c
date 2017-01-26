@@ -4,6 +4,14 @@ char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".web
 char *ItemSelectionArg=NULL;
 char *NowPlayingFile=NULL;
 char *FormatPreference=NULL;
+char *Username=NULL, *Password=NULL;
+char *Proxy=NULL;
+char *ProgName=NULL, *CmdLine=NULL, *UserAgent=NULL;
+int STREAMTimeout=3000;
+
+
+
+
 
 char *FileTypeFromURL(char *URL)
 {
