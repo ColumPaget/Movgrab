@@ -14,7 +14,7 @@ Then site specific
 
 
 //Site type names used at the command line etc
-char *DownloadTypes[]={"none","generic","youtube","youtu.be","metacafe","dailymotion","break","ehow","vimeo","ted","yale","reuters","liveleak","photobucket","washingtonpost","cbsnews","france24","euronews","metatube","guardian","redorbit","uctv.tv","royalsociety.tv","dotsub","astronomy.com","discovery","bloomberg","nationalgeographic","videobash","smh","animehere","funnyordie","ign","ebaumsworld",NULL};
+char *DownloadTypes[]={"none","generic","youtube","youtu.be","metacafe","dailymotion","break","ehow","vimeo","ted","reuters","liveleak","photobucket","washingtonpost","cbsnews","france24","euronews","metatube","guardian","redorbit","uctv.tv","royalsociety.tv","dotsub","astronomy.com","discovery","bloomberg","nationalgeographic","videobash","smh","funnyordie","ign","ebaumsworld","gamestar","imdb","charlierose","stanfordoc",NULL};
 
 //Longer names used in display
 char *DownloadNames[]={"none",
@@ -27,7 +27,6 @@ char *DownloadNames[]={"none",
 "www.ehow.com",
 "www.vimeo.com",
 "www.ted.com",
-"Yale University: http://oyc.yale.edu",
 "Reuters: http://www.reuters.com/",
 "Liveleak: http://www.liveleak.com",
 "Photobucket: http://www.photobucket.com",
@@ -49,10 +48,13 @@ char *DownloadNames[]={"none",
 "videobash",
 "International Business Times",
 "Sidney Morning Herald",
-"www.animehere.com",
 "Funny or Die (http://www.funnyordie.com)",
 "IGN",
 "Ebaums World",
+"www.gamestar.de",
+"www.imdb.com",
+"Charlie Rose",
+"Stanford Open Classroom",
 NULL};
 
 //"http://vimeo.com/33204284",
@@ -67,7 +69,6 @@ char *TestLinks[]={"", "",
 "http://www.ehow.com/video_6819748_creamy-thyme-scrambled-eggs-recipe.html",
 "broken",
 "http://www.ted.com/talks/janine_benyus_shares_nature_s_designs.html",
-"http://oyc.yale.edu/economics/game-theory/contents/sessions/session-1-introduction-five-first-lessons",
 "http://www.reuters.com/video/2016/05/02/foam-swords-drawn-in-mass-play-fight-in?videoId=368328211",
 "http://www.liveleak.com/view?i=e28_1462299205",
 "http://gs147.photobucket.com/groups/r299/QM25Y4IJEP/?action=view&current=BlackSwan1.mp4",
@@ -87,10 +88,13 @@ char *TestLinks[]={"", "",
 "http://video.nationalgeographic.com/video/environment/environment-natural-disasters/earthquakes/earthquake-101/",
 "http://www.videobash.com/video_show/wing-suit-amazing-footage-6086",
 "http://www.smh.com.au/technology/sci-tech/newly-discovered-planets-include-superearth-20110913-1k7tl.html",
-"http://www.animehere.com/accel-world-episode-1.html",
 "http://www.funnyordie.com/videos/032785be3a/genie-on-hard-times-with-parker-posey?playlist=featured_videos",
 "http://www.ign.com/videos/2013/06/05/the-last-of-us-review",
 "http://www.ebaumsworld.com/videos/a-giant-python-opens-the-door/83367677/",
+"http://www.gamestar.de/videos/trailer,3/hobbit-3-die-schlacht-der-fuenf-heere,76110.html",
+"http://www.imdb.com/video/imdb/vi3832131865",
+"https://charlierose.com/videos/27996",
+"http://openclassroom.stanford.edu/MainFolder/VideoPage.php?course=PracticalUnix&video=wget&speed=100",
 NULL};
 
 
@@ -140,10 +144,6 @@ else if (strcmp(Server,"www.dailymotion.com")==0)
 else if (strcmp(Server,"www.ted.com")==0)
 {
  Type=TYPE_TED;
-}
-else if (strcmp(Server,"oyc.yale.edu")==0)
-{
- Type=TYPE_YALE;
 }
 else if (strstr(Server,"photobucket.com"))
 {
@@ -233,10 +233,6 @@ else if (strstr(Server,"www.videobash.com"))
 {
  Type=TYPE_VIDEOBASH;
 }
-else if (strstr(Server,"animehere.com"))
-{
- Type=TYPE_ANIMEHERE;
-}
 else if (strstr(Server,"funnyordie.com"))
 {
  Type=TYPE_FUNNYORDIE;
@@ -245,9 +241,25 @@ else if (strstr(Server,".ign."))
 {
  Type=TYPE_IGN;
 }
+else if (strstr(Server,".imdb.com"))
+{
+ Type=TYPE_IMDB;
+}
 else if (strstr(Server,".ebaumsworld.com"))
 {
  Type=TYPE_EBAUMSWORLD;
+}
+else if (strstr(Server,".gamestar.de"))
+{
+ Type=TYPE_GAMESTAR;
+}
+else if (strstr(Server,"charlierose.com"))
+{
+ Type=TYPE_CHARLIEROSE;
+}
+else if (strcmp(Server,"openclassroom.stanford.edu")==0)
+{
+ Type=TYPE_STANFORD_OPENCLASS;
 }
 else if (strstr(Server,".google."))
 {
@@ -406,6 +418,10 @@ case TYPE_GOOGLE_URL:
 		}
 		*Type=IdentifyServiceType(NextPath);
 	}
+break;
+
+case TYPE_CHARLIEROSE:
+	NextPath=MCopyStr(NextPath,"https://charlierose.com/video/player/",GetBasename(Path),NULL);
 break;
 
 default:
@@ -580,15 +596,27 @@ case TYPE_BLOOMBERG:
  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
 break;
 
-
-case TYPE_ANIMEHERE:
- 	Tempstr=SubstituteVarsInString(Tempstr,"$(ID)",Vars,0);
-  RetVal=DownloadPage(Tempstr,TYPE_ANIMEHERE_STAGE2, Title,Flags);
-break;
-
 case TYPE_IGN:
  	Tempstr=SubstituteVarsInString(Tempstr,"http://apis.ign.com/video/v3/videos/$(ID)",Vars,0);
   RetVal=DownloadPage(Tempstr,TYPE_IGN_STAGE2, Title,Flags);
+break;
+
+case TYPE_IMDB:
+ 	Tempstr=SubstituteVarsInString(Tempstr,"http://www.imdb.com/video/imdb/vi$(ID)/imdb/single",Vars,0);
+  RetVal=DownloadPage(Tempstr,TYPE_IMDB_STAGE2, Title,Flags);
+break;
+
+case TYPE_GAMESTAR:
+ 	Tempstr=SubstituteVarsInString(Tempstr,"http://gamestar.de/_misc/videos/portal/getVideoUrl.cfm?premium=0&videoId=$(ID)",Vars,0);
+ 	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
+break;
+
+
+case TYPE_STANFORD_OPENCLASS:
+ 	Tempstr=SubstituteVarsInString(Tempstr,"http://openclassroom.stanford.edu/MainFolder/courses/$(course)/videos/$(ID).xml",Vars,0);
+ 	Title=SubstituteVarsInString(Title,"$(course)-$(ID)",Vars,0);
+
+  RetVal=DownloadPage(Tempstr,TYPE_STANFORD_STAGE2, Title,Flags);
 break;
 
 
@@ -611,15 +639,16 @@ case TYPE_GUARDIAN:
 case TYPE_DISCOVERY:
 case TYPE_REDORBIT_STAGE2:
 case TYPE_ASTRONOMYCOM_STAGE2:
-case TYPE_ANIMEHERE_STAGE2:
 case TYPE_BREAK_STAGE2:
 case TYPE_IGN_STAGE2:
+case TYPE_IMDB_STAGE2:
+case TYPE_STANFORD_STAGE2:
 case TYPE_FUNNYORDIE:
 case TYPE_EBAUMSWORLD:
 case TYPE_DAILYMOTION:
 case TYPE_VIDEOBASH:
 case TYPE_EHOW:
-case TYPE_YALE:
+case TYPE_CHARLIEROSE:
 case TYPE_CONTAINERFILE_PLS:
 case TYPE_CONTAINERFILE_ASX:
 case TYPE_CONTAINERFILE_M3U8:
@@ -999,56 +1028,22 @@ break;
 
 
 case TYPE_TED:
-#define TED_ITEM_LINE "<a id=\"no-flash-video-download\""
-#define TED_ITEM_START "<a id=\"no-flash-video-download\" href=\""
+#define TED_ITEM_START "\"file\":\""
 #define TED_ITEM_END "\""
 
-#define TED2_ITEM_LINE "name=&quot;flashvars&quot; value=&quot;vu="
-#define TED2_ITEM_START "name=&quot;flashvars&quot; value=&quot;vu="
-#define TED2_ITEM_END "&amp;"
-
-GenericTitleExtract(Tempstr, Vars);
-
-if (strstr(Tempstr,TED_ITEM_LINE))
+Title=CopyStr(Title,GetBasename(URL));
+if (strstr(Tempstr,TED_ITEM_START))
 {
-	GenericExtractFromLine(Tempstr, "item:mp4",TED_ITEM_START,TED_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-}
-
-
-if (strstr(Tempstr,TED2_ITEM_LINE))
-{
-	GenericExtractFromLine(Tempstr, "item:mp4:alt",TED2_ITEM_START,TED2_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	ptr=Tempstr;
+	while (ptr)
+	{
+	ptr=GenericExtractFromLine(ptr, "file",TED_ITEM_START,TED_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	ptr2=GetVar(Vars,"file");
+	if (strncmp(ptr2,"http",4)==0) SetVar(Vars,"item:mp4",ptr2);
+	}
 }
 break;
 
-
-
-case TYPE_YALE:
-
-#define YALE_ITEM_LINE "<a href=\"http://openmedia.yale.edu/cgi-bin/open_yale/media_downloader.cgi?file="
-#define YALE_ITEM_START "a href=\""
-#define YALE_ITEM_END "\""
-
-#define YALE_TYPE_START "id=\""
-
-
-GenericTitleExtract(Tempstr, Vars);
-if (strstr(Tempstr,YALE_ITEM_LINE))
-{
-		GenericExtractFromLine(Tempstr, "YI_TYPE",YALE_TYPE_START,YALE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-
-		Token=CopyStr(Token,"");
-		ptr=GetVar(Vars,"YI_TYPE");
-		if (ptr)
-		{
-			if (strcmp(ptr,"course_media_audio")==0) Token=CopyStr(Token,"item:mp3");
-			if (strcmp(ptr,"course_media_high")==0) Token=CopyStr(Token,"item:mov:HD");
-			if (strcmp(ptr,"course_media_low")==0) Token=CopyStr(Token,"item:mov:LD");
-		}
-		GenericExtractFromLine(Tempstr, Token,YALE_ITEM_START,YALE_ITEM_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-}
-
-break;
 
 
 
@@ -1327,37 +1322,6 @@ case TYPE_VIDEOBASH:
 
 break;
 
-case TYPE_ANIMEHERE:
-//<p><iframe src="http://www.video44.net/gogo/?w=600&amp;h=438&amp;file=robotics_notes_-_01.flv&amp;sv=1" 
-#define ANIMEHERE_ITEMHINT ".flv"
-#define ANIMEHERE_ITEMSTART "<p><iframe src=\""
-#define ANIMEHERE_ITEMEND "\""
-#define ANIMEHERE_TITLE_START "<meta property=\"og:title\" content=\""
-#define ANIMEHERE_TITLE_END "\""
-
-	if (strstr(Tempstr,ANIMEHERE_ITEMHINT))
-	{
-		GenericExtractFromLine(Tempstr, "ID",ANIMEHERE_ITEMSTART,ANIMEHERE_ITEMEND,Vars,EXTRACT_DEHTMLQUOTE | EXTRACT_NOSPACES);
-	}
-
-	if (strstr(Tempstr,ANIMEHERE_TITLE_START))
-	{
-		GenericExtractFromLine(Tempstr, "Title",ANIMEHERE_TITLE_START,ANIMEHERE_TITLE_END,Vars,0);
-	}
-
-break;
-
-
-case TYPE_ANIMEHERE_STAGE2:
-#define ANIMEHERE_S2_ITEMSTART "file="
-#define ANIMEHERE_S2_ITEMEND "&amp;"
-
-	if (strstr(Tempstr,ANIMEHERE_S2_ITEMSTART))
-	{
-		GenericExtractFromLine(Tempstr, "item:flv",ANIMEHERE_S2_ITEMSTART,ANIMEHERE_S2_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-	}
-break;
-
 
 case TYPE_IGN:
 #define IGN_ITEMSTART "video_id\":\""
@@ -1374,6 +1338,40 @@ case TYPE_IGN_STAGE2:
 	IGN_DecodeFormats(Tempstr, Vars);
 break;
 
+case TYPE_IMDB:
+#define IMDB_ITEMSTART "://www.imdb.com/video/imdb/vi"
+#define IMDB_ITEMEND "\""
+
+	GenericTitleExtract(Tempstr, Vars);
+if (strstr(Tempstr,IMDB_ITEMSTART))
+{
+	GenericExtractFromLine(Tempstr, "ID",IMDB_ITEMSTART,IMDB_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+
+	Token=CopyStr(Token,GetVar(Vars,"ID"));
+	if (StrValid(Token))
+	{
+		ptr=strchr(Token,'?');
+		if (ptr) *ptr='\0';
+		ptr=strchr(Token,'/');
+		if (ptr) *ptr='\0';
+		SetVar(Vars,"ID",Token);
+	}
+}
+break;
+
+case TYPE_IMDB_STAGE2:
+#define IMDB_STAGE2_ITEMSTART "\"videoUrl\":\""
+#define IMDB_STAGE2_ITEMEND "\""
+
+ptr=Tempstr;
+while (ptr)
+{
+if (! strstr(ptr,IMDB_STAGE2_ITEMSTART)) break;
+ptr=GenericExtractFromLine(ptr, "ID",IMDB_STAGE2_ITEMSTART,IMDB_STAGE2_ITEMEND,Vars,EXTRACT_GUESSTYPE);
+}
+break;
+
+
 case TYPE_EBAUMSWORLD:
 #define EBAUMSWORLD_ITEMSTART "params.file = '"
 #define EBAUMSWORLD_ITEMEND "'"
@@ -1385,6 +1383,58 @@ case TYPE_EBAUMSWORLD:
 	}
 break;
 
+case TYPE_GAMESTAR:
+#define GAMESTAR_ITEMSTART "var iVideoId ="
+#define GAMESTAR_ITEMEND ";"
+#define GAMESTAR2_ITEMSTART "ga('set', 'dimension4', '"
+#define GAMESTAR2_ITEMEND "'"
+	
+	GenericTitleExtract(Tempstr, Vars);
+	if (strstr(Tempstr,GAMESTAR_ITEMSTART))
+	{
+		GenericExtractFromLine(Tempstr, "ID",GAMESTAR_ITEMSTART,GAMESTAR_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	}
+	if (strstr(Tempstr,GAMESTAR2_ITEMSTART))
+	{
+		GenericExtractFromLine(Tempstr, "ID",GAMESTAR2_ITEMSTART,GAMESTAR2_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	}
+break;
+
+
+case TYPE_STANFORD_OPENCLASS:
+#define STANFORD_OPENCLASS_COURSE "var courseName = \""
+#define STANFORD_OPENCLASS_VIDEO "var videoName = \""
+#define STANFORD_OPENCLASS_END "\""
+	
+	GenericTitleExtract(Tempstr, Vars);
+	if (strstr(Tempstr,STANFORD_OPENCLASS_COURSE))
+	{
+		GenericExtractFromLine(Tempstr, "course",STANFORD_OPENCLASS_COURSE,STANFORD_OPENCLASS_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	}
+	if (strstr(Tempstr,STANFORD_OPENCLASS_VIDEO))
+	{
+		GenericExtractFromLine(Tempstr, "ID",STANFORD_OPENCLASS_VIDEO,STANFORD_OPENCLASS_END,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	}
+break;
+
+
+case TYPE_STANFORD_STAGE2:
+#define STANFORD_STAGE2_ITEMSTART "<videoFile>"
+#define STANFORD_STAGE2_ITEMEND "</"
+
+	if (strstr(Tempstr,STANFORD_STAGE2_ITEMSTART))
+	{
+		GenericExtractFromLine(Tempstr, "ID",STANFORD_STAGE2_ITEMSTART,STANFORD_STAGE2_ITEMEND,Vars, 0);
+		Token=CopyStr(Token,URL);
+		ptr=strrchr(Token,'/');
+		if (ptr)
+		{
+			*ptr='\0';
+			Token=MCatStr(Token,"/",GetVar(Vars,"ID"),NULL);
+			SetVar(Vars,"ID",Token);
+		}
+	}
+break;
 
 case TYPE_GOOGLE_URL:
 		SetVar(Vars,"item:reference",URL);
@@ -1472,6 +1522,7 @@ case TYPE_GUARDIAN:
 case TYPE_LIVELEAK:
 case TYPE_DOTSUB:
 case TYPE_FUNNYORDIE:
+case TYPE_CHARLIEROSE:
 GenericTitleExtract(Tempstr, Vars);
 ptr=strstr(Tempstr,HTML5_ITEM_START);
 while (ptr)

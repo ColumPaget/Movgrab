@@ -34,7 +34,7 @@ if (BytesRange > 0)
 	SetVar(Info->CustomSendHeaders,"Range",Tempstr); 
 }
 
-//SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
+SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
 
 Con=HTTPTransact(Info);
 if ((! Con) && (! (Flags & FLAG_QUIET))) 

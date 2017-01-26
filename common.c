@@ -1,6 +1,6 @@
 #include "common.h"
 
-char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp",NULL};
+char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp","m3u8",NULL};
 char *ItemSelectionArg=NULL;
 char *NowPlayingFile=NULL;
 char *FormatPreference=NULL;
