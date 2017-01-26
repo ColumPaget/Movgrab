@@ -132,9 +132,10 @@ AddOutputFile("", TRUE);
 
 ParseCommandLine(argc, argv, DownloadQueue, &OverrideType);
 CheckSettings();
-if (StrLen(Proxy)) 
+if (StrValid(Proxy)) 
 {
-	if (! SetGlobalConnectionChain(Proxy))
+	if (strncmp(Proxy,"http:",5)==0) HTTPSetProxy(Proxy);
+	else if (! SetGlobalConnectionChain(Proxy))
 	{
 		printf("ERROR: Failed to set proxy settings to '%s'\n",Proxy);
 		exit(1);
