@@ -604,6 +604,13 @@ case TYPE_IMDB:
   RetVal=DownloadPage(Tempstr,TYPE_IMDB_STAGE2, Title,Flags);
 break;
 
+
+case TYPE_REUTERS:
+	Tempstr=CopyStr(Tempstr, GetVar(Vars,"ID"));
+  RetVal=DownloadPage(Tempstr,TYPE_REUTERS_STAGE2, Title,Flags);
+break;
+
+
 case TYPE_GAMESTAR:
  	Tempstr=SubstituteVarsInString(Tempstr,"http://gamestar.de/_misc/videos/portal/getVideoUrl.cfm?premium=0&videoId=$(ID)",Vars,0);
  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
@@ -623,7 +630,6 @@ case TYPE_GENERIC:
 case TYPE_TED:
 case TYPE_NATGEO:
 case TYPE_UCTV:
-case TYPE_REUTERS:
 case TYPE_LIVELEAK:
 case TYPE_EURONEWS:
 case TYPE_SMH:
@@ -641,6 +647,7 @@ case TYPE_BREAK_STAGE2:
 case TYPE_IGN_STAGE2:
 case TYPE_IMDB_STAGE2:
 case TYPE_STANFORD_STAGE2:
+case TYPE_REUTERS_STAGE2:
 case TYPE_FUNNYORDIE:
 case TYPE_EBAUMSWORLD:
 case TYPE_DAILYMOTION:
@@ -664,36 +671,6 @@ DestroyString(Fmt);
 return(RetVal);
 }
 
-
-void BlipTVExtractFromLine(char *Line, ListNode *Vars)
-{
-char *ptr, *Type=NULL, *Width=NULL, *Height=NULL, *Tempstr=NULL;
-
- GenericExtractFromLine(Line, "width","width=\"","\"",Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
- GenericExtractFromLine(Line, "height","height=\"","\"",Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
- GenericExtractFromLine(Line, "url","url=\"","\"",Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
-
-	ptr=GetVar(Vars,"url");
-	if (StrLen(ptr))
-	{
-		ptr=strrchr(ptr,'.');
-		if (ptr) Type=CopyStr(Type,ptr+1);
-	}
-
-	ptr=GetVar(Vars,"width");
-	if (StrLen(ptr))
-	{
-		Width=CopyStr(Width,ptr);
-		Height=CopyStr(Height,GetVar(Vars,"height"));
-		Tempstr=MCopyStr(Tempstr,"item:",Type,":",Width,"x",Height,NULL);
-		SetVar(Vars,Tempstr,GetVar(Vars,"url"));
-	}
-
-DestroyString(Type);
-DestroyString(Width);
-DestroyString(Height);
-DestroyString(Tempstr);
-}
 
 
 
@@ -1037,30 +1014,35 @@ break;
 
 
 
-#define REUTERS_FLV_ITEM_START "'flv':"
-#define REUTERS_MP4_ITEM_START "'mpeg':"
-#define REUTERS_TITLE "'headline':"
-
 case TYPE_REUTERS:
-	ptr=strstr(Tempstr,REUTERS_FLV_ITEM_START);
+#define REUTERS_ITEM_START "\"embedUrl\": \""
+#define REUTERS_ITEM_END "\""
+#define REUTERS_TITLE "\"headline\": \""
+
+	ptr=strstr(Tempstr,REUTERS_ITEM_START);
 	if (ptr)
 	{
-		GenericExtractFromLine(Tempstr, "item:flv",REUTERS_FLV_ITEM_START,",",Vars,EXTRACT_WITHIN_QUOTES | EXTRACT_NOSPACES);
+		GenericExtractFromLine(Tempstr, "item:flv",REUTERS_ITEM_START,REUTERS_ITEM_END,Vars,EXTRACT_NOSPACES);
 	}
-
-	ptr=strstr(Tempstr,REUTERS_MP4_ITEM_START);
-	if (ptr)
-	{
-		GenericExtractFromLine(Tempstr, "item:mp4",REUTERS_MP4_ITEM_START,",",Vars,EXTRACT_WITHIN_QUOTES | EXTRACT_NOSPACES);
-	}
-
 
 	ptr=strstr(Tempstr,REUTERS_TITLE);
 	if (ptr)
 	{
-		GenericExtractFromLine(Tempstr, "Title",REUTERS_TITLE,",",Vars,EXTRACT_WITHIN_QUOTES | EXTRACT_NOSPACES);
+		GenericExtractFromLine(Tempstr, "Title", REUTERS_TITLE, REUTERS_ITEM_END, Vars, 0);
 	}
 break;
+
+case TYPE_REUTERS_STAGE2:
+#define REUTERS_STAGE2_ITEM_START "'mid': '"
+#define REUTERS_STAGE2_ITEM_END "'"
+
+	ptr=strstr(Tempstr,REUTERS_STAGE2_ITEM_START);
+	if (ptr)
+	{
+		GenericExtractFromLine(Tempstr, "item:flv",REUTERS_STAGE2_ITEM_START,REUTERS_STAGE2_ITEM_END,Vars,EXTRACT_NOSPACES);
+	}
+break;
+
 
 
 #define PHOTOBUCKET_START "\"fullsizeUrl\":\""
@@ -1558,10 +1540,13 @@ if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- END DOCUMENT 
 //if (StrValid(ptr)) M3UContainer(ptr, Vars);
 
 ptr=GetVar(Vars,"Title");
-if (! StrValid(ptr)) ptr=GetVar(Vars,"Title:meta");
-if (! StrValid(ptr)) ptr=GetVar(Vars,"Title:html");
-if (! StrValid(ptr)) ptr=Title;
-SetVar(Vars,"Title",ptr);
+if (! StrValid(ptr)) 
+{
+	ptr=GetVar(Vars,"Title:meta");
+	if (! StrValid(ptr)) ptr=GetVar(Vars,"Title:html");
+	if (! StrValid(ptr)) ptr=Title;
+	SetVar(Vars,"Title",ptr);
+}
 
 
 if (MediaCount > 0) HandleMultipleMedia(Type,Server,Flags,Vars,MediaCount);

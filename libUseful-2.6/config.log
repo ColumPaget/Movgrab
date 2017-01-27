@@ -278,8 +278,8 @@ configure:3706: $? = 0
 configure:3715: result: yes
 configure:3731: checking for OpenSSL_add_all_algorithms
 configure:3731: gcc -o conftest -g -O2   conftest.c -lcrypto -lssl -lc  >&5
-/tmp/ccmrexWp.o: In function `main':
-/home/metacosm89/Movgrab/libUseful-2.6/conftest.c:59: undefined reference to `OpenSSL_add_all_algorithms'
+/tmp/ccmnUf9b.o: In function `main':
+/tmp/Movgrab/libUseful-2.6/conftest.c:59: undefined reference to `OpenSSL_add_all_algorithms'
 collect2: error: ld returned 1 exit status
 configure:3731: $? = 1
 configure: failed program was:
@@ -360,8 +360,8 @@ configure:3731: $? = 0
 configure:3731: result: yes
 configure:3731: checking for EVP_rc5_32_12_16_cbc
 configure:3731: gcc -o conftest -g -O2   conftest.c -lcrypto -lssl -lc  >&5
-/tmp/cc4C2m4g.o: In function `main':
-/home/metacosm89/Movgrab/libUseful-2.6/conftest.c:62: undefined reference to `EVP_rc5_32_12_16_cbc'
+/tmp/ccUeLvf6.o: In function `main':
+/tmp/Movgrab/libUseful-2.6/conftest.c:62: undefined reference to `EVP_rc5_32_12_16_cbc'
 collect2: error: ld returned 1 exit status
 configure:3731: $? = 1
 configure: failed program was:
