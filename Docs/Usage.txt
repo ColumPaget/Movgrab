@@ -36,7 +36,8 @@ This command works the same as the -s streaming command, except that the file wi
 
 -v increases the debugging level. Two -v will cause every webpage visited to be printed out for inspection. Three -v will cause some extra information about headers etc to be printed out.
 
--p allows you to specify a proxy server in http://username:password@url:port format. So, something like 'movgrab -p http://guest:password@myproxy.com:8080 . 'Username', 'password' and 'port' are optional if there is no user logon and the port is 80.
+-p allows you to specify a proxy server in http://username:password@url:port format. So, something like 'movgrab -p http://guest:password@myproxy.com:8080 . 'Username', 'password' and 'port' are optional if there is no user logon and the port is 80. Other proxy protocols are supported by replacing 'http:' with 'https', 'httpc', 'socks4' and 'socks5'. 'https' is the same as 'http' but expects the server to communicate using SSL/TLS from the get-go (port 443 style). 'httpc' uses the HTTP/1.1 'CONNECT' method.
+
 
 -x attempts to get around 'family filter' on some websites
 
@@ -44,6 +45,7 @@ This command works the same as the -s streaming command, except that the file wi
 
 -Pp allow you to set what percent of download to launch the 'Player program' at.
 
+-np <path> Will write a 'now playing' file for ICY web-radio services that announce the current artist/track.
 
 In some cases websites have more than one format of a video on offer. In general movgrab tries to extract Flash video (flv) first. If you want a different format, you can first see what the website offers by doing this:
 

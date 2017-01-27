@@ -1007,16 +1007,8 @@ break;
 case TYPE_DAILYMOTION:
 #define DAILYMOTION_ITEM "/mp4\",\"url\":\""
 #define DAILYMOTION_ITEM_END "\"}"
-#define DAILYMOTION_TITLE_START "<meta property=\"og:title\" content=\""
-#define DAILYMOTION_TITLE_END "\""
 
-
-  if (strstr(Tempstr,DAILYMOTION_TITLE_START))
-  {
-    GenericExtractFromLine(Tempstr, "Title",DAILYMOTION_TITLE_START,DAILYMOTION_TITLE_END,Vars, EXTRACT_DEQUOTE | EXTRACT_DEHTMLQUOTE);
-  }
-
-
+	GenericTitleExtract(Tempstr, Vars);
   if (strstr(Tempstr,DAILYMOTION_ITEM))
   {
 		Token=UnQuoteStr(Token,Tempstr);
@@ -1279,9 +1271,8 @@ case TYPE_NATGEO:
 #define NATGEO_ITEM_END "\'"
 #define NATGEO_FLV_START "class=\"ngs_video\" data-require=\"ngsPlayer\" data-options='{ \"slug\": \""
 #define NATGEO_FLV_END "\""
-#define NATGEO_TITLE_START "<meta property=\"og:title\" content=\""
-#define NATGEO_TITLE_END "\""
 
+	GenericTitleExtract(Tempstr, Vars);
 	if (strstr(Tempstr,NATGEO_ITEM_START))
 	{
 		GenericExtractFromLine(Tempstr, "tmp",NATGEO_ITEM_START,NATGEO_ITEM_END,Vars,EXTRACT_DESLASHQUOTE | EXTRACT_NOSPACES);
@@ -1294,30 +1285,17 @@ case TYPE_NATGEO:
 	{
 		GenericExtractFromLine(Tempstr, "item:flv",NATGEO_FLV_START,NATGEO_FLV_END,Vars,EXTRACT_NOSPACES);
 	}
-
-	if (strstr(Tempstr,NATGEO_TITLE_START))
-	{
-		GenericExtractFromLine(Tempstr, "Title",NATGEO_TITLE_START,NATGEO_TITLE_END,Vars,0);
-	}
-
 break;
 
 case TYPE_VIDEOBASH:
 #define VIDEOBASH_ITEMSTART "&amp;file=\" + 'http://' + '"
 #define VIDEOBASH_ITEMEND "\'"
-#define VIDEOBASH_TITLE_START "<meta property=\"og:title\" content=\""
-#define VIDEOBASH_TITLE_END "\""
 
+	GenericTitleExtract(Tempstr, Vars);
 	if (strstr(Tempstr,VIDEOBASH_ITEMSTART))
 	{
 		GenericExtractFromLine(Tempstr, "item:mp4",VIDEOBASH_ITEMSTART,VIDEOBASH_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 	}
-
-	if (strstr(Tempstr,VIDEOBASH_TITLE_START))
-	{
-		GenericExtractFromLine(Tempstr, "Title",VIDEOBASH_TITLE_START,VIDEOBASH_TITLE_END,Vars,0);
-	}
-
 break;
 
 

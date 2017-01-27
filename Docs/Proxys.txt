@@ -8,9 +8,21 @@ If no authentication is needed to use the proxy then the '<username>:<password>@
 
 'type' can be:
 	http				A standard http proxy
-	https				An http proxy that uses encrypted connections
-	ssltunnel 	An ssh server that supports connection forwarding
+	https				An http proxy that uses encrypted connections (so is running on port 443 with native ssl)
+	httpc				An http proxy that the HTTP/1.1 'CONNECT' method
 	socks4      A socks4 proxy (openssh or tor using proxy)
 	socks5			A socks5 proxy
 
-All connections will then be forwarded through the proxy. 	
+All connections will then be forwarded through the proxy.
+
+This is particularly useful in combination with ssh. The ssh command:
+
+	ssh -D *:5050 user@myhost
+
+will connect to 'myhost' and open a socks4/socks5 proxy service locally on port 5050. Movgrab can then be told:
+
+	movgrab -p 127.0.0.1:5050 http://www.youtube.com/?watch=ejfelefffDD
+
+and all it's communications will be routed through ssh and appear to come from 'myhost'.
+
+

@@ -135,6 +135,7 @@ CheckSettings();
 if (StrValid(Proxy)) 
 {
 	if (strncmp(Proxy,"http:",5)==0) HTTPSetProxy(Proxy);
+	else if (strncmp(Proxy,"https:",6)==0) HTTPSetProxy(Proxy);
 	else if (! SetGlobalConnectionChain(Proxy))
 	{
 		printf("ERROR: Failed to set proxy settings to '%s'\n",Proxy);
