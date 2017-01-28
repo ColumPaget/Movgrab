@@ -667,7 +667,7 @@ case TYPE_CONTAINERFILE_PLS:
 case TYPE_CONTAINERFILE_ASX:
 case TYPE_CONTAINERFILE_M3U8:
   Tempstr=CopyStr(Tempstr, GetVar(Vars,"ID"));
-	if ((strncmp(Tempstr,"http:",5)!=0) && (strncmp(Tempstr,"https:",6)!=0)) Tempstr=MCopyStr(Tempstr,"http:",GetVar(Vars,"ID"),NULL);
+	if ((strncmp(Tempstr,"icy:",4)!=0) && (strncmp(Tempstr,"http:",5)!=0) && (strncmp(Tempstr,"https:",6)!=0)) Tempstr=MCopyStr(Tempstr,"http:",GetVar(Vars,"ID"),NULL);
  	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
 break;
 }
