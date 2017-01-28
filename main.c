@@ -29,7 +29,6 @@
 
 
 
-int Flags=0;
 ListNode *DownloadQueue=NULL;
 STREAM *StdIn=NULL;
 int Type=TYPE_NONE;

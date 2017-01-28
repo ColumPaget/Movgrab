@@ -14,7 +14,7 @@ Then site specific
 
 
 //Site type names used at the command line etc
-char *DownloadTypes[]={"none","generic","youtube","youtu.be","metacafe","dailymotion","break","ehow","vimeo","ted","reuters","liveleak","photobucket","washingtonpost","cbsnews","france24","euronews","metatube","guardian","redorbit","uctv.tv","royalsociety.tv","dotsub","astronomy.com","discovery","bloomberg","nationalgeographic","videobash","smh","funnyordie","ign","ebaumsworld","gamestar","imdb","charlierose","stanfordoc",NULL};
+char *DownloadTypes[]={"none","generic","youtube","youtu.be","metacafe","dailymotion","break","ehow","vimeo","ted","reuters","liveleak","photobucket","washingtonpost","cbsnews","france24","euronews","metatube","guardian","redorbit","uctv.tv","dotsub","astronomy.com","discovery","bloomberg","nationalgeographic","videobash","smh","funnyordie","ign","ebaumsworld","gamestar","imdb","charlierose","stanfordoc","screencast.com","royalsociety.tv",NULL};
 
 //Longer names used in display
 char *DownloadNames[]={"none",
@@ -38,7 +38,6 @@ char *DownloadNames[]={"none",
 "www.guardian.co.uk",
 "www.redorbit.com",
 "University of California Television: http://www.uctv.tv/",
-"http://royalsociety.org/",
 "dotsub.com",
 "astronomy.com",
 "dsc.discovery.com",
@@ -53,6 +52,8 @@ char *DownloadNames[]={"none",
 "www.imdb.com",
 "Charlie Rose",
 "Stanford Open Classroom",
+"UDemy",
+"http://royalsociety.org/",
 NULL};
 
 //"http://vimeo.com/33204284",
@@ -61,7 +62,7 @@ NULL};
 char *TestLinks[]={"", "",
 "http://www.youtube.com/watch?v=Vxp3seoRNgY",
 "http://youtu.be/OdrEId7YI1k",
-"http://www.metacafe.com/watch/6063075/how_to_use_chopsticks/",
+"http://metacafe.com/watch/11419763/super-blood-moon-eclipse-2015/",
 "http://www.dailymotion.com/video/x5790e_hubblecast-16-galaxies-gone-wild_tech",
 "http://www.break.com/video/break-compilations-2591623/cats-vs-the-world-iii-breaking-videos-3075295",
 "http://www.ehow.com/video_6819748_creamy-thyme-scrambled-eggs-recipe.html",
@@ -78,7 +79,6 @@ char *TestLinks[]={"", "",
 "http://www.guardian.co.uk/world/video/2011/may/13/fukushima-radiation-dairy-farmers-video",
 "http://www.redorbit.com/video/using-f1-technology-to-transform-healthcare-012016/",
 "http://www.uctv.tv/search-details.aspx?showID=20888",
-"http://royalsociety.tv/rsPlayer.aspx?presentationid=474",
 "http://dotsub.com/view/5d90ef11-d5e5-42fb-8263-a4c128fb64df",
 "http://www.astronomy.com/News-Observing/Liz%20and%20Bills%20Cosmic%20Adventures/2011/02/Episode%202.aspx",
 "http://dsc.discovery.com/videos/how-the-universe-works-birth-of-a-black-hole.html",
@@ -93,6 +93,9 @@ char *TestLinks[]={"", "",
 "http://www.imdb.com/video/imdb/vi3832131865",
 "https://charlierose.com/videos/27996",
 "http://openclassroom.stanford.edu/MainFolder/VideoPage.php?course=PracticalUnix&video=wget&speed=100",
+"http://www.brainstuffshow.com/videos/how-gps-coordinates-work-video.htm",
+//"http://royalsociety.tv/rsPlayer.aspx?presentationid=474",
+"broken",
 NULL};
 
 
@@ -263,6 +266,11 @@ else if (strstr(Server,".google."))
 {
  Type=TYPE_GOOGLE_URL;
 }
+else if (strstr(Server,"screencast.com"))
+{
+ Type=TYPE_SCREENCAST_COM;
+}
+
 
 
 DestroyString(Server);
@@ -546,9 +554,9 @@ case TYPE_YOUTUBE_PLAYLIST:
 break;
 
 case TYPE_METACAFE:
-#define METACAFE_OVER_18 "allowAdultContent=1&submit=Continue+-+I%27m+over+18"
- Tempstr=SubstituteVarsInString(Tempstr,"$(ID)&$(METACAFE_OVER_18)",Vars,0);
- 	RetVal=DownloadItem(Tempstr, Title, Fmt, Flags);
+	//#define METACAFE_OVER_18 "allowAdultContent=1&submit=Continue+-+I%27m+over+18"
+	//Tempstr=SubstituteVarsInString(Tempstr,"$(ID)&$(METACAFE_OVER_18)",Vars,0);
+ 	RetVal=DownloadItem(GetVar(Vars,"ID"), Title, Fmt, Flags);
 break;
 
 
@@ -652,6 +660,7 @@ case TYPE_FUNNYORDIE:
 case TYPE_EBAUMSWORLD:
 case TYPE_DAILYMOTION:
 case TYPE_VIDEOBASH:
+case TYPE_SCREENCAST_COM:
 case TYPE_EHOW:
 case TYPE_CHARLIEROSE:
 case TYPE_CONTAINERFILE_PLS:
@@ -836,16 +845,13 @@ break;
 
 
 case TYPE_METACAFE:
-#define METACAFE_ITEM "&mediaData="
-#define METACAFE_MEDIA_URL ",\"mediaURL\":\""
+#define METACAFE_ITEM "\"sources\":[{\"src\":\""
+#define METACAFE_END "\""
 
 GenericTitleExtract(Tempstr, Vars);
-
 if (strstr(Tempstr,METACAFE_ITEM))
 {
-	GenericExtractFromLine(Tempstr, "metacafe:mediaData",METACAFE_ITEM,"&", Vars, EXTRACT_DEQUOTE);
-	ptr=GetVar(Vars,"metacafe:mediaData");
-	GenericExtractFromLine(ptr, "item:mp4",METACAFE_MEDIA_URL,"\"", Vars, EXTRACT_DESLASHQUOTE|EXTRACT_GUESSTYPE);
+	GenericExtractFromLine(Tempstr, "ID",METACAFE_ITEM, METACAFE_END, Vars, EXTRACT_DESLASHQUOTE | EXTRACT_GUESSTYPE);
 }
 break;
 
@@ -1358,6 +1364,18 @@ case TYPE_GAMESTAR:
 	}
 break;
 
+case TYPE_SCREENCAST_COM:
+#define SCREENCAST_ITEMLINE "<param name=\"flashVars\""
+#define SCREENCAST_ITEMSTART "content="
+#define SCREENCAST_ITEMEND "&"
+	
+	GenericTitleExtract(Tempstr, Vars);
+	if (strstr(Tempstr,SCREENCAST_ITEMLINE))
+	{
+		GenericExtractFromLine(Tempstr, "item:mp4",SCREENCAST_ITEMSTART,SCREENCAST_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
+	}
+break;
+
 
 case TYPE_STANFORD_OPENCLASS:
 #define STANFORD_OPENCLASS_COURSE "var courseName = \""
@@ -1536,8 +1554,8 @@ break;
 
 if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- END DOCUMENT ------\n\n");
 
-//ptr=GetVar(Vars,"item:m3u8");
-//if (StrValid(ptr)) M3UContainer(ptr, Vars);
+ptr=GetVar(Vars,"item:m3u8");
+if (StrValid(ptr)) M3UContainer(ptr, Vars);
 
 ptr=GetVar(Vars,"Title");
 if (! StrValid(ptr)) 

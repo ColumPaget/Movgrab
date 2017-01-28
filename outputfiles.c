@@ -97,6 +97,7 @@ if (! (Flags & FLAG_RESUME))
 //Some stupid sites start pagenames with a space, and we don't want this in the filename
 StripLeadingWhitespace(RetStr);
 
+DestroyString(Tempstr);
 DestroyString(MD5);
 
 return(RetStr);

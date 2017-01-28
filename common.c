@@ -7,8 +7,8 @@ char *FormatPreference=NULL;
 char *Username=NULL, *Password=NULL;
 char *Proxy=NULL;
 char *ProgName=NULL, *CmdLine=NULL, *UserAgent=NULL;
-int STREAMTimeout=3000;
-
+int STREAMTimeout=300;
+int Flags=0;
 
 
 

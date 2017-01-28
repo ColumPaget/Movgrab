@@ -623,7 +623,9 @@ if (
 		#ifdef POSIX_FADV_DONTNEED
 		if (S->Flags & SF_NOCACHE)
 		{
+			#ifdef linux
 	  		fdatasync(S->out_fd);
+			#endif
  	 		posix_fadvise(S->out_fd, 0,0,POSIX_FADV_DONTNEED);
 		}
 		#endif

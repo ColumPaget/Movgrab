@@ -27,7 +27,7 @@ if (Flags & FLAG_DEBUG3) Info->Flags |= HTTP_DEBUG;
 
 if (StrLen(LastPage)) SetVar(Info->CustomSendHeaders,"Referer",LastPage); 
 
-LastPage=CopyStr(LastPage,Tempstr);
+LastPage=CopyStr(LastPage, URL);
 if (BytesRange > 0)
 {
 	Tempstr=FormatStr(Tempstr,"bytes=%lld-",(long long) BytesRange);
@@ -274,10 +274,14 @@ int Port;
 STREAM *S;
 int RetVal=FALSE;
 
+
 if (Flags & (FLAG_DEBUG)) fprintf(stderr,"Next URL: %s\n",URL);
 S=ConnectAndSendHeaders(URL, Flags, 0);
 
-if (S) if (ExtractItemInfo(S, Type, URL, Title, DLFlags)) RetVal=TRUE;
+if (S) 
+{
+	if (ExtractItemInfo(S, Type, URL, Title, DLFlags)) RetVal=TRUE;
+}
 else if (! (Flags & FLAG_QUIET)) fprintf(stderr,"ERROR: failed to Connect to %s\n",URL);
 
 DestroyString(Tempstr);

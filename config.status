@@ -427,7 +427,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/tmp/Movgrab'
+ac_pwd='/home/metacosm89/Movgrab'
 srcdir='.'
 INSTALL='/bin/install -c'
 test -n "$AWK" || AWK=awk

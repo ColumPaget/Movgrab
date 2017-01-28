@@ -140,7 +140,7 @@ int i;
 //set all signal handlers to default
 if (Flags & SPAWN_SIGDEF)
 {
-for (i =0; i < _NSIG; i++) signal(i,SIG_DFL);
+for (i =0; i < NSIG; i++) signal(i,SIG_DFL);
 }
 
 //Set controlling tty to be stdin. This means that CTRL-C, SIGWINCH etc is handled for the 

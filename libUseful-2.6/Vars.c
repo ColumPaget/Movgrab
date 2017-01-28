@@ -43,7 +43,6 @@ if (Node)
 {
 	if ((Vars->Flags & LIST_FLAG_TIMEOUT) && (Node->Time > 0) && (Node->Time < GetTime(TIME_CACHED)))
 	{
-		printf("TIMED OUT %s\n",Node->Tag);
 		DestroyString((char *) Node->Item);
 		return(NULL);
 	}
@@ -59,9 +58,9 @@ ListNode *Curr;
 char *Str=NULL;
 char *Tempstr=NULL;
 
-if (Vars) return;
+if (! Vars) return;
 Tempstr=CopyStr(Tempstr,Name);
-strlwr(Tempstr);
+//strlwr(Tempstr);
 Curr=ListFindNamedItem(Vars,Tempstr);
 if (Curr)
 {
