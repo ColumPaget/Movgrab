@@ -1,4 +1,5 @@
 #include "display.h"
+#include "outputfiles.h"
 
 pid_t PlayerPid=0;
 char *Player=NULL;

@@ -1,6 +1,9 @@
 #include "servicetypes.h"
 #include "containerfiles.h"
 #include "selectformat.h"
+#include "download.h"
+#include "ign.h"
+#include "youtube.h"
 
 /*
 This file and it's header (servicetypes.h) holds all the functions and data
@@ -283,34 +286,11 @@ return(Type);
 
 
 
-char *ExtractMetacafeMediaURL(char *RetStr, char *Data, char *Start, char *End)
-{
-char *Tempstr=NULL, *Token=NULL, *ptr;
-
-
-ptr=strstr(Data,Start);
-ptr+=StrLen(Start);
-ptr=GetToken(ptr,End,&Token,0);
-Tempstr=HTTPUnQuote(Tempstr,Token);
-RetStr=MCopyStr(RetStr,Tempstr,"?__gda__=",NULL);
-ptr=GetToken(Data,"gdaKey=",&Token,0);
-ptr=GetToken(ptr,"&",&Token,0);
-RetStr=CatStr(RetStr,Token);
-	
-DestroyString(Tempstr);
-DestroyString(Token);
-
-
-return(RetStr);
-}
-
-
-
 
 //This function is called before we even pull the first page from a site
 //it is a good place to do any site-specific stuff like rewriting the
 //site URL to a form that's better for movgrab
-char *SiteSpecificPreprocessing(char *RetBuff, char *Path, char *Proto, char *Server, int Port, char *Doc, int *Type, char **Title, int *Flags)
+char *SiteSpecificPreprocessing(char *RetBuff, const char *Path, const char *Proto, const char *Server, int Port, const char *Doc, int *Type, char **Title, int *Flags)
 {
 char *Tempstr=NULL;
 char *NextPath=NULL;
@@ -447,7 +427,7 @@ return(NextPath);
 
 //For websites with multiple videos on a page (not multiple formats of the
 //same video, but actual different videos) decide which one to get
-void HandleMultipleMedia(int Type,char *Server,int Flags,ListNode *Vars,int MediaCount)
+void HandleMultipleMedia(int Type, const char *Server, int Flags, ListNode *Vars, int MediaCount)
 { 
 char *Tempstr=NULL, *ptr;
 int i, startpos, endpos;
@@ -516,7 +496,7 @@ DestroyString(Tempstr);
 //Decides what to do next (Download another page, download the actual 
 //media item, give up, etc.
 
-int GetNextURL(int Type, char *Server, int Flags, ListNode *Vars)
+int GetNextURL(int Type, const char *Server, int Flags, ListNode *Vars)
 {
 char *Tempstr=NULL, *Title=NULL, *Fmt=NULL, *ptr;
 int RetVal=FALSE;
@@ -717,11 +697,12 @@ DestroyString(Res);
 // information that it can use to get a video
 *******************************************************************************************************/
 
-int ExtractItemInfo(STREAM *S, int Type, char *URL, char *Title, int Flags)
+int ExtractItemInfo(STREAM *S, int Type, const char *URL, const char *Title, int Flags)
 {
 char *Tempstr=NULL, *Token=NULL, *VarName=NULL, *Server=NULL;
 ListNode *Vars=NULL;
-char *ptr, *ptr2;
+const char *ptr; 
+char *ptr2;
 int MediaCount=0, i, Port;
 int RetVal=FALSE, State=0;
 
@@ -790,13 +771,8 @@ http://ipad-streaming.cbsnews.com/media/mpx/2016/04/17/667983939550/0417_60Min_A
 	else if (strncasecmp(Tempstr,"https:",6)==0) SetVar(Vars, VarName, Tempstr);
 	else 
 	{
-		ptr=strrchr(URL,'/');
-		if (ptr)
-		{
-			Token=CopyStrLen(Token,URL,ptr-URL);
-			Token=MCatStr(Token,"/",Tempstr,NULL);
-  		SetVar(Vars, VarName, Token);
-		}
+		Token=BuildURL(Token, URL, Tempstr);
+  	SetVar(Vars, VarName, Token);
 	}
 }
 else if (*Tempstr !=0) VarsAddDownloadItem("item:mp3", Tempstr, Vars, EXTRACT_GUESSTYPE);
@@ -946,22 +922,22 @@ break;
 
 
 case TYPE_VIMEO_STAGE2:
-#define VIMEO1_BASE "<meta name=\"httpBase\" content=\""
-#define VIMEO1_BASE_END "\""
-#define VIMEO1_ITEM "<video src=\""
-#define VIMEO1_ITEM_END "\""
+#define VIMEO2_BASE "<meta name=\"httpBase\" content=\""
+#define VIMEO2_BASE_END "\""
+#define VIMEO2_ITEM "<video src=\""
+#define VIMEO2_ITEM_END "\""
 
 
-ptr=strstr(Tempstr,VIMEO1_BASE);
+ptr=strstr(Tempstr,VIMEO2_BASE);
 if (ptr)
 {
-	GenericExtractFromLine(Tempstr, "BASE",VIMEO1_BASE,VIMEO1_BASE_END,Vars,EXTRACT_NOSPACES);
+	GenericExtractFromLine(Tempstr, "BASE",VIMEO2_BASE,VIMEO2_BASE_END,Vars,EXTRACT_NOSPACES);
 }
 
-ptr=strstr(Tempstr,VIMEO1_ITEM);
+ptr=strstr(Tempstr,VIMEO2_ITEM);
 if (ptr)
 {
-	GenericExtractFromLine(Tempstr, "ID",VIMEO1_ITEM,VIMEO1_ITEM_END,Vars,EXTRACT_NOSPACES);
+	GenericExtractFromLine(Tempstr, "ID",VIMEO2_ITEM,VIMEO2_ITEM_END,Vars,EXTRACT_NOSPACES);
 }
 
 break;
@@ -1004,7 +980,6 @@ case TYPE_TED:
 #define TED_ITEM_START "\"file\":\""
 #define TED_ITEM_END "\""
 
-Title=CopyStr(Title,GetBasename(URL));
 if (strstr(Tempstr,TED_ITEM_START))
 {
 	ptr=Tempstr;
@@ -1306,7 +1281,7 @@ case TYPE_IMDB:
 #define IMDB_ITEMSTART "://www.imdb.com/video/imdb/vi"
 #define IMDB_ITEMEND "\""
 
-	GenericTitleExtract(Tempstr, Vars);
+GenericTitleExtract(Tempstr, Vars);
 if (strstr(Tempstr,IMDB_ITEMSTART))
 {
 	GenericExtractFromLine(Tempstr, "ID",IMDB_ITEMSTART,IMDB_ITEMEND,Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
@@ -1314,10 +1289,10 @@ if (strstr(Tempstr,IMDB_ITEMSTART))
 	Token=CopyStr(Token,GetVar(Vars,"ID"));
 	if (StrValid(Token))
 	{
-		ptr=strchr(Token,'?');
-		if (ptr) *ptr='\0';
-		ptr=strchr(Token,'/');
-		if (ptr) *ptr='\0';
+		ptr2=strchr(Token,'?');
+		if (ptr2) *ptr2='\0';
+		ptr2=strchr(Token,'/');
+		if (ptr2) *ptr2='\0';
 		SetVar(Vars,"ID",Token);
 	}
 }
@@ -1402,10 +1377,10 @@ case TYPE_STANFORD_STAGE2:
 	{
 		GenericExtractFromLine(Tempstr, "ID",STANFORD_STAGE2_ITEMSTART,STANFORD_STAGE2_ITEMEND,Vars, 0);
 		Token=CopyStr(Token,URL);
-		ptr=strrchr(Token,'/');
-		if (ptr)
+		ptr2=strrchr(Token,'/');
+		if (ptr2)
 		{
-			*ptr='\0';
+			*ptr2='\0';
 			Token=MCatStr(Token,"/",GetVar(Vars,"ID"),NULL);
 			SetVar(Vars,"ID",Token);
 		}
@@ -1594,3 +1569,54 @@ DestroyString(Tempstr);
 return(RetVal);
 }
 
+
+
+
+//-------- Go through the processes involved in getting a video file
+int GrabMovie(const char *Path, int MovType)
+{
+int i;
+char *Proto=NULL, *Server=NULL, *Doc=NULL, *Tempstr=NULL, *Title=NULL;
+char *NextPath=NULL;
+char *ptr, *Token=NULL;
+int Port;
+int RetVal=FALSE;
+
+if (!StrLen(Path)) return(FALSE);
+
+Type=MovType;
+NextPath=CopyStr(NextPath,Path);
+ParseURL(Path,&Proto,&Server,&Tempstr,NULL,NULL,&Doc,NULL);
+if (Tempstr) Port=atoi(Tempstr);
+
+if (Proto && (strcasecmp(Proto,"https")==0) )
+{
+  if (! SSLAvailable)
+  {
+    printf("SSL NOT COMPILED IN! Switching from 'https' to 'http'\n");
+    NextPath=MCopyStr(NextPath,"http://",Server,"/",ptr);
+  }
+}
+
+if (Type==TYPE_NONE) Type=IdentifyServiceType(Path);
+
+
+if (Type==TYPE_NONE)
+{
+if (! (Flags & FLAG_QUIET)) fprintf(stderr,"Unrecognized url type. Falling Back to 'generic youtube frontend'.\n Try using the -t option to force the service type ( \"movgrab -?\" for more details )\n");
+Type=TYPE_GENERIC;
+}
+
+NextPath=SiteSpecificPreprocessing(NextPath, Path, Proto, Server, Port, Doc, &Type, &Title, &Flags);
+if (DownloadPage(NextPath, Type, Title, Flags)) RetVal=TRUE;
+
+DestroyString(Tempstr);
+DestroyString(Server);
+DestroyString(Doc);
+DestroyString(NextPath);
+DestroyString(Token);
+DestroyString(Title);
+DestroyString(Proto);
+
+return(RetVal);
+}

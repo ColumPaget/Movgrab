@@ -18,7 +18,7 @@
 
 //This function Extracts Text from a line that's found between two specified
 //chunks of text 'ItemStart' and 'ItemEnd'
-char *GenericExtractFromLine(char *Line, const char *ItemName, const char *ItemStart, const char *ItemEnd, ListNode *Vars, int Flags);
+const char *GenericExtractFromLine(const char *Line, const char *ItemName, const char *ItemStart, const char *ItemEnd, ListNode *Vars, int Flags);
 void GenericTitleExtract(const char *Line, ListNode *Vars);
 
 #endif

@@ -11,9 +11,11 @@ TYPE_BREAK_STAGE2, TYPE_VIMEO_STAGE2, TYPE_VIMEO_STAGE3, TYPE_CLIPSHACK_STAGE2, 
 extern char *DownloadTypes[], *DownloadNames[], *TestLinks[];
 
 int IdentifyServiceType(const char *Path);
-char *SiteSpecificPreprocessing(char *RetBuf, char *Path, char *Proto, char *Server, int Port, char *Doc, int *Type, char **Title, int *Post);
-int GetNextURL(int Type, char *Server, int Post, ListNode *Vars);
-int ExtractItemInfo(STREAM *S, int Type, char *URL, char *Title, int Post);
+char *SiteSpecificPreprocessing(char *RetBuf, const char *Path, const char *Proto, const char *Server, int Port, const char *Doc, int *Type, char **Title, int *Post);
+int GetNextURL(int Type, const char *Server, int Post, ListNode *Vars);
+int ExtractItemInfo(STREAM *S, int Type, const char *URL, const char *Title, int Post);
 
+
+int GrabMovie(const char *Path, int MovType);
 
 #endif

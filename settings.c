@@ -2,6 +2,7 @@
 #include "servicetypes.h"
 #include "display.h"
 #include "download.h"
+#include "outputfiles.h"
 
 void PrintVersion()
 {

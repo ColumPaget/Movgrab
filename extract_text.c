@@ -4,9 +4,10 @@
 
 //This function Extracts Text from a line that's found between two specified
 //chunks of text 'ItemStart' and 'ItemEnd'
-char *GenericExtractFromLine(char *Line, const char *ItemName, const char *ItemStart, const char *ItemEnd, ListNode *Vars, int ExtractFlags)
+const char *GenericExtractFromLine(const char *Line, const char *ItemName, const char *ItemStart, const char *ItemEnd, ListNode *Vars, int ExtractFlags)
 {
-char *ptr, *ptr2, *Token=NULL, *Item=NULL;
+const char *ptr;
+char *Token=NULL, *Item=NULL, *ptr2;
 int len;
 int GTF=0;
 

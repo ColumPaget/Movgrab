@@ -1,13 +1,15 @@
 #include "download.h"
 #include "outputfiles.h"
 #include "display.h"
+#include "containerfiles.h"
+#include "servicetypes.h"
 
 /*
 Functions relating to connecting to hosts and downloading webpages.
 All the HTTP stuff is in here
 */ 
 
-
+ListNode *DownloadQueue=NULL;
 extern int STREAMTimeout;
 
 STREAM *ConnectAndSendHeaders(const char *URL, int Flags, double BytesRange)

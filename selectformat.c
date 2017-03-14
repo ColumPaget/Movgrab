@@ -1,5 +1,6 @@
 #include "selectformat.h"
 #include "servicetypes.h"
+#include "display.h"
 
 char *GatherMatchingFormats(char *Buffer, char *Type, ListNode *Vars)
 {

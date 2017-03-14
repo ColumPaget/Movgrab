@@ -2,7 +2,7 @@
 #ifndef MOVGRAB_COMMON
 #define MOVGRAB_COMMON
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "3.0.0"
+#define Version "3.0.1"
 
 #include "libUseful-2.6/libUseful.h"
 #include <string.h>
@@ -40,10 +40,13 @@ extern char *Username, *Password;
 extern char *Proxy;
 extern char *ProgName, *CmdLine, *UserAgent;
 extern int STREAMTimeout;
+extern STREAM *StdIn;
 
 char *FileTypeFromURL(char *URL);
+char *BuildURL(char *RetStr, const char *Parent, const char *SubItem);
 char *ItemCodeFromFileExtension(char *RetBuf, const char *Default, const char *URL);
 void VarsAddDownloadItem(const char *ItemName, const char *URL, ListNode *Vars, int AddFlags);
+int CheckForKeyboardInput();
 
 
 #endif

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "download.h"
 
 char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp","m3u8",NULL};
 char *ItemSelectionArg=NULL;
@@ -8,10 +9,31 @@ char *Username=NULL, *Password=NULL;
 char *Proxy=NULL;
 char *ProgName=NULL, *CmdLine=NULL, *UserAgent=NULL;
 int STREAMTimeout=300;
+STREAM *StdIn=NULL;
 int Flags=0;
 
 
+char *BuildURL(char *RetStr, const char *Parent, const char *SubItem)
+{
+char *Proto=NULL, *Host=NULL, *Port=NULL, *Path=NULL;
+char *BasePath=NULL;
 
+ParseURL(Parent,&Proto,&Host,&Port,NULL,NULL,&Path,NULL);
+if (StrValid(Port)) BasePath=FormatStr(BasePath, "%s://%s:%s/", Proto,Host,Port);
+else BasePath=FormatStr(BasePath, "%s://%s/", Proto,Host);
+
+//if it starts with '/' then we don't append to existing path
+if (*SubItem=='/') RetStr=MCopyStr(RetStr, BasePath, SubItem, NULL);
+else RetStr=MCopyStr(RetStr, BasePath, Path, "/", SubItem, NULL);
+
+DestroyString(Proto);
+DestroyString(Host);
+DestroyString(Port);
+DestroyString(Path);
+DestroyString(BasePath);
+
+return(RetStr);
+}
 
 char *FileTypeFromURL(char *URL)
 {
@@ -84,3 +106,26 @@ char *Token=NULL;
 
 DestroyString(Token);
 }
+
+
+int CheckForKeyboardInput()
+{
+char *Tempstr=NULL;
+int result=FALSE;
+
+if (STREAMCheckForBytes(StdIn))
+{
+  Tempstr=STREAMReadLine(Tempstr,StdIn);
+  StripTrailingWhitespace(Tempstr);
+  if (StrLen(Tempstr))
+  {
+    ListAddItem(DownloadQueue,CopyStr(NULL,Tempstr));
+    if (! (Flags & FLAG_QUIET)) fprintf(stderr,"\r\nQUEUED: %s\n",Tempstr);
+    result=TRUE;
+  }
+}
+DestroyString(Tempstr);
+
+return(result);
+}
+

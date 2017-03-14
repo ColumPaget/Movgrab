@@ -26,87 +26,11 @@
 #include "youtube.h"
 #include "ehow.h"
 #include "display.h"
+#include "settings.h"
 
 
 
-ListNode *DownloadQueue=NULL;
-STREAM *StdIn=NULL;
 int Type=TYPE_NONE;
-
-int CheckForKeyboardInput()
-{
-char *Tempstr=NULL;
-int result=FALSE;
-
-if (STREAMCheckForBytes(StdIn))
-{
-  Tempstr=STREAMReadLine(Tempstr,StdIn);
-  StripTrailingWhitespace(Tempstr);
-  if (StrLen(Tempstr))
-  {
-    ListAddItem(DownloadQueue,CopyStr(NULL,Tempstr));
-    if (! (Flags & FLAG_QUIET)) fprintf(stderr,"\r\nQUEUED: %s\n",Tempstr);
-    result=TRUE;
-  }
-}
-DestroyString(Tempstr);
-
-return(result);
-}
-
-
-
-
-
-//-------- Go through the processes involved in getting a video file
-int GrabMovie(char *Path, int MovType)
-{
-int i;
-char *Proto=NULL, *Server=NULL, *Doc=NULL, *Tempstr=NULL, *Title=NULL;
-char *NextPath=NULL;
-char *ptr, *Token=NULL;
-int Port;
-int RetVal=FALSE;
-
-if (!StrLen(Path)) return(FALSE);
-
-Type=MovType;
-NextPath=CopyStr(NextPath,Path);
-ParseURL(Path,&Proto,&Server,&Tempstr,NULL,NULL,&Doc,NULL);
-if (Tempstr) Port=atoi(Tempstr);
-
-if (Proto && (strcasecmp(Proto,"https")==0) )
-{
-	if (! SSLAvailable)
-	{
-		printf("SSL NOT COMPILED IN! Switching from 'https' to 'http'\n");
-		NextPath=MCopyStr(NextPath,"http://",Server,"/",ptr);
-	}
-}
-
-if (Type==TYPE_NONE) Type=IdentifyServiceType(Path);
-
-
-if (Type==TYPE_NONE)
-{
-if (! (Flags & FLAG_QUIET)) fprintf(stderr,"Unrecognized url type. Falling Back to 'generic youtube frontend'.\n Try using the -t option to force the service type ( \"movgrab -?\" for more details )\n");
-Type=TYPE_GENERIC;
-}
-
-NextPath=SiteSpecificPreprocessing(NextPath, Path, Proto, Server, Port, Doc, &Type, &Title, &Flags);
-if (DownloadPage(NextPath, Type, Title, Flags)) RetVal=TRUE;
-
-DestroyString(Tempstr);
-DestroyString(Server);
-DestroyString(Doc);
-DestroyString(NextPath);
-DestroyString(Token);
-DestroyString(Title);
-DestroyString(Proto);
-
-return(RetVal);
-}
-
 
 
 

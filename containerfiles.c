@@ -119,53 +119,48 @@ DestroyString(Bandwidth);
 int M3UStreamDownload(STREAM *ManifestCon, const char *URL, const char *Title)
 {
 STREAM *Con=NULL;
-char *Tempstr=NULL, *BasePath=NULL, *Line=NULL, *Extn=NULL;
+char *Tempstr=NULL, *Line=NULL, *Extn=NULL;
 const char *ptr;
 ListNode *Segments, *Curr;
 int RetVal=FALSE;
 double BytesRead=0;
 
 Segments=ListCreate();
-ptr=strrchr(URL, '/');
-if (ptr)
+Line=STREAMReadLine(Line,ManifestCon);
+while (Line)
 {
-	BasePath=CopyStrLen(BasePath, URL, ptr - URL);
-	Line=STREAMReadLine(Line,ManifestCon);
-	while (Line)
-	{
-		StripLeadingWhitespace(Line);
-		StripTrailingWhitespace(Line);
+	StripLeadingWhitespace(Line);
+	StripTrailingWhitespace(Line);
 		
-		if (*Line != '#')
-		{
-			Tempstr=MCopyStr(Tempstr, BasePath, "/", Line, NULL);
-			ListAddItem(Segments, CopyStr(NULL, Tempstr));
-			ptr=strrchr(Line,'.');
-			if (ptr) Extn=CopyStr(Extn, ptr);
-		}
-	Line=STREAMReadLine(Line,ManifestCon);
-	}
-
-	OpenOutputFiles(Title, URL, &BytesRead);
-	Tempstr=SetStrLen(Tempstr,BUFSIZ);
-	Curr=ListGetNext(Segments);
-	while (Curr)
+	if (*Line != '#')
 	{
-		Con=ConnectAndRetryUntilDownload(Curr->Item, 0, 0);
-		if (Con)
-		{
-		RetVal=TRUE;
-		TransferItem(Con, Title, URL, "m3u8-stream", 0, 0, &BytesRead, FALSE);
-		STREAMClose(Con);
-		}
-		Curr=ListGetNext(Curr);
+		ListAddItem(Segments, BuildURL(NULL, URL, Line));
+		ptr=strrchr(Line,'.');
+		if (ptr) Extn=CopyStr(Extn, ptr);
 	}
-	CloseOutputFiles(Extn);
+Line=STREAMReadLine(Line,ManifestCon);
 }
 
+OpenOutputFiles(Title, URL, &BytesRead);
+Tempstr=SetStrLen(Tempstr,BUFSIZ);
+Curr=ListGetNext(Segments);
+while (Curr)
+{
+	Con=ConnectAndRetryUntilDownload(Curr->Item, 0, 0);
+	if (Con)
+	{
+	RetVal=TRUE;
+	if (Flags & FLAG_DEBUG) printf("M3U8 Segment: %s\n",Curr->Item);	
+	TransferItem(Con, Title, URL, "m3u8-stream", 0, 0, &BytesRead, FALSE);
+	STREAMClose(Con);
+	}
+	Curr=ListGetNext(Curr);
+}
+CloseOutputFiles(Extn);
+
 ListDestroy(Segments, DestroyString);
+
 DestroyString(Tempstr);
-DestroyString(BasePath);
 DestroyString(Line);
 DestroyString(Extn);
 
