@@ -212,7 +212,6 @@ if (Flags & FLAG_TEST)
 
 if (Flags & FLAG_DEBUG) fprintf(stderr,"Next URL: %s\n",URL);
 
-if (! (Flags & FLAG_TEST_SITES)) OpenOutputFiles(Title,URL,&BytesRead);
 
 
 
@@ -225,6 +224,7 @@ if (Con)
 	if (strncmp(Format,"m3u8-stream:",12)==0) RetVal=M3UStreamDownload(Con, URL, Title);
 	else
 	{
+	if (! (Flags & FLAG_TEST_SITES)) OpenOutputFiles(Title,URL,&BytesRead);
 	Token=CopyStr(Token,STREAMGetValue(Con,"HTTP:Content-Range"));
 	if (StrLen(Token))
 	{
