@@ -35,26 +35,28 @@ char *ptr;
 
 Extn=CopyStr(Extn,".flv");
 
-if (StrLen(ID)) 
+if (StrValid(ID)) 
 {
 	ptr=strchr(ID,'.');
-	if (StrLen(ptr)) Extn=CopyStr(Extn,ptr);
+	if (StrValid(ptr)) Extn=CopyStr(Extn,ptr);
 }
 
-if (StrLen(Format)) Extn=MCopyStr(Extn,".",Format,NULL);
+if (StrValid(Format)) Extn=MCopyStr(Extn,".",Format,NULL);
 
-if (StrLen(ContentType))
+if (StrValid(ContentType))
 {
 ptr=NULL;
 if (strcasecmp(ContentType,"audio/mp3")==0) ptr=".mp3";
 else if (strcasecmp(ContentType,"audio/mpeg")==0) ptr=".mp3";
+else if (strcasecmp(ContentType,"audio/ogg")==0) ptr=".ogg";
+else if (strcasecmp(ContentType,"audio/aac")==0) ptr=".aac";
 else if (strcasecmp(ContentType,"video/x-flv")==0) ptr=".flv";
 else if (strcasecmp(ContentType,"video/flv")==0) ptr=".flv";
 else if (strcasecmp(ContentType,"video/mp4")==0) ptr=".mp4";
 else if (strcasecmp(ContentType,"video/3gpp")==0) ptr=".3gp";
 else if (strcasecmp(ContentType,"audio/webm")==0) ptr=".webm";
 else if (strcasecmp(ContentType,"video/webm")==0) ptr=".webm";
-if (StrLen(ptr)) Extn=CopyStr(Extn,ptr);
+if (StrValid(ptr)) Extn=CopyStr(Extn,ptr);
 }
 
 return(Extn);
@@ -68,7 +70,7 @@ char *GetSaveFilePath(char *RetStr, const char *Title, const char *URL)
 char *ptr=NULL;
 char *Tempstr=NULL, *MD5=NULL;
 
-if (StrLen(Title)) ptr=Title;
+if (StrValid(Title)) ptr=Title;
 else 
 {
 	Tempstr=CopyStr(Tempstr, URL);
@@ -123,7 +125,7 @@ if (strcmp(Path,"-")==0)
 }
 else
 {
-	S=STREAMOpenFile(Path, SF_CREAT | SF_RDWR);
+	S=STREAMFileOpen(Path, SF_CREAT | SF_RDWR);
 	if (S)
 	{
 	if (! STREAMLock(S,LOCK_EX|LOCK_NB)) 
@@ -161,7 +163,7 @@ glob(Tempstr,0,0,&Glob);
 
 if (Glob.gl_pathc > 0)
 {
-S=STREAMOpenFile(Glob.gl_pathv[0],SF_RDONLY);
+S=STREAMFileOpen(Glob.gl_pathv[0],SF_RDONLY);
 }
 
 globfree(&Glob);
@@ -187,7 +189,7 @@ if ((Flags & FLAG_RESUME) && (ListSize(OutputFiles)==1)) Resume=TRUE;
 Curr=ListGetNext(OutputFiles);
 while (Curr)
 {
-	if (StrLen(Curr->Tag)==0) 
+	if (! StrValid(Curr->Tag)) 
 	{
 		Tempstr=GetSaveFilePath(Tempstr, Title, URL);
 		S=OpenSaveFile(Tempstr, FileSize, Resume);
@@ -247,7 +249,7 @@ while (Curr)
 if ((Curr->Item) && (strcmp(Curr->Tag,"-") !=0))
 {
  S=(STREAM *) Curr->Item;
- if (! StrLen(Curr->Tag)) 
+ if (! StrValid(Curr->Tag)) 
  {
 		Tempstr=MCopyStr(Tempstr,S->Path,Extn,NULL);
 		rename(S->Path,Tempstr);

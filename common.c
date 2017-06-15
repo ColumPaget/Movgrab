@@ -1,14 +1,9 @@
 #include "common.h"
 #include "download.h"
 
-char *FileTypes[]={".flv",".mp3",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp","m3u8",NULL};
-char *ItemSelectionArg=NULL;
-char *NowPlayingFile=NULL;
-char *FormatPreference=NULL;
+char *FileTypes[]={".flv",".mp3",".ogg",".aac",".mp4",".mov",".wma",".m4a",".m4v",".wmv",".webm",".avi",".3gp","m3u8",NULL};
 char *Username=NULL, *Password=NULL;
-char *Proxy=NULL;
-char *ProgName=NULL, *CmdLine=NULL, *UserAgent=NULL;
-int STREAMTimeout=300;
+char *ProgName=NULL, *CmdLine=NULL;
 STREAM *StdIn=NULL;
 int Flags=0;
 
@@ -117,7 +112,7 @@ if (STREAMCheckForBytes(StdIn))
 {
   Tempstr=STREAMReadLine(Tempstr,StdIn);
   StripTrailingWhitespace(Tempstr);
-  if (StrLen(Tempstr))
+  if (StrValid(Tempstr))
   {
     ListAddItem(DownloadQueue,CopyStr(NULL,Tempstr));
     if (! (Flags & FLAG_QUIET)) fprintf(stderr,"\r\nQUEUED: %s\n",Tempstr);

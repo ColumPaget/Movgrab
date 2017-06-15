@@ -3,6 +3,17 @@
 #include "display.h"
 #include "download.h"
 #include "outputfiles.h"
+#include "players.h"
+
+TSettings Settings;
+
+void InitSettings()
+{
+memset(&Settings,0,sizeof(Settings));
+Settings.PlayerLaunchPercent=25;
+Settings.UserAgent=MCopyStr(Settings.UserAgent,"Movgrab ",Version,NULL);
+Settings.FormatPreference=CopyStr(Settings.FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,mp3,m4a,wma,m3u8,m3u8-stream,reference");
+}
 
 void PrintVersion()
 {
@@ -26,7 +37,7 @@ fprintf(stdout,"'-v -v -v'	maximum debugging\n");
 fprintf(stdout,"'-version'		Program version\n");
 fprintf(stdout,"'--version'		Program version\n");
 fprintf(stdout,"'-T'		Test mode, don't do final download\n");
-fprintf(stdout,"'-P <program>'		Player program (e.g. \"mplayer\")\n");
+fprintf(stdout,"'-P <program>'		Player program (e.g. \"mplayer\"). If <program> is 'auto' then select it from players set up in config file.\n");
 fprintf(stdout,"'-Pp'		Percent download to launch player at (default 25%)\n");
 fprintf(stdout,"'-U'		User-agent string\n");
 fprintf(stdout,"'-a'		Authentication info in Username:Password format.\n");
@@ -68,6 +79,20 @@ fprintf(stdout,"\nAvailable proxy types are: 'http', 'https' (which is 'http' st
 
 fprintf(stdout,"\nIf a website is not in the list, try 'movgrab -t generic <url>'\n");
 fprintf(stdout,"\nMovgrab can also be used to stream from internet radio and pipe it into a player. E.g.'\n		movgrab -o - -q -proxy ssltunnel://guest:s3cr3t@sshserver:1022 http://schizoid.in/schizoid-psy.pls | mpg123 -\n");
+
+fprintf(stdout,"\nMovgrab honors the following environment variables\n");
+fprintf(stdout,"MOVGRAB_FORMATS    list of file formats in preference order\n");;
+fprintf(stdout,"PROXY              proxy server for network comms (including server type, so e.g. socks4:192.168.5.1:1090)\n");;
+fprintf(stdout,"proxy              proxy server for network comms (including server type, so e.g. socks4:192.168.5.1:1090)\n");;
+fprintf(stdout,"socks4_proxy       socks4 proxy server\n");;
+fprintf(stdout,"socks5_proxy       socks5 proxy server\n");;
+fprintf(stdout,"http_proxy         http proxy server\n");;
+
+fprintf(stdout,"\nMovgrab uses a preferences file either set globally in /etc/movgrab.conf or per user in ~/.movgrab.conf. Entries in this file are:\n");
+fprintf(stdout,"mediafmt <formats>    list of file formats in preference order\n");;
+fprintf(stdout,"proxy <url>           url of network proxy\n");;
+fprintf(stdout,"useragent <string>    useragent string for http communications\n");;
+fprintf(stdout,"player <content-type> <path>    path to player program for a particular content type. Used in combination with the '-P auto' command-line switch.\n");;
 fprintf(stdout,"\nFeel free to email me and tell me if you've used this software!\n");
 
 fprintf(stdout,"\nThanks for bug reports go to: Philip Pi, Mark Gamar, Rich Kcsa, 'Rampant Badger', 'nibbles', 'deeice', Omair Eshkenazi, Matthias B, Ashish Disawal, Timo Juhani Lindfors, Abhisek Sanyal and others.\n");
@@ -89,6 +114,39 @@ return(result);
 }
 
 
+int ParsePreferencesFile(const char *Path)
+{
+STREAM *S;
+char *Tempstr=NULL, *Token=NULL, *ptr;
+
+S=STREAMOpen(Path, "r");
+if (! S) return(FALSE);
+Tempstr=STREAMReadLine(Tempstr, S);
+while (Tempstr)
+{
+StripTrailingWhitespace(Tempstr);
+StripLeadingWhitespace(Tempstr);
+ptr=GetToken(Tempstr, "\\S", &Token, 0);
+
+if (strcasecmp(Token, "mediafmt")==0) Settings.FormatPreference=CopyStr(Settings.FormatPreference,ptr);
+else if (strcasecmp(Token, "sslciphers")==0) LibUsefulSetValue("SSL-Permitted-Ciphers", ptr);
+else if (strcasecmp(Token, "ssllevel")==0) LibUsefulSetValue("SSL-Level", ptr);
+else if (strcasecmp(Token, "proxy")==0) Settings.Proxy=CopyStr(Settings.Proxy, ptr);
+else if (strcasecmp(Token, "useragent")==0) Settings.UserAgent=CopyStr(Settings.UserAgent, ptr);
+else if (strcasecmp(Token, "player")==0) ParsePlayer(ptr);
+
+Tempstr=STREAMReadLine(Tempstr, S);
+}
+
+STREAMClose(S);
+
+DestroyString(Tempstr);
+DestroyString(Token);
+
+return(TRUE);
+}
+
+
 void ParseCommandLine(int argc, char *argv[], ListNode *DL_List, int *OverrideType)
 {
 int i,j, DebugLevel=0;
@@ -100,8 +158,8 @@ CmdLine=argv[0];
 
 for (i=1; i < argc; i++)
 {
-	if (strcmp(argv[i],"-p")==0) Proxy=CopyStr(Proxy,argv[++i]);
-	else if (strcmp(argv[i],"-proxy")==0) Proxy=CopyStr(Proxy,argv[++i]);
+	if (strcmp(argv[i],"-p")==0) Settings.Proxy=CopyStr(Settings.Proxy,argv[++i]);
+	else if (strcmp(argv[i],"-proxy")==0) Settings.Proxy=CopyStr(Settings.Proxy,argv[++i]);
 	else if (strcmp(argv[i],"-a")==0)
 	{
 			ptr=GetToken(argv[++i],":",&Username,0);
@@ -125,10 +183,10 @@ for (i=1; i < argc; i++)
 	}
 	else if (strcmp(argv[i],"-n")==0)
 	{
-		ItemSelectionArg=CopyStr(ItemSelectionArg,argv[++i]);
+		Settings.ItemSelectArg=CopyStr(Settings.ItemSelectArg,argv[++i]);
 	}
 	else if (strcmp(argv[i],"-t")==0) *OverrideType=ParseType(argv[++i]);
-	else if (strcmp(argv[i],"-f")==0) FormatPreference=CopyStr(FormatPreference,argv[++i]);
+	else if (strcmp(argv[i],"-f")==0) Settings.FormatPreference=CopyStr(Settings.FormatPreference,argv[++i]);
 	else if (strcmp(argv[i],"-q")==0) Flags |= FLAG_QUIET;
 	else if (strcmp(argv[i],"-b")==0) Flags |= FLAG_BACKGROUND;
 	else if (strcmp(argv[i],"-r")==0) Flags |= FLAG_RESUME;
@@ -136,11 +194,11 @@ for (i=1; i < argc; i++)
 	else if (strcmp(argv[i],"-T")==0) Flags |= FLAG_TEST;
 	else if (strcmp(argv[i],"-w")==0) Flags |= FLAG_STDIN;
 	else if (strcmp(argv[i],"-dt")==0) DisplayTitleWidth=atoi(argv[++i]);
-	else if (strcmp(argv[i],"-np")==0) NowPlayingFile=CopyStr(NowPlayingFile, argv[++i]);
-	else if (strcmp(argv[i],"-st")==0) STREAMTimeout=atoi(argv[++i]);
-	else if (strcmp(argv[i],"-P")==0) Player=CopyStr(Player,argv[++i]);
-	else if (strcmp(argv[i],"-Pp")==0) PlayerLaunchPercent=atoi(argv[++i]);
-	else if (strcmp(argv[i],"-U")==0) UserAgent=CopyStr(UserAgent, argv[++i]);
+	else if (strcmp(argv[i],"-np")==0) Settings.NowPlayingFile=CopyStr(Settings.NowPlayingFile, argv[++i]);
+	else if (strcmp(argv[i],"-st")==0) Settings.STREAMTimeout=atoi(argv[++i]);
+	else if (strcmp(argv[i],"-P")==0) SetPlayer(argv[++i]);
+	else if (strcmp(argv[i],"-Pp")==0) Settings.PlayerLaunchPercent=atoi(argv[++i]);
+	else if (strcmp(argv[i],"-U")==0) Settings.UserAgent=CopyStr(Settings.UserAgent, argv[++i]);
 	else if (strcmp(argv[i],"-?")==0) Flags |= FLAG_PRINT_USAGE;
 	else if (strcmp(argv[i],"-h")==0) Flags |= FLAG_PRINT_USAGE;
 	else if (strcmp(argv[i],"-help")==0) Flags |= FLAG_PRINT_USAGE;
@@ -155,7 +213,7 @@ for (i=1; i < argc; i++)
 		if (StrLen(TestLinks[j])) ListAddNamedItem(DL_List,DownloadTypes[j],CopyStr(NULL,TestLinks[j]));
 			
 		}
-		ItemSelectionArg=CopyStr(ItemSelectionArg,"0");
+		Settings.ItemSelectArg=CopyStr(Settings.ItemSelectArg,"0");
 	}
 	else
 	{
@@ -192,30 +250,69 @@ DestroyString(Token);
 }
 
 
-void ParseEnvironmentVariables()
-{
-char *Tempstr=NULL;
 
-Tempstr=CopyStr(Tempstr,getenv("http_proxy"));
-if (StrLen(Tempstr)) 
+
+void ParseEnvironmentProxy()
+{
+const char *ptr;
+
+ptr=getenv("proxy");
+if (! StrValid(ptr)) ptr=getenv("PROXY");
+if (StrValid(ptr)) 
+{
+	Settings.Proxy=CopyStr(Settings.Proxy, ptr);
+	return;
+}
+
+
+ptr=getenv("socks4_proxy");
+if (StrValid(ptr)) 
+{
+	Settings.Proxy=MCopyStr(Settings.Proxy, "socks4:", ptr, NULL);
+	return;
+}
+
+ptr=getenv("socks5_proxy");
+if (StrValid(ptr)) 
+{
+	Settings.Proxy=MCopyStr(Settings.Proxy, "socks5:", ptr, NULL);
+	return;
+}
+
+ptr=getenv("http_proxy");
+if (StrValid(ptr)) 
 {
 	if (
-			(strncasecmp(Tempstr,"http:",5) !=0) &&
-			(strncasecmp(Tempstr,"https:",6) !=0)
-		) Proxy=MCopyStr(Proxy,"http:",Tempstr,NULL);
-	else Proxy=CopyStr(Proxy,Tempstr);
-}
-else
-{
-	Tempstr=CopyStr(Tempstr,getenv("ssh_tunnel"));
-	if (StrLen(Tempstr)) 
-	{
-		if (strncasecmp(Tempstr,"sshtunnel:",10)==0) Proxy=CopyStr(Proxy,Tempstr);
-		else if (strncasecmp(Tempstr,"ssh:",4)==0) Proxy=MCopyStr(Proxy,"sshtunnel:",Tempstr+4,NULL);
-		else Proxy=MCopyStr(Proxy,"sshtunnel:",Tempstr,NULL);
-	}
+			(strncasecmp(ptr,"http:",5) !=0) &&
+			(strncasecmp(ptr,"https:",6) !=0)
+		) Settings.Proxy=MCopyStr(Settings.Proxy,"http:",ptr,NULL);
+	else Settings.Proxy=CopyStr(Settings.Proxy,ptr);
+	return;
 }
 
-DestroyString(Tempstr);
+ptr=getenv("ssh_tunnel");
+if (StrValid(ptr)) 
+{
+	if (strncasecmp(ptr,"sshtunnel:",10)==0) Settings.Proxy=CopyStr(Settings.Proxy,ptr);
+	else if (strncasecmp(ptr,"ssh:",4)==0) Settings.Proxy=MCopyStr(Settings.Proxy,"sshtunnel:",ptr+4,NULL);
+	else Settings.Proxy=MCopyStr(Settings.Proxy,"sshtunnel:",ptr,NULL);
+}
+
+}
+
+void ParseEnvironmentVariables()
+{
+const char *ptr;
+
+ParseEnvironmentProxy();
+
+ptr=getenv("SSL_CIPHERS");
+if (StrValid(ptr)) LibUsefulSetValue("SSL-Permitted-Ciphers", ptr);
+
+ptr=getenv("SSL_LEVEL");
+if (StrValid(ptr)) LibUsefulSetValue("SSL-Level", ptr);
+
+ptr=getenv("MOVGRAB_FORMATS");
+if (StrValid(ptr)) Settings.FormatPreference=CopyStr(Settings.FormatPreference,ptr);
 }
 

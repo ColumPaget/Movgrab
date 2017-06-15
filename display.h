@@ -3,7 +3,6 @@
 
 #include "common.h"
 
-extern char *Player;
 extern int DisplayTitleWidth;
 
 int DisplayAvailableFormats(ListNode *Vars, char *Formats, int ShowSize);

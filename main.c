@@ -43,30 +43,32 @@ int OverrideType=TYPE_NONE;
 char *Tempstr=NULL;
 int result;
 
-//HTTPSetFlags(HTTP_NOCOMPRESS);
+InitSettings();
+HTTPSetFlags(HTTP_NOCOMPRESS);
 StdIn=STREAMFromFD(0);
 STREAMSetTimeout(StdIn,0);
-ParseEnvironmentVariables();
-UserAgent=MCopyStr(UserAgent,"Movgrab ",Version,NULL);
 
 DownloadQueue=ListCreate();
-FormatPreference=CopyStr(FormatPreference,"mp4,flv,webm,m4v,mov,mpg,mpeg,wmv,avi,3gp,mp3,m4a,wma,m3u8,m3u8-stream,reference");
+Tempstr=MCopyStr(Tempstr,GetCurrUserHomeDir(), ".movgrab.conf", NULL);
+if (! ParsePreferencesFile(Tempstr)) ParsePreferencesFile("/etc/movgrab.conf");
+ParseEnvironmentVariables();
+
 AddOutputFile("", TRUE);
 
 ParseCommandLine(argc, argv, DownloadQueue, &OverrideType);
 CheckSettings();
-if (StrValid(Proxy)) 
+if (StrValid(Settings.Proxy)) 
 {
-	if (strncmp(Proxy,"http:",5)==0) HTTPSetProxy(Proxy);
-	else if (strncmp(Proxy,"https:",6)==0) HTTPSetProxy(Proxy);
-	else if (! SetGlobalConnectionChain(Proxy))
+	if (strncmp(Settings.Proxy,"http:",5)==0) HTTPSetProxy(Settings.Proxy);
+	else if (strncmp(Settings.Proxy,"https:",6)==0) HTTPSetProxy(Settings.Proxy);
+	else if (! SetGlobalConnectionChain(Settings.Proxy))
 	{
-		printf("ERROR: Failed to set proxy settings to '%s'\n",Proxy);
+		printf("ERROR: Failed to set proxy settings to '%s'\n",Settings.Proxy);
 		exit(1);
 	}
 }
 
-HTTPSetUserAgent(UserAgent);
+HTTPSetUserAgent(Settings.UserAgent);
 
 
 if (Flags & FLAG_PRINT_USAGE) PrintUsage();

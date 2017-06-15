@@ -3,6 +3,7 @@
 #include "display.h"
 #include "containerfiles.h"
 #include "servicetypes.h"
+#include "settings.h"
 
 /*
 Functions relating to connecting to hosts and downloading webpages.
@@ -10,7 +11,6 @@ All the HTTP stuff is in here
 */ 
 
 ListNode *DownloadQueue=NULL;
-extern int STREAMTimeout;
 
 STREAM *ConnectAndSendHeaders(const char *URL, int Flags, double BytesRange)
 {
@@ -27,7 +27,7 @@ Info=HTTPInfoFromURL(Method, URL);
 if (Flags & FLAG_DEBUG3) Info->Flags |= HTTP_DEBUG;
 //Info->Flags |= HTTP_DEBUG;
 
-if (StrLen(LastPage)) SetVar(Info->CustomSendHeaders,"Referer",LastPage); 
+if (StrValid(LastPage)) SetVar(Info->CustomSendHeaders,"Referer",LastPage); 
 
 LastPage=CopyStr(LastPage, URL);
 if (BytesRange > 0)
@@ -41,10 +41,15 @@ SetVar(Info->CustomSendHeaders,"Icy-MetaData","1");
 Con=HTTPTransact(Info);
 if ((! Con) && (! (Flags & FLAG_QUIET))) 
 {
-	if (StrLen(Info->ResponseCode)) fprintf(stderr,"ERROR: Server %s item '%s' not retrieved\nResponseCode: %s\n",Info->Host, Info->Doc,Info->ResponseCode);
+	if (StrValid(Info->ResponseCode)) fprintf(stderr,"ERROR: Server %s item '%s' not retrieved\nResponseCode: %s\n",Info->Host, Info->Doc,Info->ResponseCode);
 	else fprintf(stderr,"ERROR: Connection failed to %s can't get file=%s \n",Info->Host, Info->Doc);
 }
-
+else if (Flags & FLAG_DEBUG) 
+{
+	ptr=STREAMGetValue(Con, "SSL-Cipher");
+	if (StrValid(ptr)) fprintf(stderr,"HTTP-Response: %s SSL-Cipher: %s\n",STREAMGetValue(Con, "HTTP:ResponseCode"), STREAMGetValue(Con, "SSL-Cipher"));
+	else fprintf(stderr,"HTTP Response: %s\n",STREAMGetValue(Con, "HTTP:ResponseCode"));
+}
 
 DestroyString(Tempstr);
 DestroyString(Method);
@@ -143,7 +148,7 @@ unsigned long IcyInterval=0, BlockRemaining=0;
 
 Title=CopyStr(Title, InitialTitle);
 ptr=STREAMGetValue(Con,"HTTP:icy-metaint");
-if (StrLen(ptr)) IcyInterval=strtoul(ptr,NULL,10);
+if (StrValid(ptr)) IcyInterval=strtoul(ptr,NULL,10);
 
 DisplayProgress(Title, Format, *BytesRead, DocSize, PrintName);
 
@@ -220,15 +225,16 @@ if (Flags & FLAG_DEBUG) fprintf(stderr,"Next URL: %s\n",URL);
 if (! Con) Con=ConnectAndRetryUntilDownload(URL, Flags, BytesRead);
 if (Con)
 {
+	ContentType=CopyStr(ContentType, STREAMGetValue(Con,"HTTP:Content-Type"));
 	//Some sites throttle excessively
-	STREAMSetTimeout(Con,STREAMTimeout);
+	STREAMSetTimeout(Con, Settings.STREAMTimeout);
 
 	if (strncmp(Format,"m3u8-stream:",12)==0) RetVal=M3UStreamDownload(Con, URL, Title);
 	else
 	{
 	if (! (Flags & FLAG_TEST_SITES)) OpenOutputFiles(Title,URL,&BytesRead);
 	Token=CopyStr(Token,STREAMGetValue(Con,"HTTP:Content-Range"));
-	if (StrLen(Token))
+	if (StrValid(Token))
 	{
 		ptr=strrchr(Token,'/');
 		ptr++;
@@ -237,19 +243,20 @@ if (Con)
 	else
 	{
 		Token=CopyStr(Token,STREAMGetValue(Con,"HTTP:content-length"));
-		if (StrLen(Token)) DocSize=strtod(Token,NULL);
+		if (StrValid(Token)) DocSize=strtod(Token,NULL);
 	}
 
 	if (Flags & FLAG_TEST_SITES) RetVal=TRUE;
 	else
 	{
+		if (Flags & FLAG_PLAYER_AUTO) SelectPlayer(ContentType);
 		RetVal=TransferItem(Con,Title, URL, Format, DocSize, DocSize, &BytesRead,TRUE);
 
 		Tempstr=CopyStr(Tempstr,URL);
 		ptr=strrchr(Tempstr,'?');
 		if (ptr) *ptr='\0';
 
-		Extn=CopyStr(Extn,GuessExtn(GetVar(Con->Values,"HTTP:Content-Type"), Format, Tempstr));
+		Extn=CopyStr(Extn,GuessExtn(ContentType, Format, Tempstr));
 		CloseOutputFiles(Extn);
 	}
 	}

@@ -1,0 +1,50 @@
+Movgrab supports a preferences file, either a global one in /etc/movgrab.conf or a per user in ~/.movgrab.conf.
+
+Entries in the file can be:
+
+mediafmt <list of formats in preference order>
+
+	 A comma-seperated list of preferred file formats and resolutions in preference order, for example:
+
+mediafmt mp4:480x360,mp4,webm,mp3,*
+
+
+
+player <content type> <player program>
+
+	Entries of this form are used in combination with the '-P auto' command line option. Each entry defines a player program for a particular content-type, as in the following examples.
+
+	player audio/mpeg /usr/bin/mpg123
+	player audio/ogg /usr/bin/ogg123
+	player application/ogg /usr/bin/ogg123
+	player * /usr/bin/mplayer
+
+
+
+useragent <useragent string>
+
+	Sets the useragent string to be used in http/https communications.
+
+
+
+proxy <proxy url>
+
+	Sets a proxy to be used for network access. The url is in the form <user>:<password>@<proxy type>:<host>:<port>, for example:
+
+	socks4:192.168.1.1:8080
+	socks5:user1:secret@192.168.1.1:5050
+	http:192.168.6.6:1080
+
+
+
+ssllevel <level>
+
+	Minium ssl version to use. Options are: ssl, tls, tls1.1, tls1.2 (note, 'ssl' is SSLv3)
+
+
+
+sslciphers <cipherlist>
+
+	list of permitted ssl ciphers
+
+	

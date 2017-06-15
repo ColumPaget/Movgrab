@@ -14,7 +14,7 @@ Similarly mpg123 can be used thusly
 
 movgrab -o - 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' | mpg123 -
 
-For ogg-vorbis streams there's "ogg123" which comes as part of the vorbis distrobution.
+For ogg-vorbis streams there's "ogg123" which comes as part of the vorbis distribution.
 
 Of course, movgrab can also write the stream to a file, 
 

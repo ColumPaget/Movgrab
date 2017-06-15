@@ -1,6 +1,7 @@
 #include "selectformat.h"
 #include "servicetypes.h"
 #include "display.h"
+#include "settings.h"
 
 char *GatherMatchingFormats(char *Buffer, char *Type, ListNode *Vars)
 {
@@ -13,7 +14,7 @@ while (Curr)
 {
 if (strncmp(Curr->Tag,"item:",5)==0)
 {
-if ((StrLen(Type)==0) || (strncmp(Curr->Tag,Type,StrLen(Type))==0)) Tempstr=MCatStr(Tempstr,Curr->Tag+5," ",NULL);
+if ((! StrValid(Type)) || (strncmp(Curr->Tag,Type,StrLen(Type))==0)) Tempstr=MCatStr(Tempstr,Curr->Tag+5," ",NULL);
 }
 
 Curr=ListGetNext(Curr);
@@ -24,13 +25,13 @@ return(Tempstr);
 
 int FmtIDMatches(const char *FmtID, const char *CurrItem, const char *ItemData)
 {
-int len;
 
-len=StrLen(FmtID);
-
-if (len==0) return(TRUE);
-if (strcmp(FmtID,"item:*")==0) return(TRUE);
+//item must be... um... an 'item:'
+if (! StrValid(CurrItem)) return(FALSE);
 if (strncmp(CurrItem,"item:",5) !=0) return(FALSE);
+
+if (! StrValid(FmtID)) return(TRUE);
+if (strcmp(FmtID,"item:*")==0) return(TRUE);
 
 if ((strncmp(CurrItem,FmtID,StrLen(FmtID))==0) && StrValid(ItemData)) return(TRUE);
 return(FALSE);
@@ -40,7 +41,7 @@ return(FALSE);
 
 //this function compares the video formats found on the page to the list of
 //preferences expressed by the user with the '-f' flag, and contained in the
-//global variable 'FormatPreference'
+//global variable 'Settings.FormatPreference'
 int SelectDownloadFormat(ListNode *Vars, int WebsiteType, int DisplaySize)
 {
 ListNode *Curr;
@@ -59,10 +60,10 @@ Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
 	}
 	}
 
-	ptr=GetToken(FormatPreference,",",&Fmt,0);
+	ptr=GetToken(Settings.FormatPreference,",",&Fmt,0);
 	while (ptr)
 	{
-	if (StrLen(Fmt)) FmtID=MCopyStr(FmtID,"item:",Fmt,NULL);
+	if (StrValid(Fmt)) FmtID=MCopyStr(FmtID,"item:",Fmt,NULL);
 	else FmtID=CopyStr(FmtID,"");
 
 	if (Flags & FLAG_DEBUG) fprintf(stderr,"  %s ",Fmt);
@@ -107,14 +108,14 @@ if (StrValid(Selected))
 
 if (! (Flags & FLAG_TEST_SITES))
 {
-	if (RetVal==-1) fprintf(stderr,"No suitable download format found from '%s'\n\n",FormatPreference);
+	if (RetVal==-1) fprintf(stderr,"No suitable download format found from '%s'\n\n",Settings.FormatPreference);
 	else if (RetVal==TYPE_REFERENCE) fprintf(stderr,"Reference to another site: %s\n",GetVar(Vars,"ID"));
 	else fprintf(stderr,"Selected format %s\n",Selected);
 }
 
 
 //+5 to get past leading 'item:' in variable name
-if (StrLen(Selected)) SetVar(Vars,"DownloadFormat",Selected+5);
+if (StrValid(Selected)) SetVar(Vars,"DownloadFormat",Selected+5);
 
 DestroyString(Selected);
 DestroyString(Tempstr);

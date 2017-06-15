@@ -4,6 +4,7 @@
 #include "download.h"
 #include "ign.h"
 #include "youtube.h"
+#include "settings.h"
 
 /*
 This file and it's header (servicetypes.h) holds all the functions and data
@@ -330,7 +331,7 @@ case TYPE_YOUTUBE:
 	}
 
 	//Do we have authentication info?
-	//if (StrLen(Username) && StrLen(Password)) YoutubeLogin(Username,Password);
+	//if (StrValid(Username) && StrValid(Password)) YoutubeLogin(Username,Password);
 
 break;
 
@@ -436,7 +437,7 @@ startpos=0;
 endpos=MediaCount;
 
 		if (MediaCount==1) endpos=1;
-		else if (StrLen(ItemSelectionArg)==0)
+		else if (! StrValid(Settings.ItemSelectArg))
 		{
 			if (! (Flags & FLAG_QUIET))
 			{
@@ -459,21 +460,21 @@ endpos=MediaCount;
 			}
 			endpos=startpos;
 		}
-		else if (strcmp(ItemSelectionArg,"all")==0)
+		else if (strcmp(Settings.ItemSelectArg,"all")==0)
 		{
 			//do nothing
 		}
-		else if (strchr(ItemSelectionArg,'-'))
+		else if (strchr(Settings.ItemSelectArg,'-'))
 		{
-		ptr=GetToken(ItemSelectionArg,"-",&Tempstr,0);
-		if (StrLen(Tempstr)) startpos=atoi(Tempstr);
+		ptr=GetToken(Settings.ItemSelectArg,"-",&Tempstr,0);
+		if (StrValid(Tempstr)) startpos=atoi(Tempstr);
 		else startpos=0;
-		if (StrLen(ptr)) endpos=atoi(ptr);
+		if (StrValid(ptr)) endpos=atoi(ptr);
 		else endpos=MediaCount;
 		}
 		else
 		{
-			startpos=atoi(ItemSelectionArg);
+			startpos=atoi(Settings.ItemSelectArg);
 			endpos=startpos+1;
 		}
 
@@ -794,7 +795,7 @@ case TYPE_YOUTUBE:
 
 	if (strstr(Tempstr,YOUTUBE_DIV))
 	{
-		if (StrLen(GetVar(Vars,"item:flv"))==0) 
+		if (! StrValid(GetVar(Vars,"item:flv")))
 		{
 			GenericExtractFromLine(Tempstr, "yt:url_fmt",YOUTUBE_DIV, YOUTUBE_END, Vars,EXTRACT_DEQUOTE);
 			Token=CopyStr(Token,GetVar(Vars,"yt:url_fmt"));
@@ -1407,7 +1408,7 @@ if (strstr(Tempstr,YOUTUBE_REFERENCE1))
 {
 		GenericExtractFromLine(Tempstr, "yt-tmp",YOUTUBE_REFERENCE1,"\"",Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 		ptr=GetVar(Vars,"yt-tmp");
-		if (StrLen(ptr)) Token=MCopyStr(Token,YOUTUBE_REFERENCE1,ptr,NULL);
+		if (StrValid(ptr)) Token=MCopyStr(Token,YOUTUBE_REFERENCE1,ptr,NULL);
 		SetVar(Vars,"item:reference",Token);
 		Token=CopyStr(Token,""); //So as later stages of this process don't
 }
@@ -1416,7 +1417,7 @@ if (strstr(Tempstr,YOUTUBE_REFERENCE2))
 {
 		GenericExtractFromLine(Tempstr, "yt-tmp",YOUTUBE_REFERENCE2,"\"",Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 		ptr=GetVar(Vars,"yt-tmp");
-		if (StrLen(ptr)) Token=MCopyStr(Token,YOUTUBE_REFERENCE2,ptr,NULL);
+		if (StrValid(ptr)) Token=MCopyStr(Token,YOUTUBE_REFERENCE2,ptr,NULL);
 		SetVar(Vars,"item:reference",Token);
 		Token=CopyStr(Token,""); //So as later stages of this process don't
 														 //pick up on it
@@ -1429,7 +1430,7 @@ if (strstr(Tempstr,ContainerTypes[i]))
 {
 		GenericExtractFromLine(Tempstr, "tmp","http://",ContainerTypes[i],Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 		ptr=GetVar(Vars,"tmp");
-		if (StrLen(ptr)) Token=MCopyStr(Token,"http://",ptr,ContainerTypes[i],NULL);
+		if (StrValid(ptr)) Token=MCopyStr(Token,"http://",ptr,ContainerTypes[i],NULL);
 		SetVar(Vars,"item:reference",Token);
 }
 }
@@ -1443,19 +1444,19 @@ for (i=0; FileTypes[i] !=NULL; i++)
 		VarName=MCopyStr(VarName,"item:",FileTypes[i]+1,NULL);
 		GenericExtractFromLine(Tempstr, VarName,"http://",FileTypes[i],Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 		ptr=GetVar(Vars,VarName);
-		if (StrLen(ptr)) Token=MCopyStr(Token,"http://",ptr,NULL);
+		if (StrValid(ptr)) Token=MCopyStr(Token,"http://",ptr,NULL);
 		else
 		{
 			GenericExtractFromLine(Tempstr, VarName,"href=",FileTypes[i],Vars,EXTRACT_DEQUOTE | EXTRACT_NOSPACES);
 			Token=CopyStr(Token,GetVar(Vars,VarName));
-			if (StrLen(Token) && (strncasecmp(Token,"http://",7) !=0))
+			if (StrValid(Token) && (strncasecmp(Token,"http://",7) !=0))
 			{
 				Token=MCopyStr(Token,"http://",GetVar(Vars,"Server"),"/",NULL);
 				Token=CatStr(Token,GetVar(Vars,VarName));
 			}
 		}
 		
-		if (StrLen(Token)) 
+		if (StrValid(Token)) 
 		{
 			Token=CatStr(Token,FileTypes[i]);
 			SetVar(Vars,VarName,Token);
@@ -1582,7 +1583,7 @@ char *ptr, *Token=NULL;
 int Port;
 int RetVal=FALSE;
 
-if (!StrLen(Path)) return(FALSE);
+if (! StrValid(Path)) return(FALSE);
 
 Type=MovType;
 NextPath=CopyStr(NextPath,Path);

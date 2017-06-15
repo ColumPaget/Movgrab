@@ -18,7 +18,7 @@ if (strcmp("height",Name)==0) height=atoi(Value);
 ptr=GetNameValuePair(ptr,",",":",&Name,&Value);
 }
 
-if (width && height && StrLen(URL)) 
+if (width && height && StrValid(URL)) 
 {
 	Value=FormatStr(Value,"item:mp4:%dx%d",width,height);
 	SetVar(Vars,Value,URL);

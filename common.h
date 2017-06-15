@@ -3,9 +3,9 @@
 #define MOVGRAB_COMMON
 
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "3.0.3"
+#define Version "3.1.0"
 
-#include "libUseful-2.6/libUseful.h"
+#include "libUseful-2.8/libUseful.h"
 #include <string.h>
 #include <glob.h>
 #include "extract_text.h"
@@ -30,6 +30,7 @@
 #define FLAG_RESUME 65536
 #define FLAG_HTTPS 131072
 #define FLAG_POST 262144
+#define FLAG_PLAYER_AUTO 524288
 
 
 extern int Type, Flags;

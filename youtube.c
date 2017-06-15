@@ -32,7 +32,7 @@ char *Extra=NULL;
 ptr=GetNameValuePair(Data,"&","=",&Name,&Value);
 while (ptr)
 {
- if (StrLen(Name))
+ if (StrValid(Name))
  {
 	if (strcmp(Name,"sig")==0) Extra=MCatStr(Extra,"&signature=", Value, NULL);
 	if (strcmp(Name,"fallback_host")==0) Extra=MCatStr(Extra,"&fallback_host=", Value, NULL);
@@ -158,7 +158,7 @@ while (ptr)
 
 			default:
 			//	if (! Flags & FLAG_QUIET)
-			if (StrLen(ptr)) fprintf(stderr,"Unknown youtube format [%s]\n",Token);
+			if (StrValid(ptr)) fprintf(stderr,"Unknown youtube format [%s]\n",Token);
 			break;
 		}
 ptr=GetToken(ptr,",",&Token,0);

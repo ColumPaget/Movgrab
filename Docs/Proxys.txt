@@ -21,7 +21,7 @@ This is particularly useful in combination with ssh. The ssh command:
 
 will connect to 'myhost' and open a socks4/socks5 proxy service locally on port 5050. Movgrab can then be told:
 
-	movgrab -p 127.0.0.1:5050 http://www.youtube.com/?watch=ejfelefffDD
+	movgrab -p 127.0.0.1:5050 http://www.youtube.com/watch?v=5Lp-rXQqwH8
 
 and all it's communications will be routed through ssh and appear to come from 'myhost'.
 

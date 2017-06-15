@@ -1,23 +1,11 @@
 #include "display.h"
 #include "outputfiles.h"
+#include "settings.h"
 
-pid_t PlayerPid=0;
-char *Player=NULL;
-int PlayerLaunchPercent=25;
 int DisplayTitleWidth=50;
 extern char *CmdLine, *ProgName;
 
 
-//this shouldn't really be in here, but the decision to launch an player happens in the 'DisplayProgress' function
-void LaunchPlayer()
-{
-char *Tempstr=NULL;
-
-Tempstr=MCopyStr(Tempstr,Player," ",OutputFilesGetFilePath(),NULL);
-PlayerPid=Spawn(Tempstr,0,"");
-
-DestroyString(Tempstr);
-}
 
 
 int DisplayAvailableFormats(ListNode *Vars, char *Formats, int ShowSize)
@@ -26,12 +14,12 @@ char *URL=NULL, *Token=NULL, *TokenID=NULL, *Tempstr=NULL, *ptr;
 STREAM *S;
 int result=TRUE;
 
-fprintf(stderr, "\nFormats available for this Movie: ");
+fprintf(stderr, "\nAvailable media formats: ");
 
 ptr=GetToken(Formats," ",&Token,0);
 while (ptr)
 {
-if (StrLen(Token)) TokenID=MCopyStr(TokenID,"item:",Token,NULL);
+if (StrValid(Token)) TokenID=MCopyStr(TokenID,"item:",Token,NULL);
 
 URL=CopyStr(URL,GetVar(Vars,TokenID));
 
@@ -45,16 +33,10 @@ if (strcmp(Token,"reference") !=0)
 	if (S)
 	{
 		Tempstr=CopyStr(Tempstr,STREAMGetValue(S,"HTTP:ResponseCode"));
-		if (strcmp(Tempstr,"403") ==0) 
-		{
-			fprintf(stderr,"\nERROR: %s response for %s\n",Tempstr,URL);
-			result=FALSE;
-			break;
-		}
-		else if (strcmp(Tempstr,"200")==0)
+		if (strcmp(Tempstr,"200")==0)
 		{
 			Tempstr=CopyStr(Tempstr,STREAMGetValue(S,"HTTP:Content-length"));
-			fprintf(stderr, " (%s)",GetHumanReadableDataQty(strtod(Tempstr,NULL),FALSE));
+			fprintf(stderr, " (%s)",ToMetric(strtod(Tempstr,NULL),FALSE));
 			STREAMClose(S);
 		}
 	}
@@ -80,7 +62,7 @@ void WriteNowPlayingFile(const char *Title)
 {
 STREAM *S;
 
-S=STREAMOpenFile(NowPlayingFile, SF_WRONLY | SF_CREAT | SF_TRUNC);
+S=STREAMFileOpen(Settings.NowPlayingFile, SF_WRONLY | SF_CREAT | SF_TRUNC);
 if (S)
 {
 STREAMWriteLine(Title, S);
@@ -116,8 +98,8 @@ if (! (Flags & FLAG_QUIET))
 {
 if (PrintName) 
 {
-	fprintf(stderr,"\nGetting: %s  Size: %s  Format: %s\n",Title,GetHumanReadableDataQty(DocSize,0), Format);
-	if (StrLen(NowPlayingFile)) WriteNowPlayingFile(Title);
+	fprintf(stderr,"\nGetting: %s  Size: %s  Format: %s\n",Title,ToMetric(DocSize,0), Format);
+	if (StrValid(Settings.NowPlayingFile)) WriteNowPlayingFile(Title);
 }
 }
 
@@ -127,12 +109,12 @@ BpsStr=CopyStr(BpsStr,"");
 if (SpeedStart > 0)
 {
 	Bps=(bytes_read - PrevBytesRead) / (Now-SpeedStart);
-	BpsStr=MCopyStr(BpsStr,GetHumanReadableDataQty(Bps,0),"/s ",NULL);
+	BpsStr=MCopyStr(BpsStr,ToMetric(Bps,0),"/s ",NULL);
 }
 
 if (DocSize)
 {
-	HUDocSize=CopyStr(HUDocSize,GetHumanReadableDataQty(DocSize,0));
+	HUDocSize=CopyStr(HUDocSize,ToMetric(DocSize,0));
 
 	Percent=bytes_read * 100.0 / DocSize;
 
@@ -145,20 +127,21 @@ if (DocSize)
 		}
 		else ETAStr=CopyStr(ETAStr,"??:??");
 
-		fprintf(stderr,"	Progress: %0.2f%%  %s of %s  %s  ETA: %s         \r",Percent,GetHumanReadableDataQty(bytes_read,0),HUDocSize,BpsStr,ETAStr);
+		fprintf(stderr,"	Progress: %0.2f%%  %s of %s  %s  ETA: %s         \r",Percent,ToMetric(bytes_read,0),HUDocSize,BpsStr,ETAStr);
 		
 	}
 
 
 	sprintf(CmdLine,"%s %0.2f%% %s          \0",ProgName,Percent,Title);
 
-	if ((PlayerPid==0) && (Percent > PlayerLaunchPercent) && (Player)) LaunchPlayer();
 }
 else
 {
-	if (! (Flags & FLAG_QUIET)) fprintf(stderr,"	Progress: %s %s     \r",GetHumanReadableDataQty((double) bytes_read,0),BpsStr);
+	if (! (Flags & FLAG_QUIET)) fprintf(stderr,"	Progress: %s %s     \r",ToMetric((double) bytes_read,0),BpsStr);
 	sprintf(CmdLine,"%s %s              \0",ProgName,Title);
 }
+
+if ((DocSize == 0) || (Percent > Settings.PlayerLaunchPercent)) LaunchPlayer();
 
 fflush(NULL);
 if (Now - SpeedStart > 5) 
