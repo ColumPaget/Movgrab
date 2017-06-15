@@ -1,0 +1,20 @@
+#ifndef LIBUSEFUL_COMPRESSION_H
+#define LIBUSEFUL_COMPRESSION_H
+
+#include "includes.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int zlibProcessorInit(TProcessingModule *ProcMod, const char *Args);
+int CompressBytes(char **Out, char *Alg, char *In, int Len, int Level);
+int DeCompressBytes(char **Out, char *Alg, char *In, int Len);
+
+#ifdef __cplusplus
+}
+#endif
+
+
+
+#endif
