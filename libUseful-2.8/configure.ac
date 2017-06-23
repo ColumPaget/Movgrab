@@ -26,6 +26,34 @@ then
 AC_DEFINE([HAVE_PTSNAME_R])
 fi
 
+AC_CHECK_LIB(c,unshare,,)
+cf_have_unshare=$ac_cv_lib_c_unshare
+if test "$cf_have_unshare"
+then
+AC_DEFINE([HAVE_UNSHARE])
+fi
+
+AC_CHECK_LIB(c,umount2,,)
+cf_have_umount2=$ac_cv_lib_c_umount2
+if test "$cf_have_umount2"
+then
+AC_DEFINE([HAVE_UMOUNT2])
+fi
+
+AC_CHECK_LIB(c,umount,,)
+cf_have_umount=$ac_cv_lib_c_umount
+if test "$cf_have_umount"
+then
+AC_DEFINE([HAVE_UMOUNT])
+fi
+
+AC_CHECK_LIB(c,mkostemp,,)
+cf_have_mkostemp=$ac_cv_lib_c_mkostemp
+if test "$cf_have_mkostemp"
+then
+AC_DEFINE([HAVE_MKOSTEMP])
+fi
+
 
 AC_ARG_ENABLE(sendfile, [  --enable-sendfile       enable sendfile support], cf_use_sendfile=$enableval )
 

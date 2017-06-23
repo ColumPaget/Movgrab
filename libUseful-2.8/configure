@@ -3566,6 +3566,214 @@ $as_echo "#define HAVE_PTSNAME_R 1" >>confdefs.h
 
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for unshare in -lc" >&5
+$as_echo_n "checking for unshare in -lc... " >&6; }
+if ${ac_cv_lib_c_unshare+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char unshare ();
+int
+main ()
+{
+return unshare ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_c_unshare=yes
+else
+  ac_cv_lib_c_unshare=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_unshare" >&5
+$as_echo "$ac_cv_lib_c_unshare" >&6; }
+if test "x$ac_cv_lib_c_unshare" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBC 1
+_ACEOF
+
+  LIBS="-lc $LIBS"
+
+fi
+
+cf_have_unshare=$ac_cv_lib_c_unshare
+if test "$cf_have_unshare"
+then
+$as_echo "#define HAVE_UNSHARE 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for umount2 in -lc" >&5
+$as_echo_n "checking for umount2 in -lc... " >&6; }
+if ${ac_cv_lib_c_umount2+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char umount2 ();
+int
+main ()
+{
+return umount2 ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_c_umount2=yes
+else
+  ac_cv_lib_c_umount2=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_umount2" >&5
+$as_echo "$ac_cv_lib_c_umount2" >&6; }
+if test "x$ac_cv_lib_c_umount2" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBC 1
+_ACEOF
+
+  LIBS="-lc $LIBS"
+
+fi
+
+cf_have_umount2=$ac_cv_lib_c_umount2
+if test "$cf_have_umount2"
+then
+$as_echo "#define HAVE_UMOUNT2 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for umount in -lc" >&5
+$as_echo_n "checking for umount in -lc... " >&6; }
+if ${ac_cv_lib_c_umount+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char umount ();
+int
+main ()
+{
+return umount ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_c_umount=yes
+else
+  ac_cv_lib_c_umount=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_umount" >&5
+$as_echo "$ac_cv_lib_c_umount" >&6; }
+if test "x$ac_cv_lib_c_umount" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBC 1
+_ACEOF
+
+  LIBS="-lc $LIBS"
+
+fi
+
+cf_have_umount=$ac_cv_lib_c_umount
+if test "$cf_have_umount"
+then
+$as_echo "#define HAVE_UMOUNT 1" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mkostemp in -lc" >&5
+$as_echo_n "checking for mkostemp in -lc... " >&6; }
+if ${ac_cv_lib_c_mkostemp+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lc  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char mkostemp ();
+int
+main ()
+{
+return mkostemp ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_c_mkostemp=yes
+else
+  ac_cv_lib_c_mkostemp=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_c_mkostemp" >&5
+$as_echo "$ac_cv_lib_c_mkostemp" >&6; }
+if test "x$ac_cv_lib_c_mkostemp" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBC 1
+_ACEOF
+
+  LIBS="-lc $LIBS"
+
+fi
+
+cf_have_mkostemp=$ac_cv_lib_c_mkostemp
+if test "$cf_have_mkostemp"
+then
+$as_echo "#define HAVE_MKOSTEMP 1" >>confdefs.h
+
+fi
+
 
 # Check whether --enable-sendfile was given.
 if test "${enable_sendfile+set}" = set; then :

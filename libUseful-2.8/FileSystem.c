@@ -379,10 +379,14 @@ if (ExtraFlags & UMOUNT_RECURSE)
 
 
 
-#ifdef linux
+#ifdef HAVE_UMOUNT2
 result=umount2(MountPoint, Flags);
-#else
+#elif HAVE_UMOUNT
+result=umount(MountPoint);
+#elif HAVE_UNMOUNT
 result=unmount(MountPoint,0);
+#else 
+result=-1
 #endif
 
 if (ExtraFlags & UMOUNT_RMDIR) rmdir(MountPoint);

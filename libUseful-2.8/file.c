@@ -630,7 +630,12 @@ if (Flags & SF_CREATE) Mode|=O_CREAT;
 	{
 		//Must make a copy because mkostemp internally alters path
 		NewPath=CopyStr(NewPath, Path);
+		#ifdef HAVE_MKOSTEMP
 		fd=mkostemp(NewPath, Mode);
+		#else
+		fd=mkstemp(NewPath);
+		chmod(NewPath,Mode);
+		#endif
 		p_Path=NewPath;
 	}
 	else fd=open(Path, Mode, 0600);

@@ -304,7 +304,7 @@ ptr=GetNameValuePair(ptr,"\\S","=",&Name,&Value);
 
 pid=getpid();
 
-#ifdef linux
+#ifdef HAVE_UNSHARE
 #ifdef CLONE_NEWPID
 unshare(CLONE_NEWPID);
 #endif
