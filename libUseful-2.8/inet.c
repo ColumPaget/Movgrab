@@ -125,7 +125,7 @@ printf("GEOX: %d %s\n",S, Tempstr);
 if (S)
 {
 	STREAMSetTimeout(S,100);
-	Tempstr=HTTPReadDocument(Tempstr,S);
+	Tempstr=STREAMReadDocument(Tempstr,S);
 printf("GEO2: %s\n",Tempstr);
 	ptr=GetToken(Tempstr, ",", &Token,0); //IP
 	ptr=GetToken(ptr, ",", &Token,0); //CountryCode

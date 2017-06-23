@@ -73,6 +73,7 @@ return(TRUE);
 }
 
 
+
 int HTTPChunkedRead(TProcessingModule *Mod, const char *InBuff, int InLen, char **OutBuff, int *OutLen, int Flush)
 {
 size_t len=0, bytes_out=0;
@@ -152,6 +153,7 @@ if (Chunk->ChunkSize < 0) Chunk->ChunkSize=0;
 
 return(bytes_out);
 }
+
 
 
 int HTTPChunkedClose(TProcessingModule *Mod)
@@ -494,14 +496,6 @@ char *AppendCookies(char *InStr, ListNode *CookieList)
 
 return(Tempstr);
 }
-
-
-void HTTPClearCookies()
-{
-ListClear(Cookies, DestroyString);
-}
-
-
 
 int HTTPHandleWWWAuthenticate(char *Line, int *Type, char **Config)
 {
@@ -1092,7 +1086,7 @@ while (ptr)
 }
 
 if (Info->Flags & HTTP_TUNNEL) STREAMAddConnectionHop(S,Info->Proxy);
-Tempstr=FormatStr(Tempstr,"tcp:%s:%d",Host,Port);
+Tempstr=FormatStr(Tempstr,"tcp:%s:%d/",Host,Port);
 if (STREAMConnect(S,Tempstr,Flags))
 {
 	S->Type=STREAM_TYPE_HTTP;
@@ -1129,6 +1123,8 @@ if (g_Flags & HTTP_REQ_HTTPS) return(S);
 }
 
 if (!S) S=HTTPSetupConnection(Info, FALSE);
+
+S->Path=FormatStr(S->Path,"%s://%s:%d/%s",Info->Protocol,Info->Host,Info->Port,Info->Doc);
 
 return(S);
 }
@@ -1263,39 +1259,6 @@ while (result > 0)
 }
 
 
-char *HTTPReadDocument(char *RetStr, STREAM *S)
-{
-char *Tempstr=NULL, *ptr;
-int result, bytes_read=0, len=0;
-
-ptr=STREAMGetValue(S, "HTTP:Content-Length");
-if (ptr) len=atoi(ptr);
-
-if (len > 0)
-{
-	RetStr=SetStrLen(RetStr,len);
-	while (bytes_read < len)
-	{
-		result=STREAMReadBytes(S, RetStr+bytes_read,len-bytes_read);
-		if (result > 0) bytes_read+=result; 
-		else break;
-	}
-	RetStr[bytes_read]='\0';
-}
-else
-{
-	RetStr=CopyStr(RetStr,"");
-	Tempstr=STREAMReadLine(Tempstr, S);
-	while (Tempstr)
-	{
-		RetStr=CatStr(RetStr, Tempstr);
-		Tempstr=STREAMReadLine(Tempstr, S);
-	}
-}
-
-DestroyString(Tempstr);
-return(RetStr);
-}
 
 int HTTPDownload(char *URL,char *Login,char *Password, STREAM *S)
 {

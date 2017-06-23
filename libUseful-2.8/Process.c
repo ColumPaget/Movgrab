@@ -13,18 +13,6 @@
 #include <wait.h>
 
 
-
-#define COMMS_COMBINE_STDERR 4
-#define PROC_DAEMON 8
-#define PROC_SETSID 16
-#define PROC_CTRL_TTY 32
-#define PROC_CHROOT 64
-#define PROC_JAIL 128
-#define PROC_SIGDEF 256
-#define PROC_CONTAINER 512
-#define PROC_CONTAINER_NET  1024
-
-
 /*This is code to change the command-line of a program as visible in ps */
 
 extern char **environ;
@@ -392,17 +380,15 @@ DestroyString(Dir);
 }
 
 
-void ProcessApplyConfig(const char *Config)
+int ProcessApplyConfig(const char *Config)
 {
 char *User=NULL, *Group=NULL, *Dir=NULL, *HostName=NULL;
 char *Name=NULL, *Value=NULL;
 const char *ptr;
 struct rlimit limit;
 rlim_t val;
-int Flags=0;
+int Flags=0, i;
 long uid=0, gid=0;
-
-int i;
 
 User=CopyStr(User,"");
 Group=CopyStr(Group,"");
@@ -425,6 +411,8 @@ while (ptr)
 	else if (strcasecmp(Name,"ctrltty")==0) Flags |= PROC_CTRL_TTY;
 	else if (strcasecmp(Name,"jail")==0) Flags |= PROC_JAIL;
 	else if (strcasecmp(Name,"container")==0) Flags |= PROC_CONTAINER;
+	else if (strcasecmp(Name,"trust")==0) Flags |= SPAWN_TRUST_COMMAND;
+	else if (strcasecmp(Name,"noshell")==0) Flags |= SPAWN_NOSHELL;
 	else if (strcasecmp(Name,"mem")==0) 
 	{
 		val=(rlim_t) FromMetric(Value, 0);
@@ -513,6 +501,8 @@ DestroyString(Group);
 DestroyString(User);
 DestroyString(Name);
 DestroyString(Dir);
+
+return(Flags);
 }
 
 

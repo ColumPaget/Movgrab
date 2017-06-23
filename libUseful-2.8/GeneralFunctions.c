@@ -166,16 +166,17 @@ return(GetRandomData(RetBuff,len,ALPHA_CHARS));
 }
 
 
-//It's not worth the extra dependancy on libm just to have power
-double topower(double value, double power)
+double ToPower(double val, double power)
 {
-double i, result;
+double result=0;
+int i;
 
-result=value;
+result=val;
 for (i=1; i < power; i++)
 {
-	result *= value;
+	result=result * val;
 }
+
 return(result);
 }
 
@@ -189,14 +190,14 @@ val=strtod(Data,&ptr);
 while (isspace(*ptr)) ptr++;
 switch (*ptr)
 {
-case 'k': val=val*1000; break;
-case 'M': val=val*topower(1000,2); break;
-case 'G': val=val*topower(1000,3); break;
-case 'T': val=val*topower(1000,4); break;
-case 'P': val=val*topower(1000,5); break;
-case 'E': val=val*topower(1000,6); break;
-case 'Z': val=val*topower(1000,7); break;
-case 'Y': val=val*topower(1000,8); break;
+case 'k': val=val * 1000; break;
+case 'M': val=val * ToPower(1000,2); break;
+case 'G': val=val * ToPower(1000,3); break;
+case 'T': val=val * ToPower(1000,4); break;
+case 'P': val=val * ToPower(1000,5); break;
+case 'E': val=val * ToPower(1000,6); break;
+case 'Z': val=val * ToPower(1000,7); break;
+case 'Y': val=val * ToPower(1000,8); break;
 }
 
 return(val);
@@ -216,13 +217,13 @@ val=Size;
 
 for (i=0; sufflist[i] !='\0'; i++)
 {
-	next=topower(1000,i+1);
+	next=ToPower(1000,i+1);
 	if (next > val) break;
 }
 
 if ((sufflist[i] > 0) && (sufflist[i] !='\0'))
 {
-	val=val / topower(1000,i);
+	val=val / ToPower(1000,i);
   suffix=sufflist[i];
 }
 

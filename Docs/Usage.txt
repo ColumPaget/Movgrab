@@ -20,6 +20,9 @@ Using '-o -' will pump the movie data out of stdout, so you can feed it to anoth
 
 movgrab -o -  http://www.youtube.com/watch?v=oP59tQf_njc | mplayer -
 
+Useing '-o none' will suppress writing data to a file (used with the -P switch when movgrab is writing to a specified player program)
+
+
 But an even better solution is 
 
 movgrab -s  http://www.youtube.com/watch?v=oP59tQf_njc | mplayer -
@@ -42,6 +45,9 @@ This command works the same as the -s streaming command, except that the file wi
 -x attempts to get around 'family filter' on some websites
 
 -P allows you to specify a 'Player program' (e.g. 'mplayer') to run when a certain percentage (default, 25%) of the file has been downloaded.
+
+'-P auto' allows movgrab to select a player program matching a media type from entries in a config file (see 'ConfigFile.txt')
+
 
 -Pp allow you to set what percent of download to launch the 'Player program' at.
 

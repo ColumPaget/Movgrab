@@ -6,12 +6,56 @@
 #include "string.h"
 #include <sys/ioctl.h>
 
+
+//This Function eliminates characters from a string that can be used to trivially achieve code-exec via the shell
+char *MakeShellSafeString(char *RetStr, const char *String, int SafeLevel)
+{
+char *Tempstr=NULL;
+char *BadChars=";|&`";
+
+if (SafeLevel==SHELLSAFE_BLANK) 
+{
+	Tempstr=CopyStr(RetStr,String);
+	strmrep(Tempstr,BadChars,' ');
+}
+else Tempstr=QuoteCharsInStr(RetStr,String,BadChars);
+
+if (strcmp(Tempstr,String) !=0) 
+{
+	//if (EventCallback) EventCallback(String);
+}
+return(Tempstr);
+}
+
+
 //This is the function we call in the child process for 'SpawnCommand' 
-int BASIC_FUNC_EXEC_COMMAND(void *Command)
+int BASIC_FUNC_EXEC_COMMAND(void *Command, int Flags)
 {
 int result;
+char *Token=NULL, *FinalCommand=NULL;
+char **argv, *ptr;
+int i;
 
-result=execl("/bin/sh","/bin/sh","-c",(char *) Command,NULL);
+if (Flags & SPAWN_TRUST_COMMAND) FinalCommand=CopyStr(FinalCommand, (char *) Command);
+else FinalCommand=MakeShellSafeString(FinalCommand, (char *) Command, 0);
+
+if (Flags & SPAWN_NOSHELL)
+{
+argv=(char **) calloc(101,sizeof(char *));
+ptr=FinalCommand;
+for (i=0; i < 100; i++)
+{
+	ptr=GetToken(ptr,"\\S",&Token,GETTOKEN_QUOTES);
+	if (! ptr) break;
+	argv[i]=CopyStr(argv[i],Token);
+}
+execv(argv[0],argv);
+}
+else result=execl("/bin/sh","/bin/sh","-c",(char *) Command,NULL);
+
+//We'll never get to here unless something fails!
+DestroyString(FinalCommand);
+DestroyString(Token);
 
 return(result);
 }
@@ -88,58 +132,12 @@ return(pid);
 
 
 
-
-//This Function eliminates characters from a string that can be used to trivially achieve code-exec via the shell
-char *MakeShellSafeString(char *RetStr, const char *String, int SafeLevel)
-{
-char *Tempstr=NULL;
-char *BadChars=";|&`";
-
-if (SafeLevel==SHELLSAFE_BLANK) 
-{
-	Tempstr=CopyStr(RetStr,String);
-	strmrep(Tempstr,BadChars,' ');
-}
-else Tempstr=QuoteCharsInStr(RetStr,String,BadChars);
-
-if (strcmp(Tempstr,String) !=0) 
-{
-	//if (EventCallback) EventCallback(String);
-}
-return(Tempstr);
-}
-
-
 void SwitchProgram(const char *CommandLine, const char *Config)
 {
-char **argv, *ptr;
-char *Token=NULL, *SafeStr=NULL;
-int i;
+int Flags;
 
-//if (Flags & SPAWN_TRUST_COMMAND) SafeStr=CopyStr(SafeStr,CommandLine);
-//else 
-
-SafeStr=MakeShellSafeString(SafeStr, CommandLine, 0);
-
-SafeStr=MakeShellSafeString(SafeStr,CommandLine,0);
-argv=(char **) calloc(101,sizeof(char *));
-ptr=SafeStr;
-for (i=0; i < 100; i++)
-{
-	ptr=GetToken(ptr,"\\S",&Token,GETTOKEN_QUOTES);
-	if (! ptr) break;
-	argv[i]=CopyStr(argv[i],Token);
-}
-
-ProcessApplyConfig(Config);
-
-DestroyString(Token);
-DestroyString(SafeStr);
-
-/* we are the child so we continue */
-execv(argv[0],argv);
-//no point trying to free stuff here, we will no longer
-//be the main program
+Flags=ProcessApplyConfig(Config);
+BASIC_FUNC_EXEC_COMMAND(CommandLine, SPAWN_NOSHELL|Flags);
 }
 
 
@@ -179,6 +177,7 @@ pid_t PipeSpawnFunction(int *infd, int *outfd, int *errfd, BASIC_FUNC Func, void
 {
 pid_t pid;
 int channel1[2], channel2[2], channel3[2], DevNull=-1;
+int Flags;
 
 if (infd) pipe(channel1);
 if (outfd) pipe(channel2);
@@ -217,8 +216,8 @@ if (pid==0)
 	else dup(DevNull);
 	
 	
-	ProcessApplyConfig(Config);
-	Func(Data);
+	Flags=ProcessApplyConfig(Config);
+	Func(Data, Flags);
 	exit(0);
 	}
 else // This is the parent process, not the spawned child
@@ -258,7 +257,7 @@ return(PipeSpawnFunction(infd,outfd,errfd, BASIC_FUNC_EXEC_COMMAND, (void *) Com
 
 pid_t PseudoTTYSpawnFunction(int *ret_pty, BASIC_FUNC Func, void *Data, int Flags, const char *Config)
 {
-pid_t pid=-1;
+pid_t pid=-1, ConfigFlags;
 int tty, pty, i;
 
 if (PseudoTTYGrab(&pty, &tty, Flags))
@@ -280,8 +279,8 @@ if (PseudoTTYGrab(&pty, &tty, Flags))
 	//as it will be open on stdin/stdout
 	close(tty);
 	
-	if (StrValid(Config)) ProcessApplyConfig(Config);
-	Func((char *) Data);
+	ConfigFlags=ProcessApplyConfig(Config);
+	Func((char *) Data, ConfigFlags);
 	_exit(0);
 	}
 	
@@ -329,6 +328,7 @@ if (S)
 	STREAMSetFlushType(S,FLUSH_LINE,0,0);
 	Tempstr=FormatStr(Tempstr,"%d",pid);
 	STREAMSetValue(S,"PeerPID",Tempstr);
+	S->Type=STREAM_TYPE_PIPE;
 }
 
 DestroyString(Tempstr);
@@ -338,14 +338,5 @@ return(S);
 
 STREAM *STREAMSpawnCommand(const char *Command, const char *Config)
 {
-STREAM *S=NULL;
-char *Tempstr=NULL;
-
-//if (Flags & SPAWN_TRUST_COMMAND) Tempstr=CopyStr(Tempstr,Command);
-//else 
-Tempstr=MakeShellSafeString(Tempstr, Command, 0);
-
-S=STREAMSpawnFunction(BASIC_FUNC_EXEC_COMMAND, Tempstr, Config);
-DestroyString(Tempstr);
-return(S);
+return(STREAMSpawnFunction(BASIC_FUNC_EXEC_COMMAND, Command, Config));
 }

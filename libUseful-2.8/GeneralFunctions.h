@@ -27,7 +27,6 @@ char *GetRandomData(char *RetBuff, int len, char *AllowedChars);
 char *GetRandomHexStr(char *RetBuff, int len);
 char *GetRandomAlphabetStr(char *RetBuff, int len);
 
-int BASIC_FUNC_EXEC_COMMAND(void *Data);
 
 double FromMetric(const char *Data, int Type);
 const char *ToMetric(double Size, int Type);

@@ -40,7 +40,7 @@
 #include "PatternMatch.h"
 #include "ConnectionChain.h"
 #include "SpawnPrograms.h"
-#include "MessageBus.h"
+//#include "MessageBus.h"
 #include "DataParser.h"
 #include "URL.h"
 #include "sound.h"

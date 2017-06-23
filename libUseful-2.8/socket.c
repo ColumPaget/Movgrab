@@ -287,7 +287,25 @@ int BindSock(int Type, const char *Address, int Port, int Flags)
 
 	salen=SockAddrCreate(&sa, Address, Port);
 	if (salen==0) return(-1);
-	fd=socket(sa->sa_family, Type, 0);
+	if (Flags & BIND_RAW)
+	{
+		if (Type==SOCK_STREAM) fd=socket(sa->sa_family, SOCK_RAW, IPPROTO_TCP);
+		else if (Type==SOCK_DGRAM) fd=socket(sa->sa_family, SOCK_RAW, IPPROTO_UDP);
+	}
+	else fd=socket(sa->sa_family, Type, 0);
+
+	//REISEADDR and REUSEPORT must be set BEFORE bind
+	result=1;
+	#ifdef SO_REUSEADDR
+	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&result,sizeof(result));
+	#endif
+
+/*
+	#ifdef SO_REUSEPORT
+	setsockopt(fd,SOL_SOCKET,SO_REUSEPORT,&result,sizeof(result));
+	#endif
+*/
+
 	result=bind(fd, sa, salen);
 	free(sa);
 
@@ -299,8 +317,7 @@ int BindSock(int Type, const char *Address, int Port, int Flags)
 
 	//No reason to pass server/listen fdets across an exec
 	if (Flags & BIND_CLOEXEC) fcntl(fd, F_SETFD, FD_CLOEXEC);
-	result=1;
-	setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&result,sizeof(result));
+
 	if (Flags & BIND_LISTEN) result=listen(fd,10);
 
 
@@ -395,15 +412,16 @@ const char *GetInterfaceIP(const char *Interface)
 {
  int fd, result;
  struct ifreq ifr;
-
+ 
+ if (! StrValid(Interface)) return("");
  fd = socket(AF_INET, SOCK_DGRAM, 0);
  if (fd==-1) return("");
 
  ifr.ifr_addr.sa_family = AF_INET;
  strncpy(ifr.ifr_name, Interface, IFNAMSIZ-1);
  result=ioctl(fd, SIOCGIFADDR, &ifr);
- if (result==-1) return("");
  close(fd);
+ if (result==-1) return("");
 
  return(inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
 }
@@ -536,10 +554,6 @@ return(UDPSend(S->out_fd, Host, Port, Data, len));
 int IPServerInit(int Type, const char *Address, int Port)
 {
 int sock;
-//struct sockaddr_storage sa;
-struct sockaddr_in *sa4;
-struct sockaddr_in6 *sa6;
-int result;
 const char *p_Addr=NULL, *ptr;
 
 
@@ -556,10 +570,7 @@ return(sock);
 
 int IPServerInit(int Type, const char *Address, int Port)
 {
-struct sockaddr_in sa;
-int result;
 const char *ptr=NULL;
-socklen_t salen;
 int sock;
 
 
@@ -596,6 +607,36 @@ return(sock);
 }
 
 
+STREAM *STREAMFromSock(int sock, int Type, const char *Peer, const char *DestIP, int DestPort)
+{
+STREAM *S;
+char *Tempstr=NULL;
+
+S=STREAMFromFD(sock);
+if (! S) return(S);
+
+S->Type=Type;
+if (StrValid(Peer))
+{
+if (strncmp(Peer,"::ffff:",7)==0) STREAMSetValue(S,"Peer",Peer+7);
+else STREAMSetValue(S,"Peer",Peer);
+}
+
+if (StrValid(DestIP))
+{
+	if (strncmp(DestIP,"::ffff:",7)==0) STREAMSetValue(S,"DestIP",DestIP+7);
+	else STREAMSetValue(S,"DestIP",DestIP);
+	if (DestPort > 0)
+	{
+	Tempstr=FormatStr(Tempstr, "%d",DestPort);
+	STREAMSetValue(S,"DestPort",Tempstr);
+	}
+}
+
+DestroyString(Tempstr);
+
+return(S);
+}
 
 STREAM *STREAMServerInit(const char *URL)
 {
@@ -624,12 +665,6 @@ else if (strcmp(Proto,"unixdgram")==0)
 	fd=UnixServerInit(SOCK_DGRAM,Host);
 	Type=STREAM_TYPE_UNIX_DGRAM;
 }
-else if (strcmp(Proto,"uproxy")==0) 
-{
-	fd=IPServerInit(SOCK_DGRAM,Host,Port);
-	Type=STREAM_TYPE_UPROXY;
-	if (fd > -1) SockSetOptions(fd,SOCK_TPROXY,0);
-}
 break;
 
 case 't':
@@ -647,11 +682,8 @@ else if (strcmp(Proto,"tproxy")==0)
 break;
 }
 
-if (fd > -1)
-{
-	S=STREAMFromFD(fd);
-	S->Type=Type;
-}
+S=STREAMFromSock(fd, Type, NULL, Host, Port);
+if (S) S->Path=CopyStr(S->Path, URL);
 
 DestroyString(Proto);
 DestroyString(Host);
@@ -678,6 +710,7 @@ break;
 
 case STREAM_TYPE_TCP_SERVER:
 fd=IPServerAccept(Serv->in_fd, &Tempstr);
+GetSockDetails(fd, &DestIP, &DestPort, NULL, NULL);
 type=STREAM_TYPE_TCP_ACCEPT;
 break;
 
@@ -692,21 +725,7 @@ return(Serv);
 break;
 }
 
-if (fd > -1) 
-{
-S=STREAMFromFD(fd);
-
-if (strncmp(Tempstr,"::ffff:",7)==0) STREAMSetValue(S,"Peer",Tempstr+7);
-else STREAMSetValue(S,"Peer",Tempstr);
-if (StrValid(DestIP))
-{
-	if (strncmp(DestIP,"::ffff:",7)==0) STREAMSetValue(S,"DestIP",DestIP+7);
-	else STREAMSetValue(S,"DestIP",DestIP);
-	Tempstr=FormatStr(Tempstr, "%d",DestPort);
-	STREAMSetValue(S,"DestPort",Tempstr);
-}
-S->Type=type;
-}
+S=STREAMFromSock(fd, type, Tempstr, DestIP, DestPort);
 
 DestroyString(Tempstr);
 DestroyString(DestIP);
@@ -860,8 +879,8 @@ close(sock);
 return(-1);
 }
 
-return(sock);
 
+return(sock);
 }
 
 
@@ -1043,6 +1062,7 @@ if ((HopNo==0) && StrValid(Host))
 
 if (result==TRUE)
 {
+	S->Path=FormatStr(S->Path,"tcp:%s:%d/",Host,Port);
 	if (Flags & CONNECT_NONBLOCK) 
 	{
 		S->State |=SS_CONNECTING;

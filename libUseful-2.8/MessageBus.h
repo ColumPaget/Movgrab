@@ -1,26 +1,29 @@
-#ifndef LIBUSEFUL_MESSAGE_BUS_H
-#define LIBUSEFUL_MESSAGE_BUS_H
+#ifndef LIBUSEFUL_MESSAGEBUS_H
+#define LIBUSEFUL_MESSAGEBUS_H
 
-//Vars gives us list node, and also 'GetVar' which is used in the
-//.c module of this .h
-#include "Vars.h"
+#include "includes.h"
+#include "defines.h"
 #include "file.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define MBUS_CONNECTION 0
+#define MBUS_BROKER 1
 
-typedef void (*MSG_FUNC)(const char *PeerName, ListNode *Variables);
-
-void MessageBusRegister(const char *URL, int MaxConnections, int Timeout, MSG_FUNC);
-STREAM *MessageBusWrite(const char *URL, const char *Args);
-STREAM *MessageBusSend(const char *URL, ListNode *Args);
-int MessageBusRecv(STREAM *S, char **Source, ListNode *Vars);
-int MessageQueueAddToSelect(ListNode *SelectList);
+#define MBUS_FAIL 0
+#define MBUS_CONNECT 1
+#define MBUS_CONNECT_RESULT 2
+#define MBUS_SEND 3
+#define MBUS_CLOSE 4
 
 
-#ifdef __cplusplus
-}
-#endif
+typedef struct
+{
+int Type;
+int ConID;
+int Result;
+char *URL;
+int DataLen;
+char *Data;
+void *UserData;
+} TMBusMsg
 
 #endif

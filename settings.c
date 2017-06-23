@@ -56,7 +56,7 @@ fprintf(stdout,"			example: flv:640x480,flv,mp4,mp3\n");
 fprintf(stdout,"			Use -T to get a list of formats the site offers\n");
 fprintf(stdout,"			Use * to mean 'any format' (the default)\n");
 fprintf(stdout,"			example: flv:640x480,mp4:640x480,*\n");
-fprintf(stdout,"'-o'		specifies output file ( '-' for stdout)\n");
+fprintf(stdout,"'-o'		specifies output file ( '-' for stdout, 'none' to suppress writing)\n");
 fprintf(stdout,"'+o'		add an output file to list of output files ( '-' for stdout)\n");
 fprintf(stdout,"'-x'		try to avoid 'family filter' on some sites\n");
 fprintf(stdout,"'-n'		For pages with multiple movies (not movie formats, but movies) specifes item selection for download. Argument has the form:\n");

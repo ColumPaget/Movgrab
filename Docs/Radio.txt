@@ -26,7 +26,13 @@ movgrab 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' -
 
 This both pipes it into 'mpg123' and writes it to 'darktrance.mp3'
 
+A similar operation can be achived using the 'player' command-line switch (-P) rather than the 'output ' (-o) switch. e.g.
 
+movgrab 'http://www.triplag.com/webradio/darkpsy/triplag-darkpsy-playlist.asx' -P '/usr/bin/mpg123 -'
+
+In this case it may be desired to use the option '-o none' which suppresses file output, so that output is just pumped to the player app.
+
+Since movgrab 3.1.0 there's been an option to have movgrab choose the player according to the content type of the data. This requires settings in a config file (see ConfigFile.txt). In this case use the switch '-P auto' and movgrab will select the appropriate player for the media type, provided that player has been set up in the config file.
 
 
 

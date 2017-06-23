@@ -187,7 +187,6 @@ const SSL_CIPHER *Cipher;
 char *Tempstr=NULL;
 
 Cipher=SSL_get_current_cipher((const SSL *) ptr);
-
 if (Cipher)
 {
 Tempstr=FormatStr(Tempstr,"%d",SSL_CIPHER_get_bits(Cipher,NULL));
@@ -235,6 +234,8 @@ BIO *b;
 }
 #endif
 
+
+
 int OpenSSLVerifyCertificate(STREAM *S)
 {
 int RetVal=FALSE;
@@ -268,8 +269,13 @@ if (cert)
 		ptr=GetNameValuePair(ptr,"/","=",&Name,&Value);
 	}
 
+	if (StrValid(S->Path))
+	{
 	ParseURL(S->Path,NULL,&Name,NULL,NULL,NULL,NULL,NULL);
 	val=X509_check_host(cert, Name, StrLen(Name), 0, NULL);
+	}
+	else val=0;
+
 
 	if (val!=1)	STREAMSetValue(S,"SSL-Certificate-Verify","Certificate hostname missmatch");
 	else
@@ -417,7 +423,6 @@ if (S)
 
 	OpenSSLQueryCipher(S);
 	OpenSSLVerifyCertificate(S);
-	result=TRUE;
 	}
 }
 
@@ -528,6 +533,7 @@ if (S)
 		{
 	  result=SSL_accept(ssl);
 		if (result != TRUE) result=SSL_get_error(ssl,result);
+
 		switch (result)
 		{
 			case SSL_ERROR_WANT_READ:

@@ -31,7 +31,7 @@ char *SlashTerminateDirectoryPath(char *DirPath)
 {
 char *ptr, *RetStr=NULL;
 
-if (! DirPath) return(CopyStr(DirPath,"/"));
+if (! StrValid(DirPath)) return(CopyStr(DirPath,"/"));
 RetStr=DirPath;
 ptr=RetStr+StrLen(RetStr)-1;
 if (*ptr != '/') RetStr=AddCharToStr(RetStr,'/');
@@ -45,7 +45,8 @@ char *StripDirectorySlash(char *DirPath)
 char *ptr;
 
 //don't strip '/' (root dir)
-if (StrLen(DirPath)==1) return(DirPath);
+if (! StrValid(DirPath)) return(DirPath);
+if (strcmp(DirPath,"/")==0) return(DirPath);
 ptr=DirPath+StrLen(DirPath)-1;
 
 if (*ptr == '/') *ptr='\0';
@@ -207,23 +208,15 @@ return(FALSE);
 
 int FileCopyWithProgress(const char *SrcPath, const char *DestPath, DATA_PROGRESS_CALLBACK Callback)
 {
-STREAM *Src, *Dest;
+STREAM *Src;
+int result;
 
 Src=STREAMOpen(SrcPath,"r");
 if (! Src) return(FALSE);
 if (Callback) STREAMAddProgressCallback(Src,Callback);
-Dest=STREAMOpen(DestPath,"wc");
-if (! Dest)
-{
+result=STREAMCopy(Src, DestPath);
 STREAMClose(Src);
-return(FALSE);
-}
-
-STREAMSendFile(Src, Dest, 0, SENDFILE_LOOP);
-// | SENDFILE_KERNEL);
-STREAMClose(Dest);
-STREAMClose(Src);
-return(TRUE);
+return(result);
 }
 
 
@@ -256,7 +249,7 @@ int FileSystemMount(const char *Dev, const char *MountPoint, const char *Type, c
 {
 const char *ptr, *p_Type, *p_MountPoint;
 char *Token=NULL;
-int Flags=0, result;
+int Flags=0, result, Perms=700;
 
 p_Type=Type;
 if (! StrValid(MountPoint)) 
@@ -282,11 +275,12 @@ while (ptr)
 	else if (strcmp(Token,"noexec")==0) Flags |= MS_NOEXEC;
 	else if (strcmp(Token,"nosuid")==0) Flags |= MS_NOSUID;
 	else if (strcmp(Token,"nodev")==0) Flags |= MS_NODEV;
+	else if (strncmp(Token,"perms=",6)==0) Perms=strtol(Token+6,NULL,8);
 ptr=GetToken(ptr, " |,", &Token, GETTOKEN_MULTI_SEP);
 }
 
 Token=MCopyStr(Token,p_MountPoint,"/",NULL);
-MakeDirPath(Token,0700);
+MakeDirPath(Token,Perms);
 
 //must do a little dance for readonly bind mounts. We must first mount, then remount readonly
 if ((Flags & MS_BIND) && (Flags & MS_RDONLY)) 
@@ -300,6 +294,17 @@ result=mount(Dev,p_MountPoint,p_Type,Flags,NULL);
 DestroyString(Token);
 return(result);
 }
+
+
+
+//if the system doesn't have these flags then define empty values for them
+#ifndef UMOUNT_NOFOLLOW
+#define UMOUNT_NOFOLLOW 0
+#endif
+
+#ifndef UMOUNT_DETACH
+#define UMOUNT_DETACH 0
+#endif
 
 
 #define UMOUNT_RECURSE 1

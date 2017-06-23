@@ -437,6 +437,7 @@ void STREAMClear(STREAM *S)
 {
 	STREAMFlush(S);
 	S->InStart=0;
+	S->InEnd=0;
 	//clear input buffer, because anything might be hanging about in there and
 	//we don't want sensitive data persisiting in memory
 	xmemset(S->InputBuff,0,S->BuffSize);
@@ -728,8 +729,14 @@ while (*ptr != '\0')
 switch (*ptr)
 {
 case 'c':  Flags |= SF_CREATE; break;
-case 'r':  Flags |= SF_RDONLY; break;
-case 'w':  Flags |= SF_WRONLY | SF_CREATE| SF_TRUNC; break;
+case 'r':  
+	if (Flags & SF_WRONLY) Flags &= ~(SF_RDONLY | SF_WRONLY);
+	else Flags |= SF_RDONLY; 
+break;
+case 'w':  
+	if (Flags & SF_RDONLY) Flags &= ~(SF_RDONLY | SF_WRONLY);
+	else Flags |= SF_WRONLY | SF_CREATE| SF_TRUNC; 
+break;
 case 'a':  Flags |= SF_APPEND | SF_CREATE; break;
 case 'm':  Flags |= SF_MMAP  ; break;
 case 's':  Flags |= SF_SECURE; break;
@@ -807,7 +814,9 @@ else
 {
 	S=STREAMCreate();
 	S->Path=CopyStr(S->Path,URL);
-	if (! STREAMProtocolConnect(S, Proto, Host, Port, 0))
+	if (Port > 0) Token=CopyStr(Token,Host);
+	else Token=CopyStr(Token,URL+StrLen(Proto)+1);
+	if (! STREAMProtocolConnect(S, Proto, Token, Port, 0))
 	{
 		STREAMClose(S);
 		S=NULL;
@@ -960,9 +969,9 @@ return(fd);
 int STREAMReadCharsToBuffer(STREAM *S)
 {
 fd_set selectset;
-int result=0, diff, read_result=0, WaitForBytes=TRUE;
+int result=0, diff, read_result=0, WaitForBytes=TRUE, PeerPort;
 struct timeval tv;
-char *tmpBuff=NULL;
+char *tmpBuff=NULL, *Peer=NULL;
 #ifdef HAVE_LIBSSL
 void *SSL_CTX=NULL;
 #endif
@@ -973,28 +982,29 @@ if (! S) return(0);
 //use to indicate a stream must be ignored for a while
 if (S->State & SS_EMBARGOED) return(0);
 
-//we don't read to mmaped streams. We just update pointers to the mmap
-if (S->Flags & SF_MMAP)
-{
-	result=S->InEnd-S->InStart;
-	if (result < 1) return(STREAM_CLOSED);
-	return(result);
-}
-
-
-if (S->InStart >= S->InEnd)
-{
-	S->InEnd=0;
-	S->InStart=0;
-}
-
+//number of bytes queued in STREAM
 diff=S->InEnd-S->InStart;
 
-//if buffer is half full, or full 'cept for space at the start, then make room 
-if (
-		(S->InStart > (S->BuffSize / 2)) ||
-		((S->InEnd >= S->BuffSize) && (S->InStart > 0))
-	)
+if (diff > 0)
+{
+	//for UDP we recv messages, and we must consume (or flush) all of one before getting the next
+	if (S->Type==STREAM_TYPE_UDP) return(diff);
+	
+	//we never read from an MMAP, it's just a block of memory that we copy bytes from
+	if (S->Flags & SF_MMAP) return(diff);
+}
+else
+{
+	//if we traverse all bytes in an MMAP, then we return STREAM_CLOSED to tell that we're at the end
+	if (S->Flags & SF_MMAP) return(STREAM_CLOSED);
+
+	//if it's empty, then reset all the pointers for a fresh read
+	S->InEnd=0;
+	S->InStart=0;
+	diff=0;
+}
+
+if (S->InStart > (S->BuffSize / 2))
 {
   memmove(S->InputBuff,S->InputBuff + S->InStart,diff);
   S->InStart=0;
@@ -1025,9 +1035,9 @@ if ((S->Timeout > 0) && WaitForBytes)
 {
    FD_ZERO(&selectset);
    FD_SET(S->in_fd, &selectset);
-    result=(S->Timeout % 100);
-    tv.tv_usec=result * 10000;
-    tv.tv_sec=S->Timeout / 100;
+   result=(S->Timeout % 100);
+   tv.tv_usec=result * 10000;
+   tv.tv_sec=S->Timeout / 100;
    result=select(S->in_fd+1,&selectset,NULL,NULL,&tv);
 
 
@@ -1063,9 +1073,17 @@ if (read_result==0)
 	if (S->State & SS_SSL)
 	{
 		read_result=SSL_read((SSL *) SSL_CTX, tmpBuff, S->BuffSize-S->InEnd);
+		S->State |= SS_EMBARGOED;
 	}
 	else
 	#endif
+	if (S->Type==STREAM_TYPE_UDP)
+	{
+		read_result=UDPRecv(S->in_fd,  tmpBuff, S->BuffSize-S->InEnd, &Peer, &PeerPort);
+		STREAMSetValue(S, "Peer", Peer);
+		DestroyString(Peer);
+	}
+	else
 	{
 		if (S->Flags & SF_RDLOCK) flock(S->in_fd,LOCK_SH);
 		read_result=read(S->in_fd, tmpBuff, S->BuffSize-S->InEnd);
@@ -1087,16 +1105,21 @@ if (read_result==0)
 if (result < 0) 
 {
 	STREAMReadThroughProcessors(S, tmpBuff, 0);
-	read_result=0;
+	read_result=result;
 }
-else read_result=STREAMReadThroughProcessors(S, tmpBuff, result);
+else 
+{
+	result=STREAMReadThroughProcessors(S, tmpBuff, result);
+	if (result > 0) read_result=result;
+}
 
+/*
 if (read_result < 1) 
 {
 	if (result < 0) read_result=result;
 	else read_result=STREAM_NODATA;
 }
-
+*/
 
 //We are not returning number of bytes read. We only return something if
 //there is a condition (like socket close) where the thing we are waiting for 
@@ -1660,6 +1683,39 @@ return(FALSE);
 
 
 
+char *STREAMReadDocument(char *RetStr, STREAM *S)
+{
+char *Tempstr=NULL;
+int result, bytes_read=0;
+
+if (S->Size > 0)
+{
+	RetStr=SetStrLen(RetStr, S->Size);
+	while (bytes_read < S->Size)
+	{
+		result=STREAMReadBytes(S, RetStr+bytes_read,S->Size - bytes_read);
+		if (result > 0) bytes_read+=result; 
+		else break;
+	}
+	RetStr[bytes_read]='\0';
+}
+else
+{
+	RetStr=CopyStr(RetStr,"");
+	Tempstr=STREAMReadLine(Tempstr, S);
+	while (Tempstr)
+	{
+		RetStr=CatStr(RetStr, Tempstr);
+		Tempstr=STREAMReadLine(Tempstr, S);
+	}
+}
+
+DestroyString(Tempstr);
+return(RetStr);
+}
+
+
+
 
 char *STREAMGetValue(STREAM *S, const char *Name)
 {
@@ -1931,4 +1987,20 @@ else len=(long) (Max-bytes_transferred);
 if ((result==STREAM_CLOSED) && (bytes_transferred==0) ) return(STREAM_CLOSED);
 return(bytes_transferred);
 }
+
+
+int STREAMCopy(STREAM *Src, const char *DestPath)
+{
+STREAM *Dest;
+int result;
+
+Dest=STREAMOpen(DestPath,"wc");
+if (! Dest) return(FALSE);
+
+result=STREAMSendFile(Src, Dest, 0, SENDFILE_LOOP);
+// | SENDFILE_KERNEL);
+STREAMClose(Dest);
+return(result);
+}
+
 

@@ -19,6 +19,7 @@
 
 #define BIND_LISTEN  1
 #define BIND_CLOEXEC 2
+#define BIND_RAW 4
 
 
 #ifdef __cplusplus

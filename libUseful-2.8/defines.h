@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-typedef int (*BASIC_FUNC)(void *Data); 
+typedef int (*BASIC_FUNC)(void *Data, int Flags); 
 
 
 #ifdef __cplusplus

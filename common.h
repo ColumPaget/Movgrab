@@ -3,7 +3,7 @@
 #define MOVGRAB_COMMON
 
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "3.1.0"
+#define Version "3.1.1"
 
 #include "libUseful-2.8/libUseful.h"
 #include <string.h>

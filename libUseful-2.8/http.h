@@ -93,7 +93,6 @@ char *HTTPUnQuote(char *RetBuff, const char *Str);
 
 void HTTPSetVar(const char *Name, const char *Var);
 
-void HTTPClearCookies();
 
 void HTTPInfoDestroy(void *p_Info);
 void HTTPInfoSetValues(HTTPInfoStruct *Info, const char *Host, int Port, const char *Logon, const char *Password, const char *Method, const char *Doc, const char *ContentType, int ContentLength);
