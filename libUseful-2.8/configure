@@ -3560,7 +3560,7 @@ _ACEOF
 fi
 
 cf_have_ptsname_r=$ac_cv_lib_c_ptsname_r
-if test "$cf_have_ptsname_r"
+if test "$cf_have_ptsname_r" = "yes"
 then
 $as_echo "#define HAVE_PTSNAME_R 1" >>confdefs.h
 
@@ -3612,7 +3612,7 @@ _ACEOF
 fi
 
 cf_have_unshare=$ac_cv_lib_c_unshare
-if test "$cf_have_unshare"
+if test "$cf_have_unshare" = "yes"
 then
 $as_echo "#define HAVE_UNSHARE 1" >>confdefs.h
 
@@ -3664,7 +3664,7 @@ _ACEOF
 fi
 
 cf_have_umount2=$ac_cv_lib_c_umount2
-if test "$cf_have_umount2"
+if test "$cf_have_umount2" = "yes"
 then
 $as_echo "#define HAVE_UMOUNT2 1" >>confdefs.h
 
@@ -3716,7 +3716,7 @@ _ACEOF
 fi
 
 cf_have_umount=$ac_cv_lib_c_umount
-if test "$cf_have_umount"
+if test "$cf_have_umount" = "yes"
 then
 $as_echo "#define HAVE_UMOUNT 1" >>confdefs.h
 
@@ -3768,7 +3768,7 @@ _ACEOF
 fi
 
 cf_have_mkostemp=$ac_cv_lib_c_mkostemp
-if test "$cf_have_mkostemp"
+if test "$cf_have_mkostemp" = "yes"
 then
 $as_echo "#define HAVE_MKOSTEMP 1" >>confdefs.h
 
