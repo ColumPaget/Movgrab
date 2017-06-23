@@ -701,8 +701,9 @@ DestroyString(Res);
 int ExtractItemInfo(STREAM *S, int Type, const char *URL, const char *Title, int Flags)
 {
 char *Tempstr=NULL, *Token=NULL, *VarName=NULL, *Server=NULL;
+char *Document=NULL;
 ListNode *Vars=NULL;
-const char *ptr; 
+const char *ptr, *remaining; 
 char *ptr2;
 int MediaCount=0, i, Port;
 int RetVal=FALSE, State=0;
@@ -718,10 +719,13 @@ Tempstr=FormatStr(Tempstr,"%d",Port);
 SetVar(Vars,"Port",Tempstr);
 
 if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- DOWNLOADING DOCUMENT ------\n");
-Tempstr=STREAMReadLine(Tempstr, S);
 
-while (Tempstr)
+Document=STREAMReadDocument(Document, S);
+remaining=Document;
+
+while (remaining)
 {
+  remaining=GetToken(remaining,"\n",&Tempstr,0);	
 	StripTrailingWhitespace(Tempstr);
 	StripLeadingWhitespace(Tempstr);
 	
@@ -766,7 +770,7 @@ http://ipad-streaming.cbsnews.com/media/mpx/2016/04/17/667983939550/0417_60Min_A
 
   M3UStreamVarName(Tempstr+18, &VarName);
 
-  Tempstr=STREAMReadLine(Tempstr,S);
+  remaining=GetToken(remaining,"\n",&Tempstr,0);	
   StripTrailingWhitespace(Tempstr);
 	if (strncasecmp(Tempstr,"http:",5)==0) SetVar(Vars, VarName, Tempstr);
 	else if (strncasecmp(Tempstr,"https:",6)==0) SetVar(Vars, VarName, Tempstr);
@@ -1525,7 +1529,6 @@ case TYPE_DISCOVERY:
 break;
 }
 
-  Tempstr=STREAMReadLine(Tempstr,S);
 }
 
 if (Flags & (FLAG_DEBUG2 | FLAG_DEBUG3)) fprintf(stderr,"\n------- END DOCUMENT ------\n\n");
