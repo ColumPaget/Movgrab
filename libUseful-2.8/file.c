@@ -1012,7 +1012,11 @@ else
 	diff=0;
 }
 
-if (S->InStart > (S->BuffSize / 2))
+//if buffer is half full, or full 'cept for space at the start, then make room
+if (
+    (S->InStart > (S->BuffSize / 2)) ||
+    ((S->InEnd >= S->BuffSize) && (S->InStart > 0))
+  )
 {
   memmove(S->InputBuff,S->InputBuff + S->InStart,diff);
   S->InStart=0;
@@ -1081,7 +1085,7 @@ if (read_result==0)
 	if (S->State & SS_SSL)
 	{
 		read_result=SSL_read((SSL *) SSL_CTX, tmpBuff, S->BuffSize-S->InEnd);
-		S->State |= SS_EMBARGOED;
+//		S->State |= SS_EMBARGOED;
 	}
 	else
 	#endif

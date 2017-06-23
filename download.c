@@ -15,7 +15,7 @@ ListNode *DownloadQueue=NULL;
 STREAM *ConnectAndSendHeaders(const char *URL, int Flags, double BytesRange)
 {
 STREAM *Con;
-char *Tempstr=NULL, *Method=NULL, *ptr;
+char *Tempstr=NULL, *Method=NULL, *ptr, *rcode;
 HTTPInfoStruct *Info;
 static char *LastPage=NULL;
 
@@ -43,6 +43,12 @@ if ((! Con) && (! (Flags & FLAG_QUIET)))
 {
 	if (StrValid(Info->ResponseCode)) fprintf(stderr,"ERROR: Server %s item '%s' not retrieved\nResponseCode: %s\n",Info->Host, Info->Doc,Info->ResponseCode);
 	else fprintf(stderr,"ERROR: Connection failed to %s can't get file=%s \n",Info->Host, Info->Doc);
+}
+else if (StrValid(Info->ResponseCode) && (*Info->ResponseCode !='2')) 
+{
+ fprintf(stderr,"ERROR: Document unavailable. HTTP-Response: %s \n",STREAMGetValue(Con, "HTTP:ResponseCode"));
+ STREAMClose(Con);
+ Con=NULL;
 }
 else if (Flags & FLAG_DEBUG) 
 {
