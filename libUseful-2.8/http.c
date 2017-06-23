@@ -497,6 +497,13 @@ char *AppendCookies(char *InStr, ListNode *CookieList)
 return(Tempstr);
 }
 
+
+void HTTPClearCookies()
+{
+ListClear(Cookies, DestroyString);
+}
+
+
 int HTTPHandleWWWAuthenticate(char *Line, int *Type, char **Config)
 {
 char *ptr, *ptr2, *Token=NULL, *Name=NULL, *Value=NULL;

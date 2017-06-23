@@ -118,6 +118,8 @@ char *HTTPReadDocument(char *RetStr, STREAM *S);
 void HTTPCopyToSTREAM(STREAM *Con, STREAM *S);
 int HTTPDownload(char *URL, char *Login, char *Password, STREAM *S);
 
+void HTTPClearCookies();
+
 #ifdef __cplusplus
 }
 #endif
