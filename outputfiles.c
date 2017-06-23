@@ -184,11 +184,14 @@ ListNode *Curr;
 int val=0, Resume=FALSE;
 STREAM *S=NULL;
 
+if (Flags & FLAG_NOOUT) return;
 if ((Flags & FLAG_RESUME) && (ListSize(OutputFiles)==1)) Resume=TRUE;
 
 Curr=ListGetNext(OutputFiles);
 while (Curr)
 {
+	if (! Curr->Item)
+	{
 	if (! StrValid(Curr->Tag)) 
 	{
 		Tempstr=GetSaveFilePath(Tempstr, Title, URL);
@@ -203,6 +206,7 @@ while (Curr)
 		Curr->Item=S;
 	}
 	else Curr->Item=OpenSaveFile(Curr->Tag, FileSize, Resume);
+	}
 
 Curr=ListGetNext(Curr);
 }
@@ -261,17 +265,18 @@ Curr=ListGetNext(Curr);
 DestroyString(Tempstr);
 }
 
+void AddOutputStream(const char *Path, STREAM *S)
+{
+if (! OutputFiles) OutputFiles=ListCreate();
+ListAddNamedItem(OutputFiles,Path,S);
+}
 
 void AddOutputFile(const char *Path, int SingleOutput)
 {
 //if 'SingleOutput' is set then overwrite any existing outputs, this should be the
 //only one
 if (SingleOutput) ListClear(OutputFiles,NULL);
-
-if (! OutputFiles) OutputFiles=ListCreate();
-ListAddNamedItem(OutputFiles,Path,NULL);
-
-
+AddOutputStream(Path, NULL);
 }
 
 

@@ -31,6 +31,7 @@
 #define FLAG_HTTPS 131072
 #define FLAG_POST 262144
 #define FLAG_PLAYER_AUTO 524288
+#define FLAG_NOOUT 1048576
 
 
 extern int Type, Flags;

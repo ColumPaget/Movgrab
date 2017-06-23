@@ -172,8 +172,13 @@ for (i=1; i < argc; i++)
 	else if (strcmp(argv[i],"-o")==0)
 	{
 		i++;
-		AddOutputFile(argv[i], TRUE);
-		if (strcmp(argv[i],"-")==0) Flags |= FLAG_STDOUT;
+		if (strcmp(argv[i],"none")==0) Flags |= FLAG_NOOUT;
+		else if (strcmp(argv[i],"-")==0) 
+		{
+			Flags |= FLAG_STDOUT;
+			AddOutputFile(argv[i], TRUE);
+		}
+		else AddOutputFile(argv[i], TRUE);
 	}
 	else if (strcmp(argv[i],"+o")==0)
 	{

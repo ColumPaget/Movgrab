@@ -47,12 +47,19 @@ else Player=CopyStr(Player, Config);
 void LaunchPlayer()
 {
 char *Tempstr=NULL;
+STREAM *S;
 
 if (PlayerPid > 0) return;
 if (! StrValid(Player)) return;
 
-Tempstr=MCopyStr(Tempstr,Player," ",OutputFilesGetFilePath(),NULL);
-PlayerPid=Spawn(Tempstr,"");
+//Tempstr=MCopyStr(Tempstr,Player," ",OutputFilesGetFilePath(),NULL);
+
+S=STREAMSpawnCommand(Player,"");
+if (S)
+{
+	AddOutputStream(Player, S);
+	PlayerPid=atoi(STREAMGetValue(S, "PeerPID"));
+}
 
 DestroyString(Tempstr);
 }
