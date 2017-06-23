@@ -8,7 +8,7 @@ ListNode *SetDetailVar(ListNode *Vars, const char *Name, const char *Data, int I
 ListNode *Node;
 char *Tempstr=NULL;
 
-if (! Vars) return;
+if (! Vars) return(NULL);
 Tempstr=CopyStr(Tempstr,Name);
 //strlwr(Tempstr);
 Node=ListFindNamedItem(Vars,Tempstr);

@@ -3,7 +3,10 @@
 //#include <sys/ioctl.h>
 //#include <sys/resource.h>
 #include <sys/mount.h>
+
+#ifdef linux
 #include <sys/xattr.h>
+#endif
 
 const char *GetBasename(const char *Path)
 {
@@ -224,6 +227,7 @@ char *FileGetXAttribute(char *RetStr, const char *Path, const char *Name)
 {
 int len;
 
+#ifdef linux
 len=getxattr(Path, Name, NULL, 0);
 if (len > 0)
 {
@@ -231,6 +235,7 @@ if (len > 0)
 	getxattr(Path, Name, RetStr, len);
 }
 else RetStr=CopyStr(RetStr, "");
+#endif
 
 return(RetStr);
 }
@@ -238,8 +243,12 @@ return(RetStr);
 
 int FileSetXAttribute(const char *Path, const char *Name, const char *Value, int Len)
 {
+#ifdef linux
 if (Len==0) Len=StrLen(Value);
 return(setxattr(Path, Name, Value, Len, 0));
+#endif
+
+return(-1);
 }
 
 
@@ -261,21 +270,35 @@ else p_MountPoint=MountPoint;
 
 if (! StrValid(p_MountPoint)) return(FALSE);
 
+#ifdef MS_BIND
 if (strcmp(Type,"bind")==0) 
 {
 	p_Type="";
 	Flags=MS_BIND;
 }
+#endif
 
 
 ptr=GetToken(Args, " |,", &Token, GETTOKEN_MULTI_SEP);
 while (ptr)
 {
+	#ifdef MS_RDONLY
 	if (strcmp(Token,"ro")==0) Flags |= MS_RDONLY;
-	else if (strcmp(Token,"noexec")==0) Flags |= MS_NOEXEC;
-	else if (strcmp(Token,"nosuid")==0) Flags |= MS_NOSUID;
-	else if (strcmp(Token,"nodev")==0) Flags |= MS_NODEV;
-	else if (strncmp(Token,"perms=",6)==0) Perms=strtol(Token+6,NULL,8);
+	#endif
+
+	#ifdef MS_NOEXEC
+	if (strcmp(Token,"noexec")==0) Flags |= MS_NOEXEC;
+	#endif
+
+	#ifdef MS_NOSUID
+	if (strcmp(Token,"nosuid")==0) Flags |= MS_NOSUID;
+	#endif
+
+	#ifdef MS_NODEV
+	if (strcmp(Token,"nodev")==0) Flags |= MS_NODEV;
+	#endif
+
+	if (strncmp(Token,"perms=",6)==0) Perms=strtol(Token+6,NULL,8);
 ptr=GetToken(ptr, " |,", &Token, GETTOKEN_MULTI_SEP);
 }
 
@@ -283,13 +306,20 @@ Token=MCopyStr(Token,p_MountPoint,"/",NULL);
 MakeDirPath(Token,Perms);
 
 //must do a little dance for readonly bind mounts. We must first mount, then remount readonly
+#ifdef MS_BIND
 if ((Flags & MS_BIND) && (Flags & MS_RDONLY)) 
 {
 	mount(Dev,p_MountPoint,"",MS_BIND,NULL);
 	Flags |= MS_REMOUNT;
 }
+#endif
 
+#ifdef linux
 result=mount(Dev,p_MountPoint,p_Type,Flags,NULL);
+#else
+//assume BSD if not linux
+result=mount(p_Type,p_MountPoint,Flags,Dev);
+#endif
 
 DestroyString(Token);
 return(result);
@@ -302,8 +332,8 @@ return(result);
 #define UMOUNT_NOFOLLOW 0
 #endif
 
-#ifndef UMOUNT_DETACH
-#define UMOUNT_DETACH 0
+#ifndef MNT_DETACH
+#define MNT_DETACH 0
 #endif
 
 
@@ -352,7 +382,7 @@ if (ExtraFlags & UMOUNT_RECURSE)
 #ifdef linux
 result=umount2(MountPoint, Flags);
 #else
-result=umount(MountPoint);
+result=unmount(MountPoint,0);
 #endif
 
 if (ExtraFlags & UMOUNT_RMDIR) rmdir(MountPoint);

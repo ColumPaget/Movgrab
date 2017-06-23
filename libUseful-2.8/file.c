@@ -11,7 +11,10 @@
 #include "securemem.h"
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+
+#ifdef linux
 #include <linux/fs.h>
+#endif
 
 #ifdef HAVE_LIBSSL
 #include <openssl/crypto.h>

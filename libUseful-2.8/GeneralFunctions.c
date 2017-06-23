@@ -3,11 +3,14 @@
 #include "Hash.h"
 #include "Time.h"
 #include <sys/utsname.h>
-#include <sys/sysinfo.h>
 #include <sys/file.h>
 #include <math.h>
 #include <pwd.h>
 #include <grp.h>
+
+#ifdef linux
+#include <sys/sysinfo.h>
+#endif
 
 //xmemset uses a 'volatile' pointer so that it won't be optimized out
 void xmemset(volatile char *Str, char fill, off_t size)
@@ -89,8 +92,8 @@ fd=open("/dev/urandom",O_RDONLY);
 if (fd > -1)
 {
 	RandomBytes=SetStrLen(RandomBytes,ReqLen);
-  len=read(fd,RandomBytes,ReqLen);
-  close(fd);
+	len=read(fd,RandomBytes,ReqLen);
+	close(fd);
 }
 else
 {
@@ -266,12 +269,10 @@ return(grent->gr_gid);
 const char *OSSysInfoString(int Info)
 {
 static struct utsname UtsInfo;
-static struct sysinfo SysInfo;
 struct passwd *pw;
 const char *ptr;
 
 uname(&UtsInfo);
-sysinfo(&SysInfo);
 
 switch (Info)
 {
@@ -290,14 +291,6 @@ case OSINFO_TMPDIR:
   if (! ptr) ptr="/tmp";
   if (ptr) return(ptr);
 break;
-
-/*
-case OSINFO_UPTIME: MuJSNumber((double) SysInfo.uptime); break;
-case OSINFO_TOTALMEM: MuJSNumber((double) SysInfo.totalram); break;
-case OSINFO_FREEMEM: MuJSNumber((double) SysInfo.freeram); break;
-case OSINFO_PROCS: MuJSNumber((double) SysInfo.procs); break;
-case OSINFO_LOAD: MuJSArray(TYPE_ULONG, 3, (void *) SysInfo.loads); break;
-*/
 
 
 /*
@@ -327,6 +320,7 @@ return("");
 //lua that have an 'os' object that returns information 
 unsigned long OSSysInfoLong(int Info)
 {
+#ifdef linux
 struct utsname UtsInfo;
 struct sysinfo SysInfo;
 struct passwd *pw;
@@ -342,6 +336,9 @@ case OSINFO_TOTALMEM: return((unsigned long) SysInfo.totalram); break;
 case OSINFO_FREEMEM: return((unsigned long) SysInfo.freeram); break;
 case OSINFO_PROCS: return((unsigned long) SysInfo.procs); break;
 //case OSINFO_LOAD: MuJSArray(TYPE_ULONG, 3, (void *) SysInfo.loads); break;
-return(0);
+
 }
+
+#endif
+return(0);
 }

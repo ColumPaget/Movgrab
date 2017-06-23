@@ -10,7 +10,7 @@
 #include "FileSystem.h"
 #include "Log.h"
 #include <sched.h>
-#include <wait.h>
+#include <sys/wait.h>
 
 
 /*This is code to change the command-line of a program as visible in ps */
@@ -261,8 +261,8 @@ struct sigaction sa;
 	}
 
 	waitpid(Child,NULL,0);
-	umount("/proc");
-	rmdir("/proc");
+	
+	FileSystemUnMount("/proc","rmdir");
 	FileSystemUnMount("/","recurse,rmdir");
 
 	STREAMClose(TunS);
@@ -305,23 +305,38 @@ ptr=GetNameValuePair(ptr,"\\S","=",&Name,&Value);
 pid=getpid();
 
 #ifdef linux
+#ifdef CLONE_NEWPID
 unshare(CLONE_NEWPID);
+#endif
 
 //fork again because CLONE_NEWPID only takes effect after another fork, and creates an 'init' process
 child=fork();
 if (child==0)
 {
+#ifdef CLONE_NEWNET
   if (! (Flags & PROC_CONTAINER_NET)) unshare(CLONE_NEWNET);
+#endif
 
   //do these all individually because any one of them might be rejected
+#ifdef CLONE_NEWIPC
   unshare(CLONE_NEWIPC);
+#endif
+
+#ifdef CLONE_NEWUTS
   unshare(CLONE_NEWUTS);
+#endif
+
+#ifdef CLONE_FS
   unshare(CLONE_FS);
+#endif
+
   val=StrLen(HostName);
   if (val != 0) sethostname(HostName, val);
   else sethostname("container", 9);
 
+#ifdef CLONE_NEWNS
   unshare(CLONE_NEWNS);
+#endif
 }
 else ProcessContainerInit(-1, -1, child);
 #endif

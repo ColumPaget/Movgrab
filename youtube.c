@@ -58,6 +58,8 @@ ptr=GetToken(Formats,",",&Token,0);
 while (ptr)
 {
 	YouTubeFormatGetData(Token, &URL, &TypeCode, Vars);
+	if (StrValid(TypeCode))
+	{
 	switch (atoi(TypeCode))
 	{
 			case 5:
@@ -160,6 +162,7 @@ while (ptr)
 			//	if (! Flags & FLAG_QUIET)
 			if (StrValid(ptr)) fprintf(stderr,"Unknown youtube format [%s]\n",Token);
 			break;
+		}
 		}
 ptr=GetToken(ptr,",",&Token,0);
 }
