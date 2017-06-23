@@ -14,7 +14,7 @@ all: $(OBJ)
 	$(CC) $(FLAGS) -o movgrab main.c $(LIBS) $(OBJ) libUseful-2.8/libUseful-2.8.a
 
 clean:
-	@rm -f movgrab *.o libUseful-2.8/*.o libUseful-2.8/*.a libUseful-2.8/*.so
+	@rm -f movgrab *.o libUseful-2.8/*.o libUseful-2.8/*.a libUseful-2.8/*.so config.log config.status
 
 common.o: common.c common.h
 	$(CC) $(FLAGS) -c common.c
