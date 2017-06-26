@@ -1131,7 +1131,7 @@ if (g_Flags & HTTP_REQ_HTTPS) return(S);
 
 if (!S) S=HTTPSetupConnection(Info, FALSE);
 
-S->Path=FormatStr(S->Path,"%s://%s:%d/%s",Info->Protocol,Info->Host,Info->Port,Info->Doc);
+if (S) S->Path=FormatStr(S->Path,"%s://%s:%d/%s",Info->Protocol,Info->Host,Info->Port,Info->Doc);
 
 return(S);
 }
