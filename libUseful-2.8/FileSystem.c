@@ -1,12 +1,14 @@
 #include "FileSystem.h"
+#include "Errors.h"
 #include <glob.h>
 //#include <sys/ioctl.h>
 //#include <sys/resource.h>
 #include <sys/mount.h>
 
-#ifdef linux
+#ifdef HAVE_XATTR
 #include <sys/xattr.h>
 #endif
+
 
 const char *GetBasename(const char *Path)
 {
@@ -71,7 +73,11 @@ int MakeDirPath(const char *Path, int DirMask)
  {
    Tempstr=CopyStrLen(Tempstr,Path,ptr-Path);
    result=mkdir(Tempstr, DirMask);
-   if ((result==-1) && (errno != EEXIST)) break;
+   if ((result==-1) && (errno != EEXIST)) 
+   {
+			RaiseError(ERRFLAG_ERRNO, "MakeDirPath", "cannot mkdir '%s'",Tempstr);
+			break;
+   }
    ptr=strchr(++ptr, '/');
  }
  DestroyString(Tempstr);
@@ -97,6 +103,7 @@ if (! ptr) ptr=Tempstr+StrLen(Tempstr);
 if (*NewExt=='.') Tempstr=CatStr(Tempstr,NewExt);
 else Tempstr=MCatStr(Tempstr,".",NewExt,NULL);
 result=rename(FilePath,Tempstr);
+if (result !=0) RaiseError(ERRFLAG_ERRNO, "FileChangeExtension", "cannot rename '%s' to '%s'",FilePath, Tempstr);
 
 DestroyString(Tempstr);
 if (result==0) return(TRUE);
@@ -190,6 +197,7 @@ if (uid > -1)
 	result=chown(FileName, uid, -1);
 	if (result==0) return(TRUE);
 }
+RaiseError(ERRFLAG_ERRNO, "FileChOwner", "failed to change owner to user=%s uid=%d",Owner,uid);
 return(FALSE);
 }
 
@@ -205,6 +213,7 @@ if (gid > -1)
 	result=chown(FileName, -1, gid);
 	if (result==0) return(TRUE);
 }
+RaiseError(ERRFLAG_ERRNO, "FileChGroup", "failed to change group to group=%s gid=%d",Group,gid);
 return(FALSE);
 }
 
@@ -227,7 +236,7 @@ char *FileGetXAttribute(char *RetStr, const char *Path, const char *Name)
 {
 int len;
 
-#ifdef linux
+#ifdef HAVE_XATTR
 len=getxattr(Path, Name, NULL, 0);
 if (len > 0)
 {
@@ -235,6 +244,8 @@ if (len > 0)
 	getxattr(Path, Name, RetStr, len);
 }
 else RetStr=CopyStr(RetStr, "");
+#else
+RaiseError(0, "FileGetXAttribute", "xattr support not compiled in");
 #endif
 
 return(RetStr);
@@ -243,9 +254,11 @@ return(RetStr);
 
 int FileSetXAttribute(const char *Path, const char *Name, const char *Value, int Len)
 {
-#ifdef linux
+#ifdef HAVE_XATTR
 if (Len==0) Len=StrLen(Value);
 return(setxattr(Path, Name, Value, Len, 0));
+#else
+RaiseError(0, "FileSetXAttribute", "xattr support not compiled in");
 #endif
 
 return(-1);
@@ -270,13 +283,16 @@ else p_MountPoint=MountPoint;
 
 if (! StrValid(p_MountPoint)) return(FALSE);
 
-#ifdef MS_BIND
 if (strcmp(Type,"bind")==0) 
 {
+#ifdef MS_BIND
 	p_Type="";
 	Flags=MS_BIND;
-}
+#else
+	RaiseError(0, "FileSystemMount", "Bind mounts not supported on this system.");
+	return(FALSE);
 #endif
+}
 
 
 ptr=GetToken(Args, " |,", &Token, GETTOKEN_MULTI_SEP);
@@ -321,8 +337,13 @@ result=mount(Dev,p_MountPoint,p_Type,Flags,NULL);
 result=mount(p_Type,p_MountPoint,Flags,Dev);
 #endif
 
+
+if (result !=0) RaiseError(ERRFLAG_ERRNO, "FileSystemMount", "failed to mount %s:%s on %s", p_Type,Dev,p_MountPoint);
+
 DestroyString(Token);
-return(result);
+
+if (result==0) return(TRUE);
+return(FALSE);
 }
 
 

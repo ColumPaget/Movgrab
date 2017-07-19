@@ -1,7 +1,7 @@
 #ifndef LIBUSEFUL_VARS_H
 #define LIBUSEFUL_VARS_H
 
-#include "list.h"
+#include "List.h"
 
 #ifdef __cplusplus
 extern "C" {

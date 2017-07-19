@@ -62,10 +62,11 @@ ListNode *Item, *Node;
 const char *ptr;
 
 	Item=ListCreate();
-//	Item->Tag=CopyStr(Item->Tag,Name);
 	Node=ListAddNamedItem(Parent, Name, Item);
 	Node->ItemType=Type;
 	ptr=ParserParseItems(P, Data, Item, IndentLevel);
+
+//printf("NEW: %d [%s] [%s]\n",IndentLevel, Parent->Tag, Name);
 	return(ptr);
 }
 
@@ -106,6 +107,7 @@ while (ptr)
 	{
 	Node=ListAddNamedItem(Parent, Name, CopyStr(NULL, PrevToken));
 	Node->ItemType=ITEM_VALUE;
+	//printf("ADD: %s\n",Name);
 	}
 
 	PrevToken=CopyStr(PrevToken, Token);
@@ -237,6 +239,7 @@ const char *ptr;
 
 if (! P) return;
 if (! Doc) return;
+
 if (! P->Items) P->Items=ListCreate();
 ptr=Doc;
 while (isspace(*ptr)) ptr++;
@@ -259,10 +262,23 @@ P->Curr=ListGetPrev(P->Curr);
 return(P->Curr);
 }
 
+void ListDump(ListNode *List)
+{
+ListNode *Curr;
+
+Curr=ListGetNext(List);
+while (Curr)
+{
+printf("  %s\n",Curr->Tag);
+Curr=ListGetNext(Curr);
+}
+
+}
+
 
 ListNode *ParserFindItem(PARSER *P, const char *Name)
 {
-ListNode *Node;
+ListNode *Node, *Curr;
 char *Token=NULL;
 const char *ptr;
 
@@ -274,17 +290,17 @@ if (*ptr=='/')
 	ptr++;
 }
 else if (! P->Curr) Node=P->Items;
-else if (P->Curr->ItemType != ITEM_VALUE)
-{
-	Node=(ListNode *) P->Curr->Item;
-}
+else if (P->Curr->ItemType != ITEM_VALUE) Node=(ListNode *) P->Curr;
+
 
 if (StrValid(ptr))
 {
 ptr=GetToken(ptr,"/",&Token,0);
 while (ptr)
 {
-	Node=(ListNode *) ListFindNamedItem(Node,Token);
+	if (Node->ItemType== ITEM_ROOT) Node=(ListNode *) ListFindNamedItem(Node,Token);
+	else if (Node->ItemType != ITEM_VALUE) Node=(ListNode *) ListFindNamedItem((ListNode *) Node->Item,Token);
+
 	if (! Node) break;
 	ptr=GetToken(ptr,"/",&Token,0);
 }

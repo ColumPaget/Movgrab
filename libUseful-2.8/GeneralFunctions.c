@@ -77,6 +77,17 @@ return(RetStr);
 }
 
 
+void *ArrayGetItem(void *array[], int pos)
+{
+int i;
+for (i=0; i < pos; i++)
+{
+if (array[i]==NULL) return(NULL);
+if (i==pos) return(array[i]);
+}
+return(NULL);
+}
+
 
 
 int GenerateRandomBytes(char **RetBuff, int ReqLen, int Encoding)

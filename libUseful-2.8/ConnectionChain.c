@@ -1,8 +1,9 @@
 #include "ConnectionChain.h"
 #include "URL.h"
 #include "SpawnPrograms.h"
-#include "expect.h"
-#include "securemem.h"
+#include "Expect.h"
+#include "SecureMem.h"
+#include "Errors.h"
 #include "file.h"
 
 const char *HopTypes[]={"none","direct","httptunnel","ssh","sshtunnel","socks4","socks5","shell","telnet",NULL};
@@ -40,7 +41,11 @@ int result=FALSE;
 
 	S->in_fd=TCPConnect(Host,Port,0); 
 	S->out_fd=S->in_fd;
-	if (S->in_fd == -1) return(FALSE);
+	if (S->in_fd == -1) 
+	{
+		RaiseError(0, "DoHTTPProxyTunnel", "failed to connect to proxy at %s:%d", Host, Port);
+		return(FALSE);
+	}
 
 	ptr=Destination;
 	if (strncmp(ptr,"tcp:",4)==0) ptr+=4;
@@ -56,6 +61,8 @@ int result=FALSE;
 	ptr=GetToken(ptr," ",&Token,0);
 
 	if (*Token=='2') result=TRUE;
+	else RaiseError(0, "DoHTTPProxyTunnel", "proxy request to %s:%d failed. %s", Host, Port, Tempstr);
+
 	while (StrLen(Tempstr))
 	{
 		Tempstr=STREAMReadLine(Tempstr,S);
@@ -178,12 +185,20 @@ uint8_t HostType=HT_IP4;
 
 S->in_fd=TCPConnect(Host,Port,0); 
 S->out_fd=S->in_fd;
-if (S->in_fd == -1) return(FALSE);
+if (S->in_fd == -1) 
+{
+	RaiseError(0, "ConnectHopSocks", "connection to socks proxy at %s:%d failed", Host, Port);
+	return(FALSE);
+}
 
 
 if (Type==CONNECT_HOP_SOCKS5)
 {
-if (! ConnectHopSocks5Auth(S, User, Pass)) return(FALSE);
+	if (! ConnectHopSocks5Auth(S, User, Pass)) 
+	{
+		RaiseError(0, "ConnectHopSocks", "authentication to socks proxy at %s:%d failed", Host, Port);
+		return(FALSE);
+	}
 }
 
 //Horrid binary protocol. 
@@ -298,6 +313,7 @@ else
 }
 
 
+if (! RetVal) RaiseError(0, "ConnectHopSocks", "socks proxy at %s:%d refused connection to %s", Host, Port, Path);
 DestroyString(Tempstr);
 DestroyString(Token);
 
@@ -334,11 +350,11 @@ return(TRUE);
 
 
 
-int ConnectHopSSH(STREAM *S,int Type, char *Host, int Port, char *User, char *Pass, char *NextHop)
+int ConnectHopSSH(STREAM *S, int Type, char *Host, int Port, char *User, char *Pass, char *NextHop)
 {
-char *Tempstr=NULL, *KeyFile=NULL, *Token=NULL, *Token2=NULL;
-STREAM *AuthS;
-int result=FALSE, val;
+char *Tempstr=NULL, *Token=NULL, *Token2=NULL;
+STREAM *tmpS;
+int result=FALSE, val, i;
 unsigned int TunnelPort=0;
 
 if (Type==CONNECT_HOP_SSHTUNNEL) 
@@ -346,78 +362,26 @@ if (Type==CONNECT_HOP_SSHTUNNEL)
 	TunnelPort=(rand() % (0xFFFF - 9000)) +9000;
 	//Host will be Token, and port Token2
 	ParseConnectDetails(NextHop, NULL, &Token, &Token2, NULL, NULL, NULL);
-	Tempstr=FormatStr(Tempstr,"ssh -2 -N %s@%s  -L %d:%s:%s ",User,Host,TunnelPort,Token,Token2);
-
+	Tempstr=FormatStr(Tempstr,"tunnel:%d:%s:%s ",TunnelPort,Token,Token2);
+	tmpS=SSHConnect(Host, Port, User, Pass, Tempstr);
+	if (tmpS)
+	{
+	for (i=0; i < 30; i++)
+	{
+		S->in_fd=TCPConnect("127.0.0.1",TunnelPort,0);
+		if (S->in_fd > -1)
+		{
+			S->out_fd=S->in_fd;
+			result=TRUE;
+			break;
+		}
+		usleep(100000);
+	}
+	}
 }
 else Tempstr=MCopyStr(Tempstr,"ssh -2 -T ",User,"@",Host, " ", NULL );
 
-if (strncmp(Pass,"keyfile:",8)==0)
-{
-
-		if (S->in_fd != -1)
-		{
-			Token=FormatStr(Token,".%d-%d",getpid(),time(NULL));
-			SendPublicKeyToRemote(S,Token,Pass+8);
-			KeyFile=CopyStr(KeyFile,Token);
-		}
-		Tempstr=MCatStr(Tempstr,"-i ",KeyFile," ",NULL);
-		}
-
-		if (Port > 0)
-		{
-		Token=FormatStr(Token," -p %d ",Port);
-		Tempstr=CatStr(Tempstr,Token);
-		}
-
-		if (Type==CONNECT_HOP_SSHTUNNEL) 
-		{
-			Tempstr=CatStr(Tempstr, " 2> /dev/null");
-			AuthS=STREAMSpawnCommand(Tempstr, "pty");
-			STREAMSetValue(S,"HelperPID:SSH",STREAMGetValue(AuthS,"PeerPID"));
-		}
-		else if (S->in_fd==-1) 
-		{
-			Tempstr=CatStr(Tempstr, " 2> /dev/null");
-			PseudoTTYSpawn(&S->in_fd,Tempstr,"");
-			S->out_fd=S->in_fd;
-			if (S->in_fd > -1)
-			{
-				result=TRUE;
-				STREAMSetFlushType(S,FLUSH_LINE,0,0);
-			}
-			AuthS=S;
-		}
-		else 
-		{
-			if (StrLen(KeyFile)) Tempstr=MCatStr(Tempstr," ; rm -f ",KeyFile,NULL);
-			Tempstr=CatStr(Tempstr,"; exit\n");
-			STREAMWriteLine(Tempstr,S);
-			result=TRUE;
-			AuthS=S;
-		}
-
-		if ((StrLen(KeyFile)==0) && (StrLen(Pass) > 0)) 
-		{
-			Token=MCopyStr(Token,Pass,"\n",NULL);
-			for (val=0; val < 3; val++)
-			{
-			if (STREAMExpectAndReply(AuthS,"assword:",Token)) break;
-			}
-		}
-		STREAMSetTimeout(AuthS,100);
-		//STREAMExpectSilence(AuthS);
-		sleep(3);
-
-		if (Type==CONNECT_HOP_SSHTUNNEL) 
-		{
-			S->in_fd=TCPConnect("127.0.0.1",TunnelPort,0);
-			S->out_fd=S->in_fd;
-			if (S->in_fd > -1) result=TRUE;
-		}
-
-
 DestroyString(Tempstr);
-DestroyString(KeyFile);
 DestroyString(Token2);
 DestroyString(Token);
 

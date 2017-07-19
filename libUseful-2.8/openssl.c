@@ -235,6 +235,11 @@ BIO *b;
 #endif
 
 
+void OpenSSLCertError(STREAM *S, const char *Error)
+{
+	STREAMSetValue(S,"SSL-Certificate-Verify",Error);
+	RaiseError(0, "SSL-Certificate-Verify", Error);
+}
 
 int OpenSSLVerifyCertificate(STREAM *S)
 {
@@ -277,7 +282,7 @@ if (cert)
 	else val=0;
 
 
-	if (val!=1)	STREAMSetValue(S,"SSL-Certificate-Verify","Certificate hostname missmatch");
+	if (val!=1)	OpenSSLCertError(S, "Certificate hostname missmatch");
 	else
 	{
 	val=SSL_get_verify_result(ssl);
@@ -285,45 +290,42 @@ if (cert)
 	switch(val)
 	{
 		case X509_V_OK: STREAMSetValue(S,"SSL-Certificate-Verify","OK"); RetVal=TRUE; break;
-		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT: STREAMSetValue(S,"SSL-Certificate-Verify","unable to get issuer"); break;
-		case X509_V_ERR_UNABLE_TO_GET_CRL: STREAMSetValue(S,"SSL-Certificate-Verify","unable to get certificate CRL"); break;
-		case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE: STREAMSetValue(S,"SSL-Certificate-Verify","unable to decrypt certificate's signature"); break;
-		case X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE: STREAMSetValue(S,"SSL-Certificate-Verify","unable to decrypt CRL's signature"); break;
-		case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY: STREAMSetValue(S,"SSL-Certificate-Verify","unable to decode issuer public key"); break;
-		case X509_V_ERR_CERT_SIGNATURE_FAILURE: STREAMSetValue(S,"SSL-Certificate-Verify","certificate signature invalid"); break;
-		case X509_V_ERR_CRL_SIGNATURE_FAILURE: STREAMSetValue(S,"SSL-Certificate-Verify","CRL signature invalid"); break;
-		case X509_V_ERR_CERT_NOT_YET_VALID: STREAMSetValue(S,"SSL-Certificate-Verify","certificate is not yet valid"); break;
-		case X509_V_ERR_CERT_HAS_EXPIRED: STREAMSetValue(S,"SSL-Certificate-Verify","certificate has expired"); break;
-		case X509_V_ERR_CRL_NOT_YET_VALID: STREAMSetValue(S,"SSL-Certificate-Verify","CRL is not yet valid"); break;
-		case X509_V_ERR_CRL_HAS_EXPIRED: STREAMSetValue(S,"SSL-Certificate-Verify","CRL has expired"); break;
-		case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD: STREAMSetValue(S,"SSL-Certificate-Verify","invalid notBefore value"); break;
-		case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD: STREAMSetValue(S,"SSL-Certificate-Verify","invalid notAfter value"); break;
-		case X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD: STREAMSetValue(S,"SSL-Certificate-Verify","invalid CRL lastUpdate value"); break;
-		case X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD: STREAMSetValue(S,"SSL-Certificate-Verify","invalid CRL nextUpdate value"); break;
-		case X509_V_ERR_OUT_OF_MEM: STREAMSetValue(S,"SSL-Certificate-Verify","out of memory"); break;
-		case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT: STREAMSetValue(S,"SSL-Certificate-Verify","self signed certificate"); break;
-		case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN: STREAMSetValue(S,"SSL-Certificate-Verify","self signed certificate in certificate chain"); break;
-		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY: STREAMSetValue(S,"SSL-Certificate-Verify","cant find root certificate in local database"); break;
-		case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE: STREAMSetValue(S,"SSL-Certificate-Verify","ERROR: unable to verify the first certificate"); break;
-		case X509_V_ERR_CERT_CHAIN_TOO_LONG: STREAMSetValue(S,"SSL-Certificate-Verify","certificate chain too long"); break;
-		case X509_V_ERR_CERT_REVOKED: STREAMSetValue(S,"SSL-Certificate-Verify","certificate revoked"); break;
-		case X509_V_ERR_INVALID_CA: STREAMSetValue(S,"SSL-Certificate-Verify","invalid CA certificate"); break;
-		case X509_V_ERR_PATH_LENGTH_EXCEEDED: STREAMSetValue(S,"SSL-Certificate-Verify","path length constraint exceeded"); break;
-		case X509_V_ERR_INVALID_PURPOSE: STREAMSetValue(S,"SSL-Certificate-Verify","unsupported certificate purpose"); break;
-		case X509_V_ERR_CERT_UNTRUSTED: STREAMSetValue(S,"SSL-Certificate-Verify","certificate not trusted"); break;
-		case X509_V_ERR_CERT_REJECTED: STREAMSetValue(S,"SSL-Certificate-Verify","certificate rejected"); break;
-		case X509_V_ERR_SUBJECT_ISSUER_MISMATCH: STREAMSetValue(S,"SSL-Certificate-Verify","subject issuer mismatch"); break;
-		case X509_V_ERR_AKID_SKID_MISMATCH: STREAMSetValue(S,"SSL-Certificate-Verify","authority and subject key identifier mismatch"); break;
-		case X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH: STREAMSetValue(S,"SSL-Certificate-Verify","authority and issuer serial number mismatch"); break;
-		case X509_V_ERR_KEYUSAGE_NO_CERTSIGN: STREAMSetValue(S,"SSL-Certificate-Verify","key usage does not include certificate signing"); break;
-		case X509_V_ERR_APPLICATION_VERIFICATION: STREAMSetValue(S,"SSL-Certificate-Verify","application verification failure"); break;
+		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT: OpenSSLCertError(S,"unable to get issuer"); break;
+		case X509_V_ERR_UNABLE_TO_GET_CRL: OpenSSLCertError(S,"unable to get certificate CRL"); break;
+		case X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE: OpenSSLCertError(S,"unable to decrypt certificate's signature"); break;
+		case X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE: OpenSSLCertError(S,"unable to decrypt CRL's signature"); break;
+		case X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY: OpenSSLCertError(S,"unable to decode issuer public key"); break;
+		case X509_V_ERR_CERT_SIGNATURE_FAILURE: OpenSSLCertError(S,"certificate signature invalid"); break;
+		case X509_V_ERR_CRL_SIGNATURE_FAILURE: OpenSSLCertError(S,"CRL signature invalid"); break;
+		case X509_V_ERR_CERT_NOT_YET_VALID: OpenSSLCertError(S,"certificate is not yet valid"); break;
+		case X509_V_ERR_CERT_HAS_EXPIRED: OpenSSLCertError(S,"certificate has expired"); break;
+		case X509_V_ERR_CRL_NOT_YET_VALID: OpenSSLCertError(S,"CRL is not yet valid"); break;
+		case X509_V_ERR_CRL_HAS_EXPIRED: OpenSSLCertError(S,"CRL has expired"); break;
+		case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD: OpenSSLCertError(S,"invalid notBefore value"); break;
+		case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD: OpenSSLCertError(S,"invalid notAfter value"); break;
+		case X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD: OpenSSLCertError(S,"invalid CRL lastUpdate value"); break;
+		case X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD: OpenSSLCertError(S,"invalid CRL nextUpdate value"); break;
+		case X509_V_ERR_OUT_OF_MEM: OpenSSLCertError(S,"out of memory"); break;
+		case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT: OpenSSLCertError(S,"self signed certificate"); break;
+		case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN: OpenSSLCertError(S,"self signed certificate in certificate chain"); break;
+		case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY: OpenSSLCertError(S,"cant find root certificate in local database"); break;
+		case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE: OpenSSLCertError(S,"ERROR: unable to verify the first certificate"); break;
+		case X509_V_ERR_CERT_CHAIN_TOO_LONG: OpenSSLCertError(S,"certificate chain too long"); break;
+		case X509_V_ERR_CERT_REVOKED: OpenSSLCertError(S,"certificate revoked"); break;
+		case X509_V_ERR_INVALID_CA: OpenSSLCertError(S,"invalid CA certificate"); break;
+		case X509_V_ERR_PATH_LENGTH_EXCEEDED: OpenSSLCertError(S,"path length constraint exceeded"); break;
+		case X509_V_ERR_INVALID_PURPOSE: OpenSSLCertError(S,"unsupported certificate purpose"); break;
+		case X509_V_ERR_CERT_UNTRUSTED: OpenSSLCertError(S,"certificate not trusted"); break;
+		case X509_V_ERR_CERT_REJECTED: OpenSSLCertError(S,"certificate rejected"); break;
+		case X509_V_ERR_SUBJECT_ISSUER_MISMATCH: OpenSSLCertError(S,"subject issuer mismatch"); break;
+		case X509_V_ERR_AKID_SKID_MISMATCH: OpenSSLCertError(S,"authority and subject key identifier mismatch"); break;
+		case X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH: OpenSSLCertError(S,"authority and issuer serial number mismatch"); break;
+		case X509_V_ERR_KEYUSAGE_NO_CERTSIGN: OpenSSLCertError(S,"key usage does not include certificate signing"); break;
+		case X509_V_ERR_APPLICATION_VERIFICATION: OpenSSLCertError(S,"application verification failure"); break;
 	}
 	}
 }
-else
-{
-	STREAMSetValue(S,"SSL-Certificate-Verify","no certificate");
-}
+else OpenSSLCertError(S,"peer provided no certificate");
 
 
 DestroyString(Name);
@@ -426,7 +428,11 @@ if (S)
 	}
 }
 
+#else
+RaiseError(0, "DoSSLClientNegotiation", "ssl support not compiled into libUseful");
 #endif
+
+
 return(result);
 }
 
@@ -560,6 +566,8 @@ if (S)
   }
 }
 
+#else
+RaiseError(0, "DoSSLServerNegotiation", "ssl support not compiled into libUseful");
 #endif
 return(result);
 }

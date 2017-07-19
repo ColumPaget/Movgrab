@@ -95,7 +95,7 @@ fprintf(stdout,"useragent <string>    useragent string for http communications\n
 fprintf(stdout,"player <content-type> <path>    path to player program for a particular content type. Used in combination with the '-P auto' command-line switch.\n");;
 fprintf(stdout,"\nFeel free to email me and tell me if you've used this software!\n");
 
-fprintf(stdout,"\nThanks for bug reports go to: Philip Pi, Mark Gamar, Rich Kcsa, 'Rampant Badger', 'nibbles', 'deeice', Omair Eshkenazi, Matthias B, Ashish Disawal, Timo Juhani Lindfors, Abhisek Sanyal and others.\n");
+fprintf(stdout,"\nThanks for bug reports go to: 'Ant', Mark Gamar, Rich Kcsa, 'Rampant Badger', 'nibbles', 'deeice', Omair Eshkenazi, Matthias B, Ashish Disawal, Timo Juhani Lindfors, Abhisek Sanyal and others.\n");
 fprintf(stdout,"\nSpecial thanks to:\n");
 fprintf(stdout,"	'legatvs' for clive (http://clive.sourceforge.net) another downloader into whose code I had to look to figure out how to get youtube and daily motion working again.\n");
 fprintf(stdout,"	Robert Crowley (http://oldcoder.org/) For all sorts of bug reports and advice.\n");

@@ -17,6 +17,8 @@ cf_have_oss=no
 cf_have_libesd=no
 cf_have_sendfile=no
 cf_have_ptsname_r=no
+cf_have_setxattr=no
+cf_have_getxattr=no
 
 
 AC_CHECK_LIB(c,ptsname_r,,)
@@ -54,6 +56,12 @@ then
 AC_DEFINE([HAVE_MKOSTEMP])
 fi
 
+AC_CHECK_LIB(c,getxattr,,)
+cf_have_getxattr=$ac_cv_lib_c_getxattr
+if test "$cf_have_getxattr" = "yes"
+then
+AC_DEFINE([HAVE_XATTR])
+fi
 
 AC_ARG_ENABLE(sendfile, [  --enable-sendfile       enable sendfile support], cf_use_sendfile=$enableval )
 

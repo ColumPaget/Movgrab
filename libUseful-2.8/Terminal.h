@@ -23,6 +23,8 @@ typedef enum {ANSI_NONE, ANSI_BLACK, ANSI_RED, ANSI_GREEN, ANSI_YELLOW, ANSI_BLU
 #define TERM_SHOWTEXT  1
 #define TERM_SHOWSTARS 2
 #define TERM_SHOWTEXTSTARS 4
+#define TERM_HIDECURSOR 32
+#define TERM_RAWKEYS 64
 
 #define TERMBAR_UPPER 1
 #define TERMBAR_LOWER 2
@@ -52,20 +54,21 @@ char *Text;
 STREAM *Term;
 } TERMBAR;
 
-
+int TerminalStrLen(const char *Str);
 char *ANSICode(int Color, int BgColor, int Flags);
 int ANSIParseColor(const char *Str);
 int TermStrLen(const char *Str);
 int TerminalCommand(int Cmd, int Arg1, int Arg2, STREAM *S);
 char *TerminalFormatStr(char *RetStr, const char *Str);
 void TerminalPutStr(const char *Str, STREAM *S);
+void TerminalPutChar(int Char, STREAM *S);
 char *TerminalReadText(char *RetStr, int Flags, STREAM *S);
 char *TerminalReadPrompt(char *RetStr, const char *Prompt, int Flags, STREAM *S);
 void TerminalGeometry(STREAM *S, int *wid, int *len);
 TERMBAR *TerminalBarCreate(STREAM *Term, const char *Config, const char *Text);
 void TerminalBarUpdate(TERMBAR *TB, const char *Text);
 char *TerminalBarReadText(char *RetStr, TERMBAR *TB, const char *Prompt);
-int TerminalInit(STREAM *S);
+int TerminalInit(STREAM *S, int Flags);
 
 #ifdef __cplusplus
 }

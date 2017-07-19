@@ -4,6 +4,22 @@
 
 const char *ANSIColorStrings[]={"none","black","red","green","yellow","blue","magenta","cyan","white",NULL};
 
+int TerminalStrLen(const char *Str)
+{
+const char *ptr;
+int i=0;
+
+if (! Str) return(i);
+for (ptr=Str; *ptr !='\0'; ptr++)
+{
+if (*ptr=='~') ptr++;
+else i++;
+}
+
+
+return(i);
+}
+
 
 char *ANSICode(int Color, int BgColor, int Flags)
 {
@@ -261,18 +277,6 @@ for (ptr=Str; *ptr !='\0'; ptr++)
 			case '0': RetStr=TerminalCommandStr(RetStr, TERM_NORM, 0, 0); break;
 		}
 	}
-	else if (*ptr=='\\')
-	{
-		ptr++;
-		if (*ptr=='u')
-		{
-			ptr++;
-			if (! strntol(&ptr, 4, 16, &val)) break;
-			ptr--; //because of ptr++ on next loop
-			RetStr=TerminalCommandStr(RetStr, TERM_UNICODE, val, 0);
-		}
-		else RetStr=AddCharToStr(RetStr, *ptr);
-	}
 	else RetStr=AddCharToStr(RetStr, *ptr);
 }
 
@@ -292,6 +296,25 @@ DestroyString(Tempstr);
 }
 
 
+//this can put uinicode characters
+void TerminalPutChar(int Char, STREAM *S)
+{
+char *Tempstr=NULL;
+
+if (Char <= 0x7f) 
+{
+	if (S) STREAMWriteChar(S, Char);
+	else write(1, Char, 1);
+}
+else
+{
+Tempstr=UnicodeStr(Tempstr, Char);
+if (S) STREAMWriteLine(Tempstr, S);
+else write(1,Tempstr,StrLen(Tempstr));
+}
+
+DestroyString(Tempstr);
+}
 
 void TerminalPutStr(const char *Str, STREAM *S)
 {
@@ -310,7 +333,7 @@ char *TerminalReadText(char *RetStr, int Flags, STREAM *S)
 int inchar, len=0;
 char outchar;
 
-if (isatty(S->in_fd)) TTYConfig(S->in_fd, 0, TTYFLAG_CRLF);
+if (isatty(S->in_fd)) TTYConfig(S->in_fd, 0, TTYFLAG_CRLF_KEEP);
 inchar=STREAMReadChar(S);
 while (inchar != EOF)
 {
@@ -322,8 +345,16 @@ while (inchar != EOF)
 		case '\r':
 		break;
 
+		//'backspace' key on keyboard will send the 'del' character in some cases!
+		case 0x7f: //this is 'del'
 		case 0x08: //this is backspace
+		//backspace over previous character and erase it with whitespace!
+		if (len > 0)
+		{
+		STREAMWriteString("\x08 ",S);
+		outchar=0x08;
 		len--;
+		}
 		break;
 
 		default:
@@ -513,7 +544,7 @@ return(NULL);
 }
 
 
-int TerminalInit(STREAM *S)
+int TerminalInit(STREAM *S, int Flags)
 {
 int cols, rows, offset;
 char *Tempstr=NULL;
@@ -526,6 +557,8 @@ STREAMSetValue(S, "Terminal:cols", Tempstr);
 Tempstr=FormatStr(Tempstr,"%d",rows);
 STREAMSetValue(S, "Terminal:rows", Tempstr);
 
+if (Flags & TERM_HIDECURSOR) TerminalCursorHide(S);
+if (Flags & TERM_RAWKEYS) TTYConfig(S->in_fd, 0, 0);
 TerminalCommand(TERM_SCROLL_REGION, offset, rows-offset+1, S);
 TerminalCommand(TERM_CURSOR_MOVE, 0, offset, S);
 

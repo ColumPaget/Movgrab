@@ -21,12 +21,13 @@
 #include <ctype.h>
 
 #include "defines.h"
-#include "string.h"
-#include "list.h"
+#include "String.h"
+#include "List.h"
 #include "file.h"
 #include "socket.h"
 #include "openssl.h"
 #include "Vars.h"
+#include "Errors.h"
 #include "libsettings.h"
 #include "GeneralFunctions.h"
 #include "Tokenizer.h"

@@ -25,10 +25,25 @@ char *Tempstr=NULL;
 		DestroyString(Tempstr);
 }
 
+void LibUsefulSetHTTPFlag(int Flag, const char *Value)
+{
+int Flags;
+
+	if (strcasecmp(Value, "true")==0) Flags=HTTPGetFlags() | Flag;
+	else Flags=HTTPGetFlags() & ~Flag;
+	HTTPSetFlags(Flags);
+}
+
+
 
 void LibUsefulSetValue(const char *Name, const char *Value)
 {
 	if (! LibUsefulSettings) LibUsefulInitSettings();
+	if (strcasecmp(Name,"HttpDebug")==0) LibUsefulSetHTTPFlag(HTTP_DEBUG, Value);
+	if (strcasecmp(Name,"HttpNoCookies")==0) LibUsefulSetHTTPFlag(HTTP_NOCOOKIES, Value);
+	if (strcasecmp(Name,"HttpNoCompress")==0) LibUsefulSetHTTPFlag(HTTP_NOCOMPRESS, Value);
+	if (strcasecmp(Name,"HttpNoRedirect")==0) LibUsefulSetHTTPFlag(HTTP_NOREDIRECT, Value);
+	if (strcasecmp(Name,"HttpNoCache")==0) LibUsefulSetHTTPFlag(HTTP_NOCACHE, Value);
 	SetVar(LibUsefulSettings,Name,Value);
 }
 

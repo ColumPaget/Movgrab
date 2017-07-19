@@ -4,7 +4,7 @@
 #include "includes.h"
 #include "file.h"
 #include "GeneralFunctions.h"
-#include "string.h"
+#include "String.h"
 #include "pty.h"
 
 #include <sys/types.h>
@@ -237,7 +237,12 @@ if (Flags & TTYFLAG_NONBLOCK)
 
 tty=open(devname, flags);
 
-if ( tty <0) return(-1);
+if ( tty <0)
+{
+	RaiseError(ERRFLAG_ERRNO, "tty", "failed to open %s", devname);
+	return(-1);
+}
+
 TTYConfig(tty, LineSpeed, Flags);
 return(tty);
 }
@@ -295,8 +300,8 @@ char *Tempstr=NULL;
 *pty=open("/dev/ptmx",O_RDWR);
 if (*pty > -1)
 {
-	grantpt(*pty);
-	unlockpt(*pty);
+	if (grantpt(*pty)==-1) RaiseError(ERRFLAG_ERRNO, "pty", "grantpt failed");
+	if (unlockpt(*pty)==-1) RaiseError(ERRFLAG_ERRNO, "pty", "unlockpt failed");
 	SetStrLen(Tempstr,100);
 	if (ptsname_r(*pty,Tempstr,100) != 0) Tempstr=CopyStr(Tempstr,ptsname(*pty));
 	if (StrLen(Tempstr))
@@ -304,10 +309,16 @@ if (*pty > -1)
 		if ( (*tty=open(Tempstr,O_RDWR)) >-1)
 		{
 			TTYConfig(*tty,0,TermFlags);
+			DestroyString(Tempstr);
 			return(1);
 		}
+		else RaiseError(ERRFLAG_ERRNO, "pty", "failed to open %s", Tempstr);
 	}
 	close(*pty);
+}
+else 
+{
+	RaiseError(ERRFLAG_ERRNO, "pty", "failed to open /dev/ptmx");
 }
 #endif
 #endif
@@ -334,6 +345,7 @@ for (c1='p'; c1 < 's'; c1++)
 
 }
 
+RaiseError(0, "pty", "failed to grab pseudo tty");
 DestroyString(Tempstr);
 return(0);
 }

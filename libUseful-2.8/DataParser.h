@@ -9,6 +9,7 @@ extern "C" {
 
 typedef enum {PARSER_JSON, PARSER_XML, PARSER_YAML, PARSER_CONFIG, PARSER_INI, PARSER_FORK} EParsers;
 
+#define ITEM_ROOT   0
 #define ITEM_VALUE  1
 #define ITEM_ENTITY 2
 #define ITEM_ARRAY  3

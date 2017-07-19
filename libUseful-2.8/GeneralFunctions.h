@@ -17,6 +17,7 @@ int xsetenv(const char *Name, const char *Value);
 unsigned int fnv_hash(unsigned const char *key, int NoOfItems);
 
 char *CommaList(char *RetStr, const char *AddStr);
+void *ArrayGetItem(void *array[], int pos);
 
 int HexStrToBytes(char **Buffer, char *HexStr);
 char *BytesToHexStr(char *Buffer, char *Bytes, int len);
@@ -30,7 +31,6 @@ char *GetRandomAlphabetStr(char *RetBuff, int len);
 
 double FromMetric(const char *Data, int Type);
 const char *ToMetric(double Size, int Type);
-
 
 
 int LookupUID(const char *User);

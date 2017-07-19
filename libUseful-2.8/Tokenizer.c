@@ -1,6 +1,6 @@
 #include "includes.h"
 #include "Tokenizer.h"
-#include "string.h"
+#include "String.h"
 
 #define TOK_SPACE 1
 #define TOK_CODE  2

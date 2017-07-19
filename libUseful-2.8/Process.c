@@ -108,10 +108,12 @@ if (fd > -1)
   }
   else
   {
+		RaiseError(ERRFLAG_ERRNO, "WritePidFile", "Failed to lock pid file %s. Program already running?",Tempstr);
     close(fd);
     fd=-1;
   }
 }
+else RaiseError(ERRFLAG_ERRNO, "WritePidFile", "Failed to open pid file %s",Tempstr);
 
 //Don't close 'fd'!
 
@@ -136,7 +138,7 @@ const char *ptr;
 
   if ((uid==-1) || (setresuid(uid,uid,uid) !=0))
 	{
-		syslog(LOG_ERR,"ERROR: Switch to uid '%d' failed. Error was: %s",uid,strerror(errno));
+		RaiseError(ERRFLAG_ERRNO, "SwitchUID", "Switch user failed. uid=%d",uid);
 		ptr=LibUsefulGetValue("SwitchUserAllowFail");
 		if (ptr && (strcasecmp(ptr,"yes")==0)) return(FALSE);
 		exit(1);
@@ -158,10 +160,10 @@ int uid;
 int SwitchGID(int gid)
 {
 const char *ptr;
-
-	if ((gid==-1) && (setgid(gid) !=0))
+	
+	if ((gid==-1) || (setgid(gid) !=0))
 	{
-		syslog(LOG_ERR,"ERROR: Switch to group '%d' failed. Error was: %s", gid, strerror(errno));
+		RaiseError(ERRFLAG_ERRNO, "SwitchGID", "Switch group failed. gid=%d",gid);
 		ptr=LibUsefulGetValue("SwitchGroupAllowFail");
 		if (ptr && (strcasecmp(ptr,"yes")==0)) return(FALSE);
 		exit(1);
@@ -185,7 +187,11 @@ char *GetCurrUserHomeDir()
 struct passwd *pwent;
 
     pwent=getpwuid(getuid());
-    if (! pwent) return(NULL);
+    if (! pwent)
+		{
+			RaiseError(ERRFLAG_ERRNO, "getpwuid","Failed to get info for current user");
+			return(NULL);
+		}
     return(pwent->pw_dir);
 }
 
@@ -203,12 +209,18 @@ int fd, result;
 
 SetTimeout(Timeout);
 fd=open(FilePath, O_CREAT | O_RDWR, 0600);
-if (fd <0) return(-1);
+if (fd <0) 
+{
+	RaiseError(ERRFLAG_ERRNO, "lockfile","failed to open file %s", FilePath);
+	return(-1);
+}
+
 result=flock(fd,LOCK_EX);
 alarm(0);
 
 if (result==-1)
 {
+	RaiseError(ERRFLAG_ERRNO, "lockfile","failed to lock file %s", FilePath);
   close(fd);
   return(-1);
 }
@@ -245,7 +257,7 @@ struct sigaction sa;
 	
 
 	//this process is init, the child will carry on executation
-	chroot(".");
+	if (chroot(".") == -1) RaiseError(ERRFLAG_ERRNO, "chroot", "failed to chroot to curr directory");
 	ProcessSetTitle("init");
 	
 	memset(&sa,0,sizeof(sa));
@@ -381,7 +393,7 @@ else ProcessContainerInit(-1, -1, child);
 	mkdir("proc",0700);
 	FileSystemMount("","proc","proc","");
 
-	chroot(".");
+	if (chroot(".") == -1) RaiseError(ERRFLAG_ERRNO, "chroot", "failed to chroot to curr directory");
 	if (! (LibUsefulFlags & LU_ATEXIT_REGISTERED)) atexit(LibUsefulAtExit);
 	LibUsefulFlags |= LU_CONTAINER | LU_ATEXIT_REGISTERED;
 	
@@ -487,7 +499,10 @@ else
 
 // This allows us to chroot into a whole different unix directory tree, with its own
 // password file etc
-if (Flags & PROC_CHROOT) chroot(".");
+if (Flags & PROC_CHROOT)
+{
+	if (chroot(".") == -1) RaiseError(ERRFLAG_ERRNO, "chroot", "failed to chroot to curr directory");
+}
 
 //Look these up now. If PROC_CHROOT then we expect /etc/group and /etc/passwd within the 
 //chroot. if PROC_JAIL or PROC_CONTAINER, we are still in root filesystem, and grab uid gid
@@ -508,7 +523,10 @@ if (uid > 0) SwitchUID(uid);
 
 //Must do this last! After parsing Config, and also after functions like
 //SwitchUser that will need access to /etc/passwd
-if (Flags & PROC_JAIL) chroot(".");
+if (Flags & PROC_JAIL) 
+{
+	if (chroot(".") == -1) RaiseError(ERRFLAG_ERRNO, "chroot", "failed to chroot to curr directory");
+}
 
 DestroyString(HostName);
 DestroyString(Value);

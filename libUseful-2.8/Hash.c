@@ -1,5 +1,5 @@
 #include "Hash.h"
-#include "string.h"
+#include "String.h"
 
 #define HMAC_BLOCKSIZE 64
 
@@ -614,6 +614,7 @@ else if (strcasecmp(InitialType,"jh-512")==0) HashInitJH(Hash,512);
 else if (strncasecmp(InitialType,"hmac-",5)==0) HMACInit(Hash);
 else 
 {
+	RaiseError(0, "HashInit", "Unsupported Hash Type '%s'",InitialType);
 	HashDestroy(Hash);
 	Hash=NULL;
 }

@@ -3,7 +3,8 @@
 #include "Log.h"
 #include "pty.h"
 #include "file.h"
-#include "string.h"
+#include "String.h"
+#include "Errors.h"
 #include <sys/ioctl.h>
 
 
@@ -53,6 +54,7 @@ execv(argv[0],argv);
 }
 else result=execl("/bin/sh","/bin/sh","-c",(char *) Command,NULL);
 
+RaiseError(ERRFLAG_ERRNO, "Spawn", "Failed to execute '%s'",Command);
 //We'll never get to here unless something fails!
 DestroyString(FinalCommand);
 DestroyString(Token);
@@ -68,6 +70,7 @@ pid_t pid;
 
 LogFileFlushAll(TRUE);
 pid=fork();
+if (pid==-1) RaiseError(ERRFLAG_ERRNO, "fork", "");
 if (pid==0)
 {
 	ProcessApplyConfig(Config);

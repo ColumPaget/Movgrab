@@ -1,4 +1,4 @@
-#include "expect.h"
+#include "Expect.h"
 #include "ssh.h"
 #include "pty.h"
 #include "SpawnPrograms.h"
@@ -10,7 +10,8 @@ char *Tempstr=NULL, *KeyFile=NULL, *Token=NULL;
 STREAM *S;
 int val, i;
 
-Tempstr=MCopyStr(Tempstr,"ssh -2 -T ",User,"@",Host, " ", NULL );
+if (StrValid(User)) Tempstr=MCopyStr(Tempstr,"ssh -2 -T ",User,"@",Host, " ", NULL );
+else Tempstr=MCopyStr(Tempstr,"ssh -2 -T ",Host, " ", NULL );
 
 if (Port > 0)
 {
@@ -24,9 +25,10 @@ if (strncmp(Pass,"keyfile:",8)==0)
 	Tempstr=MCatStr(Tempstr,"-i ",KeyFile," ",NULL);
 }
 
-if (StrLen(Command))
+if (StrValid(Command))
 {
 	if (strcmp(Command,"none")==0) Tempstr=CatStr(Tempstr, "-N ");
+	else if (strncmp(Command, "tunnel:",7)==0) Tempstr=MCatStr(Tempstr,"-N -L ", Command+7, NULL);
 	else Tempstr=MCatStr(Tempstr, "\"", Command, "\" ", NULL);
 }
 Tempstr=CatStr(Tempstr, " 2> /dev/null");
@@ -35,7 +37,7 @@ Tempstr=CatStr(Tempstr, " 2> /dev/null");
 S=STREAMSpawnCommand(Tempstr,"pty,crlf,ignsig");
 if (S)
 {
-if (StrLen(KeyFile)==0)
+if (StrValid(User) && (! StrValid(KeyFile)))
 {
   Dialog=ListCreate();
   ExpectDialogAdd(Dialog, "Are you sure you want to continue connecting (yes/no)?", "yes\n", DIALOG_OPTIONAL);

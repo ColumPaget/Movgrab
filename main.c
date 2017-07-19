@@ -49,7 +49,7 @@ StdIn=STREAMFromFD(0);
 STREAMSetTimeout(StdIn,0);
 
 DownloadQueue=ListCreate();
-Tempstr=MCopyStr(Tempstr,GetCurrUserHomeDir(), ".movgrab.conf", NULL);
+Tempstr=MCopyStr(Tempstr,GetCurrUserHomeDir(), "/.movgrab.conf", NULL);
 if (! ParsePreferencesFile(Tempstr)) ParsePreferencesFile("/etc/movgrab.conf");
 ParseEnvironmentVariables();
 

@@ -5,7 +5,8 @@
 #include "URL.h"
 #include "Time.h"
 #include "base64.h"
-#include "securemem.h"
+#include "SecureMem.h"
+#include "Errors.h"
 
 const char *HTTP_AUTH_BY_TOKEN="AuthTokenType";
 ListNode *Cookies=NULL;
@@ -966,7 +967,7 @@ DestroyString(Token);
 int HTTPProcessResponse(HTTPInfoStruct *HTTPInfo)
 {
 int result=HTTP_ERROR;
-char *Proto=NULL, *PortStr=NULL;
+char *Proto=NULL, *Tempstr=NULL;
 int RCode;
 
 if (HTTPInfo->ResponseCode)
@@ -1002,8 +1003,8 @@ switch (RCode)
 
 	//As redirect check has been done, we can copy redirect path to previous
 	HTTPInfo->PreviousRedirect=CopyStr(HTTPInfo->PreviousRedirect,HTTPInfo->RedirectPath);
-	ParseURL(HTTPInfo->RedirectPath, &Proto, &HTTPInfo->Host, &PortStr,NULL, NULL,&HTTPInfo->Doc,NULL);
-	HTTPInfo->Port=atoi(PortStr);
+	ParseURL(HTTPInfo->RedirectPath, &Proto, &HTTPInfo->Host, &Tempstr,NULL, NULL,&HTTPInfo->Doc,NULL);
+	HTTPInfo->Port=atoi(Tempstr);
 
 	//if HTTP_SSL_REWRITE is set, then all redirects get forced to https
 	if (HTTPInfo->Flags & HTTP_SSL_REWRITE) Proto=CopyStr(Proto,"https");
@@ -1037,12 +1038,16 @@ switch (RCode)
 	default:
 	result=HTTP_NOTFOUND;
 	break;
-
 }
+}
+
+if (result == HTTP_NOTFOUND) 
+{
+	RaiseError(0, "http", HTTPInfo->ResponseCode);
 }
 
 DestroyString(Proto);
-DestroyString(PortStr);
+DestroyString(Tempstr);
 
 return(result);
 }
@@ -1101,6 +1106,7 @@ if (STREAMConnect(S,Tempstr,Flags))
 }
 else
 {
+	RaiseError(ERRFLAG_ERRNO, "http", "failed to connect to %s:%d",Host,Port);
 	STREAMClose(S);
 	S=NULL;
 }

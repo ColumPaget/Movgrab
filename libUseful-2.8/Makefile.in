@@ -4,7 +4,7 @@ CFLAGS = @CFLAGS@
 LIBS = @LIBS@
 FLAGS=$(LDFLAGS) $(CPPFLAGS) $(CFLAGS) -fPIC @DEFS@ -DHAVE_MADVISE -DHAVE_MADVISE_NOFORK -DHAVE_MADVISE_DONTDUMP -DHAVE_MLOCK
 prefix=@prefix@
-OBJ=string.o list.o socket.o unix_socket.o file.o tar.o Terminal.o FileSystem.o GeneralFunctions.o DataProcessing.o EncryptedFiles.o g711.o sound.o pty.o Log.o http.o inet.o expect.o base64.o  crc32.o md5c.o sha1.o sha2.o whirlpool.o jh_ref.o Hash.o ssh.o Compression.o oauth.o libsettings.o Vars.o Time.o Markup.o SpawnPrograms.o Tokenizer.o PatternMatch.o URL.o DataParser.o ConnectionChain.o openssl.o Process.o Encodings.o RawData.o securemem.o
+OBJ=String.o List.o socket.o unix_socket.o file.o Errors.o Terminal.o FileSystem.o GeneralFunctions.o DataProcessing.o pty.o Log.o http.o inet.o Expect.o base64.o  crc32.o md5c.o sha1.o sha2.o whirlpool.o jh_ref.o Hash.o ssh.o Compression.o oauth.o libsettings.o Vars.o Time.o Markup.o SpawnPrograms.o Tokenizer.o PatternMatch.o URL.o DataParser.o ConnectionChain.o openssl.o Process.o Encodings.o RawData.o SecureMem.o
 
 
 all: $(OBJ)
@@ -13,20 +13,14 @@ all: $(OBJ)
 	ar rcs libUseful-2.8.a $(OBJ)
 
 
-string.o: string.h string.c
-	$(CC) $(FLAGS) -c string.c
+String.o: String.h String.c
+	$(CC) $(FLAGS) -c String.c
 
-list.o: list.h list.c
-	$(CC) $(FLAGS) -c list.c
+List.o: List.h List.c
+	$(CC) $(FLAGS) -c List.c
 
 socket.o: socket.h socket.c
 	$(CC) $(FLAGS) -c socket.c
-
-g711.o: g711.h g711.c
-	$(CC) $(FLAGS) -c g711.c
-
-sound.o: sound.h sound.c
-	$(CC) $(FLAGS) -c sound.c
 
 pty.o: pty.h pty.c
 	$(CC) $(FLAGS) -c pty.c
@@ -37,11 +31,12 @@ http.o: http.h http.c
 file.o: file.h file.c
 	$(CC) $(FLAGS) -c file.c
 
-tar.o: tar.h tar.c
-	$(CC) $(FLAGS) -c tar.c
-
 Terminal.o: Terminal.h Terminal.c
 	$(CC) $(FLAGS) -c Terminal.c
+
+Errors.o: Errors.h Errors.c
+	$(CC) $(FLAGS) -c Errors.c
+
 
 Log.o: Log.h Log.c
 	$(CC) $(FLAGS) -c Log.c
@@ -73,20 +68,17 @@ DataParser.o: DataParser.h DataParser.c
 inet.o: inet.h inet.c
 	$(CC) $(FLAGS) -c inet.c
 
-expect.o: expect.h expect.c
-	$(CC) $(FLAGS) -c expect.c
+Expect.o: Expect.h Expect.c
+	$(CC) $(FLAGS) -c Expect.c
 
-securemem.o: securemem.h securemem.c
-	$(CC) $(FLAGS) -c securemem.c
+SecureMem.o: SecureMem.h SecureMem.c
+	$(CC) $(FLAGS) -c SecureMem.c
 
 GeneralFunctions.o: GeneralFunctions.h GeneralFunctions.c
 	$(CC) $(FLAGS) -c GeneralFunctions.c
 
 DataProcessing.o: DataProcessing.h DataProcessing.c
 	$(CC) $(FLAGS) -c DataProcessing.c
-
-EncryptedFiles.o: EncryptedFiles.h EncryptedFiles.c
-	$(CC) $(FLAGS) -c EncryptedFiles.c
 
 Hash.o: Hash.h Hash.c
 	$(CC) $(FLAGS) -c Hash.c

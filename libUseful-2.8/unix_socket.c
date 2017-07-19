@@ -2,6 +2,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include "Errors.h"
 
 // crazyshit function because different implementations treat
 // sun_path differently, so we have to derive a safe length for it!
@@ -83,7 +84,11 @@ int result;
 //if (Type==0) Type=SOCK_STREAM;
 sock=socket(PF_UNIX, Type, 0);
 
-if (sock <0) return(-1);
+if (sock <0) 
+{
+	if (result != 0) RaiseError(ERRFLAG_ERRNO, "UnixServerInit","failed to create a unix socket.");
+	return(-1);
+}
 
 //No reason to pass server/listen sockets across an exec
 fcntl(sock, F_SETFD, FD_CLOEXEC);
@@ -91,12 +96,13 @@ fcntl(sock, F_SETFD, FD_CLOEXEC);
 unlink(Path);
 sun_set_path(&sa, Path);
 salen=sizeof(struct sockaddr_un);
-result=bind(sock,(struct sockaddr_un *) &sa, salen);
+result=bind(sock,(struct sockaddr *) &sa, salen);
 
-if (result != 0) perror("bind: ");
-if ((result==0) && (Type==SOCK_STREAM))
+if (result != 0) RaiseError(ERRFLAG_ERRNO, "UnixServerInit","failed to bind unix sock to %s.",Path);
+else if (Type==SOCK_STREAM)
 {
- result=listen(sock,10);
+	result=listen(sock,10);
+	if (result != 0) RaiseError(ERRFLAG_ERRNO, "UnixServerInit","failed to 'listen' on unix sock %s.",Path);
 }
 
 if (result==0) return(sock);

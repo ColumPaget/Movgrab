@@ -1,56 +1,52 @@
-Hashing functions. Call 'HashInit'
+#ifndef LIBUSEFUL_HASH_H
+#define LIBUSEFUL_HASH_H
 
-THash *HashInit(char *Type);
+//if you load Hash.h you'll want Encodings.h too
+#include "Encodings.h"
+#include "file.h"
+#include "includes.h"
 
-passing in a type (either "sha1", "md5" or "crc32". This will return a THash structure (or NULL on error). The Hash structure contains too functions, 'Update' and 'Finish', of the forms:
 
-Hash->Update(THash *Hash, char *Data, int DataLen);
-Hash->Finish(THash *Hash, int Encoding, char **RetStr);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-The 'Encoding' argument to 'Finish' can be either of the #defined values ENCODE_HEX or ENCODE_BASE64.
+typedef struct t_hash HASH;
 
-Example:
+typedef void (*HASH_UPDATE)(HASH *Hash, const char *Data, int DataLen);
+typedef HASH *(*HASH_CLONE)(HASH *Hash);
+typedef int (*HASH_FINISH)(HASH *Hash, char **RetStr);
 
-THash *Hash;
-STREAM *S;
-char *Tempstr=NULL;
-int result;
-
-Hash=InitHash("md5");
-S=STREAMOpenFile("testfile",O_RDONLY);
-
-if (S)
+struct t_hash
 {
-	Tempstr=SetStrLen(Tempstr,4096);
-	result=STREAMReadBytes(S,Tempstr,4096);
-	while (Tempstr)
-	{
-		Hash->Update(Hash,Tempstr,result);
-		result=STREAMReadBytes(S,Tempstr,4096);
-	}
+char *Type;
+//this is a placeholder used only by classlibraries for scripting langauges
+int Encoding;
+char *Key1;
+unsigned int Key1Len;
+char *Key2;
+unsigned int Key2Len;
+void *Ctx;
+HASH_UPDATE Update;
+HASH_FINISH Finish;
+HASH_CLONE Clone;
+};
 
-	Hash->Finish(Hash,ENCODE_HEX,&Tempstr);
-  printf("MD5 Digest of file is: %s\n",Tempstr);
-STREAMClose(S);
+int HashEncodingFromStr(const char *Str);
+char *HashAvailableTypes(char *RetStr);
+HASH *HashInit(const char *Type);
+int HashFinish(HASH *Hash, int Encoding, char **Return);
+void HMACSetKey(HASH *HMAC, const char *Key, int Len);
+void HashDestroy(HASH *Hash);
+int HashBytes(char **Return, const char *Type, const char *text, int len, int Encoding);
+int HashBytes2(const char *Type, int Encoding, const char *text, int len, char **RetStr);
+int HashFile(char **Return, const char *Type, const char *Path, int Encoding);
+int PBK2DF2(char **Return, char *Type, char *Bytes, int Len, char *Salt, int SaltLen, uint32_t Rounds, int Encoding);
+
+#ifdef __cplusplus
 }
-else printf("Couldn't open file\n");
+#endif
 
 
 
-char *HashBytes(char *Return, char *Type, char *text, int len, int Encoding);
-
-A simpler interface to the hashing functions, for when you just want to hash a string of bytes.
-
-Example
-
-char *Str="I wonder what the sha1 hash of this sentence is?";
-char *Digest=NULL;
-
-Digest=HashBytes(Digest,"sha1",Str,StrLen,ENCODE_HEX);
-
-printf("hash is: %s\n",Digest);
-
-
-char *EncodeBase64(char *Return, char *Text, int len);
-char *DecodeBase64(char *Return, int *len, char *Text);
-
+#endif

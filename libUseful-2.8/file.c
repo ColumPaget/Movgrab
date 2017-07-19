@@ -3,12 +3,12 @@
 #include "SpawnPrograms.h"
 #include "pty.h"
 #include "URL.h"
-#include "expect.h"
+#include "Expect.h"
 #include "http.h"
 #include "ssh.h"
 #include "pty.h"
 #include <sys/file.h>
-#include "securemem.h"
+#include "SecureMem.h"
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
@@ -638,11 +638,16 @@ if (Flags & SF_CREATE) Mode|=O_CREAT;
 		#endif
 		p_Path=NewPath;
 	}
-	else fd=open(Path, Mode, 0600);
+	else 
+	{
+		fd=open(Path, Mode, 0600);
+		p_Path=Path;
+	}
 
 
 	if (fd==-1) 
 	{
+		RaiseError(ERRFLAG_ERRNO, "STREAMFileOpen", "failed to open %s", p_Path);
 		DestroyString(NewPath);
 		return(NULL);
 	}
@@ -661,6 +666,7 @@ if (Flags & SF_CREATE) Mode|=O_CREAT;
 	{
 		if (flock(fd,LOCK_SH | LOCK_NB)==-1)
 		{
+			RaiseError(ERRFLAG_ERRNO, "STREAMFileOpen", "file lock requested but failed %s", p_Path);
 			close(fd);
 			DestroyString(NewPath);
 			return(NULL);
@@ -677,6 +683,7 @@ if (Flags & SF_CREATE) Mode|=O_CREAT;
 	{
 		if (lstat(p_Path, &myStat) !=0)
 		{
+			RaiseError(ERRFLAG_ERRNO, "STREAMFileOpen", "cannot stat %s", p_Path);
 			close(fd);
 			DestroyString(NewPath);
 			return(NULL);
@@ -684,7 +691,7 @@ if (Flags & SF_CREATE) Mode|=O_CREAT;
 	
 		if (S_ISLNK(myStat.st_mode))
 		{
-			syslog(LOG_USER | LOG_WARNING, "STREAMOpen Opened symlink when trying to open %s. Possible DOS attack?",Path);
+			RaiseError(0, "STREAMFileOpen", "%s is a symlink, but not not in 'symlink okay' mode", p_Path);
 	 		close(fd);
 			DestroyString(NewPath);
 	 		return(NULL);
@@ -1671,8 +1678,10 @@ int match=0, termlen=0, inchar;
 if (len) *len=0;
 termlen=StrLen(Term);
 inchar=STREAMReadChar(S);
+
 while (inchar !=EOF)
 {
+
 	if (RetStr && len && (inchar > -1)) *RetStr=AddCharToBuffer(*RetStr, (*len)++, inchar);
 
 	if (termlen > 0)

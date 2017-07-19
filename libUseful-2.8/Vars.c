@@ -1,6 +1,6 @@
 #include "includes.h"
 #include "defines.h"
-#include "list.h"
+#include "List.h"
 #include "Time.h"
 
 ListNode *SetDetailVar(ListNode *Vars, const char *Name, const char *Data, int ItemType, time_t Time)
