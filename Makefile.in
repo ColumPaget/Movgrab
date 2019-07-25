@@ -58,3 +58,6 @@ extract_text.o: extract_text.c extract_text.h
 install:
 	$(INSTALL) -d $(DESTDIR)$(bindir)
 	$(INSTALL) movgrab $(DESTDIR)$(bindir)
+
+test:
+	echo "no tests"
