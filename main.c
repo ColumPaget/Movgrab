@@ -96,6 +96,7 @@ while (1)
 		{
 			fprintf(stderr,"Checking %-20s ",Curr->Tag);
 			fflush(NULL);
+			LibUsefulSetValue("Error:Silent", "Y");
 		}
 
 

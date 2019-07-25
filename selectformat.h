@@ -3,6 +3,6 @@
 
 #include "common.h"
 
-int SelectDownloadFormat(ListNode *Vars, int WebsiteType, int DisplaySize);
+int SelectDownloadFormat(ListNode *Vars, int WebsiteType);
 
 #endif

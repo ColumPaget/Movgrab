@@ -51,6 +51,7 @@ fprintf(stdout,"'-tw <int>'		Set max width of item title in progress display (De
 fprintf(stdout,"'-np <path>'	File to write current title to. Useful as 'now playing' for internet radio streams\n");
 fprintf(stdout,"'-t'		specifies website type.\n");
 fprintf(stdout,"'-r'		Resume download (only works when writing a single file, not with +o).\n");
+fprintf(stdout,"'-s'		Display sizes of available media (this slows things down a bit).\n");
 fprintf(stdout,"'-f'		specifies preferred video/audio formats for sites that offer more than one\n");
 fprintf(stdout,"			example: flv:640x480,flv,mp4,mp3\n");
 fprintf(stdout,"			Use -T to get a list of formats the site offers\n");
@@ -200,6 +201,7 @@ for (i=1; i < argc; i++)
 	else if (strcmp(argv[i],"-w")==0) Flags |= FLAG_STDIN;
 	else if (strcmp(argv[i],"-dt")==0) DisplayTitleWidth=atoi(argv[++i]);
 	else if (strcmp(argv[i],"-np")==0) Settings.NowPlayingFile=CopyStr(Settings.NowPlayingFile, argv[++i]);
+	else if (strcmp(argv[i],"-s")==0) Flags |= FLAG_DOWNLOAD_SIZE;
 	else if (strcmp(argv[i],"-st")==0) Settings.STREAMTimeout=atoi(argv[++i]);
 	else if (strcmp(argv[i],"-P")==0) SetPlayer(argv[++i]);
 	else if (strcmp(argv[i],"-Pp")==0) Settings.PlayerLaunchPercent=atoi(argv[++i]);
@@ -215,15 +217,12 @@ for (i=1; i < argc; i++)
 		Flags |= FLAG_TEST_SITES | FLAG_QUIET;
 		for (j=1; TestLinks[j] !=NULL; j++)
 		{
-		if (StrLen(TestLinks[j])) ListAddNamedItem(DL_List,DownloadTypes[j],CopyStr(NULL,TestLinks[j]));
+		if (StrValid(TestLinks[j])) ListAddNamedItem(DL_List,DownloadTypes[j],CopyStr(NULL,TestLinks[j]));
 			
 		}
 		Settings.ItemSelectArg=CopyStr(Settings.ItemSelectArg,"0");
 	}
-	else
-	{
-		ListAddItem(DL_List, CopyStr(NULL,argv[i]));
-	}	
+	else ListAddItem(DL_List, CopyStr(NULL,argv[i]));
 
 }
 

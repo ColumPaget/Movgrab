@@ -3,7 +3,7 @@
 #define MOVGRAB_COMMON
 
 //This is doable through autoconf, but I'm sick of fighting with it
-#define Version "3.1.2"
+#define Version "4.0"
 
 #include "libUseful/libUseful.h"
 #include <string.h>
@@ -32,6 +32,7 @@
 #define FLAG_POST 262144
 #define FLAG_PLAYER_AUTO 524288
 #define FLAG_NOOUT 1048576
+#define FLAG_DOWNLOAD_SIZE 2097152
 
 
 extern int Type, Flags;

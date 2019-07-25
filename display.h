@@ -5,7 +5,7 @@
 
 extern int DisplayTitleWidth;
 
-int DisplayAvailableFormats(ListNode *Vars, char *Formats, int ShowSize);
+int DisplayAvailableFormats(ListNode *Vars, char *Formats);
 void DisplayProgress(const char *FullTitle, const char *Format, double bytes_read, double DocSize, int PrintName);
 
 #endif

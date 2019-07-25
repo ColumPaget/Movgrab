@@ -8,7 +8,7 @@ extern char *CmdLine, *ProgName;
 
 
 
-int DisplayAvailableFormats(ListNode *Vars, char *Formats, int ShowSize)
+int DisplayAvailableFormats(ListNode *Vars, char *Formats)
 {
 char *URL=NULL, *Token=NULL, *TokenID=NULL, *Tempstr=NULL, *ptr;
 STREAM *S;
@@ -27,7 +27,7 @@ if (strcmp(Token,"reference") !=0)
 {
 	fprintf(stderr,"%s",Token);
 
-	if (ShowSize)
+	if (Flags & FLAG_DOWNLOAD_SIZE)
 	{
 	S=STREAMOpen(URL, "H");
 	if (S)

@@ -42,7 +42,7 @@ return(FALSE);
 //this function compares the video formats found on the page to the list of
 //preferences expressed by the user with the '-f' flag, and contained in the
 //global variable 'Settings.FormatPreference'
-int SelectDownloadFormat(ListNode *Vars, int WebsiteType, int DisplaySize)
+int SelectDownloadFormat(ListNode *Vars, int WebsiteType)
 {
 ListNode *Curr;
 char *ptr, *Tempstr=NULL, *Fmt=NULL, *FmtID=NULL, *Selected=NULL, *p_ItemFormat;
@@ -53,7 +53,7 @@ Tempstr=GatherMatchingFormats(Tempstr,"",Vars);
 	{
 	for (i=0; i < 3; i++)
 	{
- 		if (DisplayAvailableFormats(Vars, Tempstr, DisplaySize)) break;
+ 		if (DisplayAvailableFormats(Vars, Tempstr)) break;
 		//printf("Connection Refused, sleeping for 20 secs before retry\n");
 		//sleep(10);
 		break;
