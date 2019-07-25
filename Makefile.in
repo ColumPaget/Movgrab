@@ -10,7 +10,7 @@ OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_te
 
 all: $(OBJ)
 	@cd libUseful; $(MAKE)
-	$(CC) $(FLAGS) -o movgrab main.c $(LIBS) $(OBJ) libUseful/libUseful.a
+	$(CC) $(FLAGS) -o movgrab main.c $(OBJ) libUseful/libUseful.a $(LIBS) 
 
 clean:
 	@rm -f movgrab *.o libUseful/*.o libUseful/*.a libUseful/*.so config.log config.status
