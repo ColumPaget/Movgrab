@@ -6,6 +6,8 @@ os:
 before_install:
   - sudo apt-get install -y openssl
 
+script: ./configure --enable-ssl && make
+
 compiler:
   - clang
   - gcc
