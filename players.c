@@ -13,7 +13,7 @@ ptr=GetToken(Config,"\\S",&ContentType,GETTOKEN_QUOTES);
 if (! Players) Players=ListCreate();
 SetVar(Players,ContentType,ptr);
 
-DestroyString(ContentType);
+Destroy(ContentType);
 }
 
 
@@ -61,7 +61,7 @@ if (S)
 	PlayerPid=atoi(STREAMGetValue(S, "PeerPID"));
 }
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 }
 
 

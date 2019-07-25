@@ -24,9 +24,9 @@ if (width && height && StrValid(URL))
 	SetVar(Vars,Value,URL);
 }
 
-DestroyString(Name);
-DestroyString(Value);
-DestroyString(URL);
+Destroy(Name);
+Destroy(Value);
+Destroy(URL);
 
 return(ptr);
 }
@@ -45,5 +45,5 @@ IGN_DecodeLine(Token, Vars);
 ptr=strstr(ptr,"{\"url\":");
 }
 
-DestroyString(Token);
+Destroy(Token);
 }

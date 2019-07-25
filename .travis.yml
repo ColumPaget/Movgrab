@@ -1,0 +1,12 @@
+language: c
+
+os:
+  - linux
+
+before_install:
+  - sudo apt-get install -y libssl
+  - sudo apt-get install -y libssl-dev
+
+compiler:
+  - clang
+  - gcc

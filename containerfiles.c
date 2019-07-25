@@ -26,7 +26,7 @@ ptr=strrchr(Tempstr,'.');
 
 val=MatchTokenFromList(ptr,ContainerTypes,0);
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 if (val==-1) return(TYPE_NONE);
 
 if (Flags & FLAG_DEBUG2) fprintf(stderr,"CONTAINERTYPE: %s\n",ContainerTypes[val]);
@@ -77,8 +77,8 @@ double len=0, ApproxDocSize=0, BytesRead=0;
 	}
 	CloseOutputFiles("");
 
-DestroyString(Tempstr);
-DestroyString(Token);
+Destroy(Tempstr);
+Destroy(Token);
 
 return(TRUE);
 }
@@ -105,11 +105,11 @@ while (ptr)
 if (StrValid(Resolution)) *VarName=MCopyStr(*VarName, "item:m3u8-stream:", Resolution, NULL);
 else *VarName=MCopyStr(*VarName, "item:m3u8-stream:", Bandwidth, NULL);
 
-DestroyString(Name);
-DestroyString(Value);
-DestroyString(Codec);
-DestroyString(Resolution);
-DestroyString(Bandwidth);
+Destroy(Name);
+Destroy(Value);
+Destroy(Codec);
+Destroy(Resolution);
+Destroy(Bandwidth);
 }
 
 
@@ -158,11 +158,11 @@ while (Curr)
 }
 CloseOutputFiles(Extn);
 
-ListDestroy(Segments, DestroyString);
+ListDestroy(Segments, Destroy);
 
-DestroyString(Tempstr);
-DestroyString(Line);
-DestroyString(Extn);
+Destroy(Tempstr);
+Destroy(Line);
+Destroy(Extn);
 
 return(RetVal);
 }
@@ -217,10 +217,10 @@ if (Con)
 
 if (IsStream) UnsetVar(Vars,"item:m3u8");
 
-DestroyString(Resolution);
-DestroyString(Tempstr);
-DestroyString(Server);
-DestroyString(Value);
-DestroyString(Proto);
-DestroyString(Name);
+Destroy(Resolution);
+Destroy(Tempstr);
+Destroy(Server);
+Destroy(Value);
+Destroy(Proto);
+Destroy(Name);
 }

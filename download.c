@@ -57,8 +57,8 @@ else if (Flags & FLAG_DEBUG)
 	else fprintf(stderr,"HTTP Response: %s\n",STREAMGetValue(Con, "HTTP:ResponseCode"));
 }
 
-DestroyString(Tempstr);
-DestroyString(Method);
+Destroy(Tempstr);
+Destroy(Method);
 
 return(Con);
 }
@@ -102,7 +102,7 @@ CheckForKeyboardInput();
 
 }
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 
 return(Con);
 }
@@ -138,9 +138,9 @@ char *Tempstr=NULL, *Name=NULL, *Value=NULL, *ptr;
 		}
 	}
 
-DestroyString(Tempstr);
-DestroyString(Name);
-DestroyString(Value);
+Destroy(Tempstr);
+Destroy(Name);
+Destroy(Value);
 }
 
 
@@ -197,9 +197,9 @@ RetVal=TRUE;
 
 DisplayProgress(Title, Format, *BytesRead,DocSize,FALSE);
 
-DestroyString(Tempstr);
-DestroyString(Buffer);
-DestroyString(Title);
+Destroy(Tempstr);
+Destroy(Buffer);
+Destroy(Title);
 
 return(RetVal);
 }
@@ -271,10 +271,10 @@ if (Con)
 }
 
 
-DestroyString(ContentType);
-DestroyString(Tempstr);
-DestroyString(Extn);
-DestroyString(Token);
+Destroy(ContentType);
+Destroy(Tempstr);
+Destroy(Extn);
+Destroy(Token);
 
 return(RetVal);
 }
@@ -299,8 +299,8 @@ if (S)
 }
 else if (! (Flags & FLAG_QUIET)) fprintf(stderr,"ERROR: failed to Connect to %s\n",URL);
 
-DestroyString(Tempstr);
-DestroyString(Token);
+Destroy(Tempstr);
+Destroy(Token);
 
 return(RetVal);
 }

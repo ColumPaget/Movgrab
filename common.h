@@ -5,7 +5,7 @@
 //This is doable through autoconf, but I'm sick of fighting with it
 #define Version "3.1.2"
 
-#include "libUseful-2.8/libUseful.h"
+#include "libUseful/libUseful.h"
 #include <string.h>
 #include <glob.h>
 #include "extract_text.h"

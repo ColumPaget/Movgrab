@@ -1,5 +1,4 @@
 CC = gcc
-VERSION = 1.2.1
 CFLAGS = -g -O2
 LIBS = -lcrypto -lssl -lz 
 INSTALL=/bin/install -c
@@ -10,11 +9,11 @@ FLAGS=$(CFLAGS) -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\
 OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_text.o download.o display.o players.o selectformat.o ehow.o ign.o youtube.o 
 
 all: $(OBJ)
-	@cd libUseful-2.8; $(MAKE)
-	$(CC) $(FLAGS) -o movgrab main.c $(LIBS) $(OBJ) libUseful-2.8/libUseful-2.8.a
+	@cd libUseful; $(MAKE)
+	$(CC) $(FLAGS) -o movgrab main.c $(LIBS) $(OBJ) libUseful/libUseful.a
 
 clean:
-	@rm -f movgrab *.o libUseful-2.8/*.o libUseful-2.8/*.a libUseful-2.8/*.so config.log config.status
+	@rm -f movgrab *.o libUseful/*.o libUseful/*.a libUseful/*.so config.log config.status
 
 common.o: common.c common.h
 	$(CC) $(FLAGS) -c common.c

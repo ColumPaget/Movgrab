@@ -32,8 +32,8 @@ else ItemType=FormatStr(ItemType,"item:%s:%dx%d",ptr,wide,high);
 SetVar(Vars,ItemType,Tempstr);
 
 
-DestroyString(PlayerData);
-DestroyString(ItemType);
-DestroyString(Tempstr);
+Destroy(PlayerData);
+Destroy(ItemType);
+Destroy(Tempstr);
 }
 

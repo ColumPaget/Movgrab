@@ -10,7 +10,7 @@ char *Tempstr=NULL;
 Tempstr=MCopyStr(Tempstr,"https://www.google.com/accounts/ServiceLoginAuth?service=youtube&Email=",Username,"&Passwd=",Password,"&signIn=Sign in","&continue=http://www.youtube.com/signin?action_handle_signin=true&next=",NULL);
 //S=HTTPGet("https://www.google.com/accounts/ServiceLogin?uilel=3&service=youtube&passive=true");
 
-S=HTTPGet(Tempstr,"","");
+S=STREAMOpen(Tempstr,"");
 Tempstr=STREAMReadLine(Tempstr,S);
 while (Tempstr)
 {
@@ -19,7 +19,7 @@ fprintf(stderr,"%s\n",Tempstr);
 Tempstr=STREAMReadLine(Tempstr,S);
 }
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 }
 
 
@@ -44,9 +44,9 @@ ptr=GetNameValuePair(ptr,"&","=",&Name,&Value);
 }
 
 *URL=CatStr(*URL,Extra);
-DestroyString(Name);
-DestroyString(Value);
-DestroyString(Extra);
+Destroy(Name);
+Destroy(Value);
+Destroy(Extra);
 }
 
 
@@ -167,9 +167,9 @@ while (ptr)
 ptr=GetToken(ptr,",",&Token,0);
 }
 
-DestroyString(TypeCode);
-DestroyString(URL);
-DestroyString(Token);
-DestroyString(Tempstr);
+Destroy(TypeCode);
+Destroy(URL);
+Destroy(Token);
+Destroy(Tempstr);
 }
 

@@ -21,11 +21,11 @@ else BasePath=FormatStr(BasePath, "%s://%s/", Proto,Host);
 if (*SubItem=='/') RetStr=MCopyStr(RetStr, BasePath, SubItem, NULL);
 else RetStr=MCopyStr(RetStr, BasePath, Path, "/", SubItem, NULL);
 
-DestroyString(Proto);
-DestroyString(Host);
-DestroyString(Port);
-DestroyString(Path);
-DestroyString(BasePath);
+Destroy(Proto);
+Destroy(Host);
+Destroy(Port);
+Destroy(Path);
+Destroy(BasePath);
 
 return(RetStr);
 }
@@ -78,7 +78,7 @@ RetStr=MCopyStr(RetBuf,"item:",ptr,NULL);
 }
 else RetStr=CopyStr(RetBuf,Default);
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 return(RetStr);
 }
 
@@ -99,7 +99,7 @@ char *Token=NULL;
     SetVar(Vars,ptr,URL);
     if (Flags & FLAG_DEBUG2) fprintf(stderr,"Extracted Item: [%s] [%s]\n",ptr,URL);
 
-DestroyString(Token);
+Destroy(Token);
 }
 
 
@@ -119,7 +119,7 @@ if (STREAMCheckForBytes(StdIn))
     result=TRUE;
   }
 }
-DestroyString(Tempstr);
+Destroy(Tempstr);
 
 return(result);
 }

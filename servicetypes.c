@@ -118,9 +118,9 @@ if (Type != TYPE_NONE) return(Type);
 ParseURL(URL,&Proto,&Server,&Tempstr,NULL,NULL,NULL,NULL);
 if (! StrValid(Server))
 {
-DestroyString(Proto);
-DestroyString(Server);
-DestroyString(Tempstr);
+Destroy(Proto);
+Destroy(Server);
+Destroy(Tempstr);
 return(TYPE_NONE);
 }
 
@@ -277,9 +277,9 @@ else if (strstr(Server,"screencast.com"))
 
 
 
-DestroyString(Server);
-DestroyString(Proto);
-DestroyString(Tempstr);
+Destroy(Server);
+Destroy(Proto);
+Destroy(Tempstr);
 
 return(Type);
 }
@@ -295,7 +295,8 @@ char *SiteSpecificPreprocessing(char *RetBuff, const char *Path, const char *Pro
 {
 char *Tempstr=NULL;
 char *NextPath=NULL;
-char *ptr, *Token=NULL;
+char *Token=NULL;
+const char *ptr;
 
 NextPath=CopyStr(RetBuff,Path);
 
@@ -324,9 +325,7 @@ case TYPE_YOUTUBE:
 	if (*Type == TYPE_YOUTUBE) 
 	{
 	//strip any http arguments 
-	ptr=strrchr(Token,'?');
-	if (ptr) *ptr='\0';
-
+	StrTruncChar(Token,'?');
 	NextPath=MCopyStr(NextPath,Proto,"://www.youtube.com/get_video_info?&video_id=",Token,"&el=detailpage&ps=default&eurl=&gl=US&hl=enB",NULL);
 	}
 
@@ -367,7 +366,7 @@ case TYPE_METACAFE:
 		{
 		//Initial 'turn off family filter'
 		Tempstr=FormatStr(Tempstr,"%s://%s:%d/f/index.php?inputType=filter&controllerGroup=user&filters=0&submit=Continue+-+I%27m+over+18",Proto,Server,Port);
-		S=HTTPMethod("POST",Tempstr,"","","","",0);
+		S=STREAMOpen(Tempstr,"w");
 		STREAMClose(S);
 
 		//But we have to do it twice, probably something to do with cookies
@@ -417,8 +416,8 @@ break;
 
 }
 
-DestroyString(Tempstr);
-DestroyString(Token);
+Destroy(Tempstr);
+Destroy(Token);
 
 return(NextPath);
 }
@@ -430,7 +429,8 @@ return(NextPath);
 //same video, but actual different videos) decide which one to get
 void HandleMultipleMedia(int Type, const char *Server, int Flags, ListNode *Vars, int MediaCount)
 { 
-char *Tempstr=NULL, *ptr;
+char *Tempstr=NULL;
+const char *ptr;
 int i, startpos, endpos;
 
 startpos=0;
@@ -486,7 +486,7 @@ endpos=MediaCount;
 		GrabMovie(ptr, TYPE_YOUTUBE);
 		}
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 }
 
 
@@ -499,7 +499,8 @@ DestroyString(Tempstr);
 
 int GetNextURL(int Type, const char *Server, int Flags, ListNode *Vars)
 {
-char *Tempstr=NULL, *Title=NULL, *Fmt=NULL, *ptr;
+char *Tempstr=NULL, *Title=NULL, *Fmt=NULL;
+const char *ptr;
 int RetVal=FALSE;
 STREAM *Con;
 
@@ -654,9 +655,9 @@ break;
 }
 
 
-DestroyString(Tempstr);
-DestroyString(Title);
-DestroyString(Fmt);
+Destroy(Tempstr);
+Destroy(Title);
+Destroy(Fmt);
 
 return(RetVal);
 }
@@ -684,9 +685,9 @@ char *Item=NULL, *Name=NULL, *Res=NULL;
 			}
 		}
 
-DestroyString(Item);
-DestroyString(Name);
-DestroyString(Res);
+Destroy(Item);
+Destroy(Name);
+Destroy(Res);
 }
 
 
@@ -703,8 +704,8 @@ int ExtractItemInfo(STREAM *S, int Type, const char *URL, const char *Title, int
 char *Tempstr=NULL, *Token=NULL, *VarName=NULL, *Server=NULL;
 char *Document=NULL;
 ListNode *Vars=NULL;
-const char *ptr, *remaining; 
-char *ptr2;
+const char *ptr, *remaining, *ptr2;
+ 
 int MediaCount=0, i, Port;
 int RetVal=FALSE, State=0;
 
@@ -1294,10 +1295,8 @@ if (strstr(Tempstr,IMDB_ITEMSTART))
 	Token=CopyStr(Token,GetVar(Vars,"ID"));
 	if (StrValid(Token))
 	{
-		ptr2=strchr(Token,'?');
-		if (ptr2) *ptr2='\0';
-		ptr2=strchr(Token,'/');
-		if (ptr2) *ptr2='\0';
+		StrTruncChar(Token, '?');
+		StrRTruncChar(Token, '/');
 		SetVar(Vars,"ID",Token);
 	}
 }
@@ -1385,7 +1384,7 @@ case TYPE_STANFORD_STAGE2:
 		ptr2=strrchr(Token,'/');
 		if (ptr2)
 		{
-			*ptr2='\0';
+			StrRTruncChar(Token, '/');
 			Token=MCatStr(Token,"/",GetVar(Vars,"ID"),NULL);
 			SetVar(Vars,"ID",Token);
 		}
@@ -1564,11 +1563,11 @@ else
 	}
 }
 
-ListDestroy(Vars,DestroyString);
+ListDestroy(Vars,Destroy);
 
-DestroyString(VarName);
-DestroyString(Token);
-DestroyString(Tempstr);
+Destroy(VarName);
+Destroy(Token);
+Destroy(Tempstr);
 
 return(RetVal);
 }
@@ -1614,13 +1613,13 @@ Type=TYPE_GENERIC;
 NextPath=SiteSpecificPreprocessing(NextPath, Path, Proto, Server, Port, Doc, &Type, &Title, &Flags);
 if (DownloadPage(NextPath, Type, Title, Flags)) RetVal=TRUE;
 
-DestroyString(Tempstr);
-DestroyString(Server);
-DestroyString(Doc);
-DestroyString(NextPath);
-DestroyString(Token);
-DestroyString(Title);
-DestroyString(Proto);
+Destroy(Tempstr);
+Destroy(Server);
+Destroy(Doc);
+Destroy(NextPath);
+Destroy(Token);
+Destroy(Title);
+Destroy(Proto);
 
 return(RetVal);
 }

@@ -117,9 +117,9 @@ if (! (Flags & FLAG_TEST_SITES))
 //+5 to get past leading 'item:' in variable name
 if (StrValid(Selected)) SetVar(Vars,"DownloadFormat",Selected+5);
 
-DestroyString(Selected);
-DestroyString(Tempstr);
-DestroyString(Fmt);
+Destroy(Selected);
+Destroy(Tempstr);
+Destroy(Fmt);
 return(RetVal);
 }
 

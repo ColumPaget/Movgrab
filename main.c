@@ -59,16 +59,17 @@ ParseCommandLine(argc, argv, DownloadQueue, &OverrideType);
 CheckSettings();
 if (StrValid(Settings.Proxy)) 
 {
-	if (strncmp(Settings.Proxy,"http:",5)==0) HTTPSetProxy(Settings.Proxy);
-	else if (strncmp(Settings.Proxy,"https:",6)==0) HTTPSetProxy(Settings.Proxy);
-	else if (! SetGlobalConnectionChain(Settings.Proxy))
+//	if (strncmp(Settings.Proxy,"http:",5)==0) HTTPSetProxy(Settings.Proxy);
+//	else if (strncmp(Settings.Proxy,"https:",6)==0) HTTPSetProxy(Settings.Proxy);
+//	else 
+	if (! SetGlobalConnectionChain(Settings.Proxy))
 	{
 		printf("ERROR: Failed to set proxy settings to '%s'\n",Settings.Proxy);
 		exit(1);
 	}
 }
 
-HTTPSetUserAgent(Settings.UserAgent);
+LibUsefulSetValue("HTTP:UserAgent", Settings.UserAgent);
 
 
 if (Flags & FLAG_PRINT_USAGE) PrintUsage();

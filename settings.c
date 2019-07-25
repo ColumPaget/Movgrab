@@ -140,8 +140,8 @@ Tempstr=STREAMReadLine(Tempstr, S);
 
 STREAMClose(S);
 
-DestroyString(Tempstr);
-DestroyString(Token);
+Destroy(Tempstr);
+Destroy(Token);
 
 return(TRUE);
 }
@@ -222,7 +222,7 @@ for (i=1; i < argc; i++)
 	}
 	else
 	{
-		ListAddItem(DL_List,CopyStr(NULL,argv[i]));
+		ListAddItem(DL_List, CopyStr(NULL,argv[i]));
 	}	
 
 }
@@ -251,7 +251,7 @@ if ((! isatty(1)) && (! (Flags & FLAG_STDOUT)))
 fprintf(stderr,"\nWARNING: Stdout does not seem to be a terminal, so it could be a pipe to another program.	But you've not used '-o -' or '+o -' to redirect output into a pipe. Hence output will be written to a file. If you're piping into a player app, and there's no sound/video, then you need to add '-o -'\n\n");
 }
 
-DestroyString(Token);
+Destroy(Token);
 }
 
 

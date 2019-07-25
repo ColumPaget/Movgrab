@@ -63,8 +63,8 @@ int GTF=0;
 		VarsAddDownloadItem(ItemName, Item, Vars, ExtractFlags);
 		}
 
-DestroyString(Token);
-DestroyString(Item);
+Destroy(Token);
+Destroy(Item);
 
 return(ptr);
 }

@@ -99,8 +99,8 @@ if (! (Flags & FLAG_RESUME))
 //Some stupid sites start pagenames with a space, and we don't want this in the filename
 StripLeadingWhitespace(RetStr);
 
-DestroyString(Tempstr);
-DestroyString(MD5);
+Destroy(Tempstr);
+Destroy(MD5);
 
 return(RetStr);
 }
@@ -168,7 +168,7 @@ S=STREAMFileOpen(Glob.gl_pathv[0],SF_RDONLY);
 
 globfree(&Glob);
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 
 return(S);
 }
@@ -224,7 +224,7 @@ if (! S)
 	exit(1);
 }
 
-DestroyString(Tempstr);
+Destroy(Tempstr);
 }
 
 
@@ -243,27 +243,35 @@ while (Curr)
 
 void CloseOutputFiles(char *Extn)
 {
-ListNode *Curr;
+ListNode *Curr, *Next;
 char *Tempstr=NULL;
 STREAM *S;
 
 Curr=ListGetNext(OutputFiles);
 while (Curr)
 {
-if ((Curr->Item) && (strcmp(Curr->Tag,"-") !=0))
-{
- S=(STREAM *) Curr->Item;
- if (! StrValid(Curr->Tag)) 
- {
-		Tempstr=MCopyStr(Tempstr,S->Path,Extn,NULL);
-		rename(S->Path,Tempstr);
- }
- STREAMClose(S);
+	Next=ListGetNext(Curr);
+	if ((! Curr->Tag) || (strcmp(Curr->Tag,"-") !=0))
+	{
+		S=(STREAM *) Curr->Item;
+		if (S)
+		{
+		 if (! StrValid(Curr->Tag)) 
+		 {
+				Tempstr=MCopyStr(Tempstr,S->Path,Extn,NULL);
+				rename(S->Path,Tempstr);
+		 }
+		 STREAMClose(S);
+		}
+		ListDeleteNode(Curr);
+	}
+	Curr=Next;
 }
-Curr=ListGetNext(Curr);
+
+Destroy(Tempstr);
 }
-DestroyString(Tempstr);
-}
+
+
 
 void AddOutputStream(const char *Path, STREAM *S)
 {

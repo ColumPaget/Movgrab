@@ -29,7 +29,7 @@ if (strcmp(Token,"reference") !=0)
 
 	if (ShowSize)
 	{
-	S=HTTPMethod("HEAD",URL,NULL,NULL,NULL,NULL,0);
+	S=STREAMOpen(URL, "H");
 	if (S)
 	{
 		Tempstr=CopyStr(Tempstr,STREAMGetValue(S,"HTTP:ResponseCode"));
@@ -49,10 +49,10 @@ ptr=GetToken(ptr," ",&Token,0);
 
 fprintf(stderr,"\n\n",Tempstr);
 
-DestroyString(Token);
-DestroyString(TokenID);
-DestroyString(Tempstr);
-DestroyString(URL);
+Destroy(Token);
+Destroy(TokenID);
+Destroy(Tempstr);
+Destroy(URL);
 
 return(result);
 }
@@ -62,7 +62,7 @@ void WriteNowPlayingFile(const char *Title)
 {
 STREAM *S;
 
-S=STREAMFileOpen(Settings.NowPlayingFile, SF_WRONLY | SF_CREAT | SF_TRUNC);
+S=STREAMOpen(Settings.NowPlayingFile, "w");
 if (S)
 {
 STREAMWriteLine(Title, S);
@@ -152,8 +152,8 @@ if (Now - SpeedStart > 5)
 LastDisplay=Now;
 }
 
-DestroyString(HUDocSize);
-DestroyString(BpsStr);
-DestroyString(Title);
+Destroy(HUDocSize);
+Destroy(BpsStr);
+Destroy(Title);
 }
 
