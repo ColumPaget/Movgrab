@@ -6,7 +6,7 @@ prefix=@prefix@
 bindir=$(prefix)@bindir@
 DESTDIR=
 FLAGS=$(CFLAGS) @DEFS@ 
-OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_text.o download.o display.o players.o selectformat.o ehow.o ign.o youtube.o 
+OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_text.o download.o display.o players.o selectformat.o youtube.o 
 
 all: $(OBJ)
 	@cd libUseful; $(MAKE)
@@ -26,12 +26,6 @@ containerfiles.o: containerfiles.c containerfiles.h
 
 outputfiles.o: outputfiles.c outputfiles.h
 	$(CC) $(FLAGS) -c outputfiles.c
-
-ehow.o: ehow.c ehow.h
-	$(CC) $(FLAGS) -c ehow.c
-
-ign.o: ign.c ign.h
-	$(CC) $(FLAGS) -c ign.c
 
 youtube.o: youtube.c youtube.h
 	$(CC) $(FLAGS) -c youtube.c

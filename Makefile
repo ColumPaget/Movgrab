@@ -6,7 +6,7 @@ prefix=/usr/local
 bindir=$(prefix)${exec_prefix}/bin
 DESTDIR=
 FLAGS=$(CFLAGS) -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -DHAVE_LIBZ=1 -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64 -DHAVE_LIBSSL=1 -DHAVE_LIBCRYPTO=1 
-OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_text.o download.o display.o players.o selectformat.o ehow.o youtube.o 
+OBJ=common.o settings.o containerfiles.o outputfiles.o servicetypes.o extract_text.o download.o display.o players.o selectformat.o youtube.o 
 
 all: $(OBJ)
 	@cd libUseful; $(MAKE)
@@ -26,9 +26,6 @@ containerfiles.o: containerfiles.c containerfiles.h
 
 outputfiles.o: outputfiles.c outputfiles.h
 	$(CC) $(FLAGS) -c outputfiles.c
-
-ehow.o: ehow.c ehow.h
-	$(CC) $(FLAGS) -c ehow.c
 
 youtube.o: youtube.c youtube.h
 	$(CC) $(FLAGS) -c youtube.c
