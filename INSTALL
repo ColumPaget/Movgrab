@@ -6,7 +6,7 @@ make install
 
 You can use the --prefix argument to ./configure to specify an install root e.g.
 
-./configure --prefix=/usr
+./configure --prefix=/usr --enable-ssl
 make
 make install
 
@@ -16,7 +16,7 @@ The default is /usr/local
 
 --enable-ssl
 
-Which  enables https for downloading (not often useful)
+Which  enables https for downloading (these days needed for many sites)
 
 and
 
